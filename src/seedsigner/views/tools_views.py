@@ -5,6 +5,9 @@ import time
 
 from gettext import gettext as _
 
+from embit import bip32
+from embit.networks import NETWORKS
+
 from seedsigner.gui.components import FontAwesomeIconConstants, GUIConstants, SeedSignerIconConstants, resize_image_to_fill
 from seedsigner.gui.screens import RET_CODE__BACK_BUTTON, ButtonListScreen
 from seedsigner.gui.screens.screen import ButtonOption
@@ -12,6 +15,8 @@ from seedsigner.helpers import mnemonic_generation
 from seedsigner.models.seed import Seed
 from seedsigner.models.settings_definition import SettingsConstants
 from seedsigner.views.seed_views import SeedDiscardView, SeedFinalizeView, SeedMnemonicEntryView, SeedOptionsView, SeedWordsWarningView, SeedExportXpubScriptTypeView
+
+from mweb.mweb import addresses as mweb_addresses
 
 from .view import View, Destination, BackStackView
 
@@ -574,6 +579,8 @@ class ToolsAddressExplorerAddressTypeView(View):
 
             if self.script_type == SettingsConstants.CUSTOM_DERIVATION:
                 derivation_path = self.custom_derivation
+            elif self.script_type == SettingsConstants.MWEB:
+                derivation_path = "m/1000'"
             elif seed_derivation_override:
                 derivation_path = seed_derivation_override
             else:
@@ -670,7 +677,15 @@ class ToolsAddressExplorerAddressListView(View):
 
                 if "xpub" in data:
                     # Single sig explore from seed
-                    if "script_type" in data and data["script_type"] != SettingsConstants.CUSTOM_DERIVATION:
+                    if "script_type" in data and data["script_type"] == SettingsConstants.MWEB:
+                        key = bip32.HDKey.from_seed(data["seed_num"].seed_bytes, version=NETWORKS[data["embit_network"]]["xprv"]).derive(data["derivation_path"])
+                        if self.is_change:
+                            addresses = mweb_addresses(key, 0, 1)
+                        else:
+                            addresses = mweb_addresses(key, self.start_index + 1, self.start_index + 1 + addrs_per_screen)
+                        for address in addresses:
+                            data[addr_storage_key].append(address)
+                    elif "script_type" in data and data["script_type"] != SettingsConstants.CUSTOM_DERIVATION:
                         # Standard derivation path
                         for i in range(self.start_index, self.start_index + addrs_per_screen):
                             address = embit_utils.get_single_sig_address(xpub=data["xpub"], script_type=data["script_type"], index=i, is_change=self.is_change, embit_network=data["embit_network"])

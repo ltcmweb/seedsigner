@@ -494,7 +494,7 @@ class PSBTMathScreen(ButtonListScreen):
             # lines up properly.
             self.fee_amount = f"{self.fee_amount:10}"
         else:
-            denomination = _("sats")
+            denomination = _("lits")
             self.input_amount = f"{self.input_amount:,}"
             self.spend_amount = f"{self.spend_amount:,}"
             self.fee_amount = f"{self.fee_amount:,}"
@@ -624,7 +624,7 @@ class PSBTAddressDetailsScreen(ButtonListScreen):
             width=self.canvas_width - 2*GUIConstants.EDGE_PADDING,
             screen_x=GUIConstants.EDGE_PADDING,
             screen_y=btc_amount.height + GUIConstants.COMPONENT_PADDING,
-            font_size=24,
+            font_size=16,
             address=self.address,
         )
 

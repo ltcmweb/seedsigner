@@ -19,6 +19,8 @@ from seedsigner.models.qr_type import QRType
 from seedsigner.models.seed import Seed
 from seedsigner.models.settings import SettingsConstants
 
+from mweb.psbt import Psbt as MwebPsbt
+
 
 logger = logging.getLogger(__name__)
 
@@ -151,6 +153,10 @@ class DecodeQR:
             if data != None:
                 try:
                     return psbt.PSBT.parse(data)
+                except:
+                    pass
+                try:
+                    return MwebPsbt.parse(data)
                 except:
                     return None
         return None
@@ -346,6 +352,9 @@ class DecodeQR:
 
             # PSBT
             if re.search("^UR:CRYPTO-PSBT/", s, re.IGNORECASE):
+                return QRType.PSBT__UR2
+
+            elif re.search("^UR:PSBT/", s, re.IGNORECASE):
                 return QRType.PSBT__UR2
 
             elif re.search("^UR:CRYPTO-OUTPUT/", s, re.IGNORECASE):

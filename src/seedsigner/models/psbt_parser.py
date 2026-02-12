@@ -11,6 +11,9 @@ from typing import List
 from seedsigner.models.seed import Seed
 from seedsigner.models.settings import SettingsConstants
 
+from mweb.mweb import addresses as mweb_addresses
+from mweb.psbt import Psbt as MwebPsbt
+
 logger = logging.getLogger(__name__)
 
 class OPCODES:
@@ -111,6 +114,12 @@ class PSBTParser():
             else:
                 if self.policy != inp_policy:
                     raise RuntimeError("Mixed inputs in the transaction")
+        if isinstance(self.psbt, MwebPsbt):
+            for x in self.psbt.info["recipient"]:
+                self.input_amount += int(x["value"])
+            self.input_amount += int(self.psbt.info["fee"])
+            self.num_inputs = len(self.psbt.info["inputAddress"])
+            self.policy = {"type": "mweb"}
 
     def _parse_outputs(self):
         self.spend_amount = 0
@@ -223,7 +232,26 @@ class PSBTParser():
                 self.destination_amounts.append(self.psbt.tx.vout[i].value)
                 self.spend_amount += self.psbt.tx.vout[i].value
 
-        self.fee_amount = self.psbt.fee()
+        if isinstance(self.psbt, MwebPsbt):
+            addrs = mweb_addresses(self.root.derive("m/1000'"), 0, 1000)
+            for i, x in enumerate(self.psbt.info["recipient"]):
+                if x["address"] in addrs:
+                    index = addrs.index(x["address"])
+                    self.change_data.append({
+                        "output_index": i,
+                        "address": x["address"],
+                        "amount": int(x["value"]),
+                        "fingerprint": [self.seed.get_fingerprint(self.network)],
+                        "derivation_path": [f"0/{index-1}" if index else "1/0"],
+                    })
+                    self.change_amount += int(x["value"])
+                else:
+                    self.destination_addresses.append(x["address"])
+                    self.destination_amounts.append(int(x["value"]))
+                    self.spend_amount += int(x["value"])
+            self.fee_amount = int(self.psbt.info["fee"])
+        else:
+            self.fee_amount = self.psbt.fee()
         return True
 
 

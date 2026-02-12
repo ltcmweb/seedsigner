@@ -6,6 +6,8 @@ from seedsigner.gui.components import FontAwesomeIconConstants, SeedSignerIconCo
 from seedsigner.gui.screens.screen import (RET_CODE__BACK_BUTTON, ButtonListScreen, ButtonOption, WarningScreen, DireWarningScreen, QRDisplayScreen)
 from seedsigner.views.view import BackStackView, MainMenuView, NotYetImplementedView, View, Destination
 
+from mweb.psbt import Psbt as MwebPsbt
+
 
 
 class PSBTSelectSeedView(View):
@@ -365,6 +367,10 @@ class PSBTChangeDetailsView(View):
                 # Have the Screen offer to load in the multisig descriptor.            
                 button_data = [self.VERIFY_MULTISIG, self.SKIP_VERIFICATION]
 
+        elif change_data["address"].startswith("ltcmweb1"):
+            is_change_addr_verified = True
+            button_data = [self.NEXT]
+
         else:
             # Single sig
             try:
@@ -536,6 +542,10 @@ class PSBTFinalizeView(View):
 
         if selected_menu_num == RET_CODE__BACK_BUTTON:
             return Destination(BackStackView)
+
+        elif isinstance(psbt, MwebPsbt):
+            psbt.sign(psbt_parser.root.derive("m/1000'"))
+            return Destination(PSBTSignedQRDisplayView)
 
         else:
             # Sign PSBT
