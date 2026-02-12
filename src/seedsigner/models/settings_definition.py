@@ -287,12 +287,14 @@ class SettingsConstants:
     NATIVE_SEGWIT = "nat"
     NESTED_SEGWIT = "nes"
     TAPROOT = "tr"
+    MWEB = "mweb"
     CUSTOM_DERIVATION = "cus"
     ALL_SCRIPT_TYPES = [
         (NATIVE_SEGWIT, _mft("Native Segwit")),
         (NESTED_SEGWIT, _mft("Nested Segwit")),
         (LEGACY_P2PKH, _mft("Legacy")),
         (TAPROOT, _mft("Taproot")),
+        (MWEB, _mft("MWEB")),
         (CUSTOM_DERIVATION, _mft("Custom Derivation")),
     ]
 
@@ -618,7 +620,7 @@ class SettingsDefinition:
                       type=SettingsConstants.TYPE__MULTISELECT,
                       visibility=SettingsConstants.VISIBILITY__ADVANCED,
                       selection_options=SettingsConstants.ALL_SCRIPT_TYPES,
-                      default_value=[SettingsConstants.NATIVE_SEGWIT, SettingsConstants.NESTED_SEGWIT, SettingsConstants.TAPROOT]),
+                      default_value=[SettingsConstants.NATIVE_SEGWIT, SettingsConstants.NESTED_SEGWIT, SettingsConstants.TAPROOT, SettingsConstants.MWEB]),
 
         SettingsEntry(category=SettingsConstants.CATEGORY__FEATURES,
                       attr_name=SettingsConstants.SETTING__XPUB_QR_FORMAT,

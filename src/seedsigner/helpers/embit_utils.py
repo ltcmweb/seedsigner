@@ -9,6 +9,13 @@ from embit.descriptor import Descriptor
 from embit.networks import NETWORKS
 from embit.util import secp256k1
 
+NETWORKS["main"].update({
+    "wif": b"\xb0",
+    "p2pkh": b"\x30",
+    "p2sh": b"\x32",
+    "bech32": "ltc",
+})
+
 
 from seedsigner.models.settings_definition import SettingsConstants
 
@@ -22,7 +29,7 @@ from seedsigner.models.settings_definition import SettingsConstants
 # TODO: Refactor `wallet_type` to conform to our `sig_type` naming convention
 def get_standard_derivation_path(network: str = SettingsConstants.MAINNET, wallet_type: str = SettingsConstants.SINGLE_SIG, script_type: str = SettingsConstants.NATIVE_SEGWIT) -> str:
     if network == SettingsConstants.MAINNET:
-        network_path = "0'"
+        network_path = "2'"
     elif network == SettingsConstants.TESTNET:
         network_path = "1'"
     elif network == SettingsConstants.REGTEST:

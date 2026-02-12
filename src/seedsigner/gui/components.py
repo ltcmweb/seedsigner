@@ -1109,8 +1109,8 @@ class BtcAmount(BaseComponent):
         # TRANSLATOR_NOTE: Testnet sats
         sats_unit = _("tSats")
         if network == SettingsConstants.MAINNET:
-            btc_unit = _("btc")
-            sats_unit = _("sats")
+            btc_unit = _("ltc")
+            sats_unit = _("lits")
             btc_color = GUIConstants.ACCENT_COLOR
 
         elif network == SettingsConstants.TESTNET:
