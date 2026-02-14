@@ -51,3 +51,8 @@ def psbt_sign_pkh(psbtB64, key, index):
         "PrivKey": b64(key),
         "Index": index,
     })["PsbtB64"]
+
+def psbt_finalize(psbtB64):
+    return do_req(lib.PsbtFinalize, {
+        "PsbtB64": psbtB64,
+    })["PsbtB64"]

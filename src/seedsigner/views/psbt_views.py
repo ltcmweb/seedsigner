@@ -1,3 +1,4 @@
+from base64 import b64decode
 from gettext import gettext as _
 
 from seedsigner.models.psbt_parser import PSBTParser
@@ -6,6 +7,7 @@ from seedsigner.gui.components import FontAwesomeIconConstants, SeedSignerIconCo
 from seedsigner.gui.screens.screen import (RET_CODE__BACK_BUTTON, ButtonListScreen, ButtonOption, WarningScreen, DireWarningScreen, QRDisplayScreen)
 from seedsigner.views.view import BackStackView, MainMenuView, NotYetImplementedView, View, Destination
 
+from mweb.mweb import psbt_finalize
 from mweb.psbt import Psbt as MwebPsbt
 
 
@@ -556,6 +558,10 @@ class PSBTFinalizeView(View):
             # Sign PSBT
             sig_cnt = PSBTParser.sig_count(psbt)
             psbt.sign_with(psbt_parser.root)
+            try:
+                psbt = PSBT.parse(b64decode(psbt_finalize(psbt.to_string())))
+            except Exception:
+                pass
             trimmed_psbt = PSBTParser.trim(psbt)
 
             if sig_cnt == PSBTParser.sig_count(trimmed_psbt):

@@ -309,6 +309,36 @@ func PsbtSignPKH(s *C.char) *C.char {
 	return C.CString(string(b))
 }
 
+//export PsbtFinalize
+func PsbtFinalize(s *C.char) *C.char {
+	var req struct {
+		PsbtB64 string `json:""`
+	}
+	var resp struct {
+		PsbtB64 string `json:""`
+	}
+
+	if err := json.Unmarshal([]byte(C.GoString(s)), &req); err != nil {
+		return C.CString(err.Error())
+	}
+
+	p, err := psbt.NewFromRawBytes(strings.NewReader(req.PsbtB64), true)
+	if err != nil {
+		return C.CString(err.Error())
+	}
+
+	if err = psbt.MaybeFinalizeAll(p); err != nil {
+		return C.CString(err.Error())
+	}
+
+	if resp.PsbtB64, err = p.B64Encode(); err != nil {
+		return C.CString(err.Error())
+	}
+
+	b, _ := json.Marshal(&resp)
+	return C.CString(string(b))
+}
+
 //export FreeCString
 func FreeCString(s *C.char) {
 	C.free(unsafe.Pointer(s))
