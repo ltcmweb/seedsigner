@@ -544,7 +544,12 @@ class PSBTFinalizeView(View):
             return Destination(BackStackView)
 
         elif isinstance(psbt, MwebPsbt):
+            from seedsigner.helpers import embit_utils
+            derivation_path = embit_utils.get_standard_derivation_path(
+                network=self.settings.get_value(SettingsConstants.SETTING__NETWORK),
+            )
             psbt.sign(psbt_parser.root.derive("m/1000'"))
+            psbt.sign_pkh(psbt_parser.root.derive(derivation_path))
             return Destination(PSBTSignedQRDisplayView)
 
         else:

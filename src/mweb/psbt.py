@@ -14,8 +14,17 @@ class Psbt:
     def sign(self, key):
         self.b64 = psbt_sign(self.b64, key)
 
-    def sign_non_mweb(self, key, i):
-        self.b64 = psbt_sign_non_mweb(self.b64, key, i)
+    def sign_pkh(self, key):
+        recv = addresses_pkh(key.child(0).to_string(), 0, 2000)
+        chng = addresses_pkh(key.child(1).to_string(), 0, 2000)
+        for i, addr in enumerate(self.info["InputAddress"]):
+            k = None
+            if addr in recv:
+                k = key.child(0).child(recv.index(addr))
+            elif addr in chng:
+                k = key.child(1).child(chng.index(addr))
+            if k:
+                self.b64 = psbt_sign_pkh(self.b64, k.key.secret, i)
 
     def serialize(self):
         return b64decode(self.b64)
