@@ -13,6 +13,7 @@ import (
 	"github.com/ltcmweb/ltcd/btcec/v2"
 	"github.com/ltcmweb/ltcd/chaincfg"
 	"github.com/ltcmweb/ltcd/ltcutil"
+	"github.com/ltcmweb/ltcd/ltcutil/hdkeychain"
 	"github.com/ltcmweb/ltcd/ltcutil/mweb"
 	"github.com/ltcmweb/ltcd/ltcutil/mweb/mw"
 	"github.com/ltcmweb/ltcd/ltcutil/psbt"
@@ -45,6 +46,40 @@ func Addresses(s *C.char) *C.char {
 
 	for i := req.FromIndex; i < req.ToIndex; i++ {
 		addr := ltcutil.NewAddressMweb(keychain.Address(i), &cp)
+		resp.Address = append(resp.Address, addr.String())
+	}
+
+	b, _ := json.Marshal(&resp)
+	return C.CString(string(b))
+}
+
+//export AddressesPKH
+func AddressesPKH(s *C.char) *C.char {
+	var req struct {
+		XPub      string `json:""`
+		FromIndex uint32 `json:""`
+		ToIndex   uint32 `json:""`
+	}
+	var resp struct {
+		Address []string `json:""`
+	}
+
+	if err := json.Unmarshal([]byte(C.GoString(s)), &req); err != nil {
+		return C.CString(err.Error())
+	}
+
+	key, err := hdkeychain.NewKeyFromString(req.XPub)
+	if err != nil {
+		return C.CString(err.Error())
+	}
+
+	for i := req.FromIndex; i < req.ToIndex; i++ {
+		key, err := key.Derive(i)
+		if err != nil {
+			return C.CString(err.Error())
+		}
+		a, _ := key.Address(&cp)
+		addr, _ := ltcutil.NewAddressWitnessPubKeyHash(a.ScriptAddress(), &cp)
 		resp.Address = append(resp.Address, addr.String())
 	}
 
@@ -211,8 +246,8 @@ func PsbtSign(s *C.char) *C.char {
 	return C.CString(string(b))
 }
 
-//export PsbtSignNonMweb
-func PsbtSignNonMweb(s *C.char) *C.char {
+//export PsbtSignPKH
+func PsbtSignPKH(s *C.char) *C.char {
 	var req struct {
 		PsbtB64 string `json:""`
 		PrivKey []byte `json:""`
