@@ -11,7 +11,7 @@ from typing import List
 from seedsigner.models.seed import Seed
 from seedsigner.models.settings import SettingsConstants
 
-from mweb.mweb import addresses as mweb_addresses
+from mweb.mweb import addresses as mweb_addresses, addresses_pkh
 from mweb.psbt import Psbt as MwebPsbt
 
 logger = logging.getLogger(__name__)
@@ -459,6 +459,10 @@ class PSBTParser():
         """
         if not self.root:
             return 0
+
+        standard_derivation = "m/84'/2'/0'"
+        recv_addrs = addresses_pkh(self.root.derive(standard_derivation + "/0").to_string(), 0, 2000)
+        chng_addrs = addresses_pkh(self.root.derive(standard_derivation + "/1").to_string(), 0, 2000)
         
         def _fill_scope(scope: InputScope | OutputScope):
             """Helper function to fill missing fingerprints in a scope (input/output)"""
@@ -493,6 +497,20 @@ class PSBTParser():
                 if new_derivation:
                     scope.taproot_bip32_derivations[public_key] = (leaf_hashes, new_derivation)
                     logger.debug(f"Filled missing fingerprint for pubkey {public_key.sec().hex()} derivation {bip32.path_to_str(derivation_path_obj.derivation)}")
+
+            # Add BIP32 derivations if missing
+            if not scope.bip32_derivations and not scope.taproot_bip32_derivations:
+                derivation = None
+                addr = scope.script_pubkey.address()
+                if addr in recv_addrs:
+                    derivation = f"{standard_derivation}/0/{recv_addrs.index(addr)}"
+                elif addr in chng_addrs:
+                    derivation = f"{standard_derivation}/1/{chng_addrs.index(addr)}"
+                if derivation:
+                    derivation = bip32.parse_path(derivation)
+                    public_key = self.root.derive(derivation).key.to_public()
+                    derivation_path_obj = DerivationPath(signing_seed_fingerprint, derivation)
+                    scope.bip32_derivations[public_key] = derivation_path_obj
 
         for inp in self.psbt.inputs:
             _fill_scope(inp)
