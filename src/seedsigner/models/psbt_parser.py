@@ -11,7 +11,7 @@ from typing import List
 from seedsigner.models.seed import Seed
 from seedsigner.models.settings import SettingsConstants
 
-from mweb.mweb import addresses as mweb_addresses, addresses_pkh
+from mweb.mweb import addresses as mweb_addresses, addresses_pub_key_hash
 from mweb.psbt import Psbt as MwebPsbt
 
 logger = logging.getLogger(__name__)
@@ -461,8 +461,8 @@ class PSBTParser():
             return 0
 
         standard_derivation = "m/84'/2'/0'"
-        recv_addrs = addresses_pkh(self.root.derive(standard_derivation + "/0").to_string(), 0, 2000)
-        chng_addrs = addresses_pkh(self.root.derive(standard_derivation + "/1").to_string(), 0, 2000)
+        recv_addrs = addresses_pub_key_hash(self.root.derive(standard_derivation + "/0").to_string(), 0, 2000)
+        chng_addrs = addresses_pub_key_hash(self.root.derive(standard_derivation + "/1").to_string(), 0, 2000)
         
         def _fill_scope(scope: InputScope | OutputScope):
             """Helper function to fill missing fingerprints in a scope (input/output)"""
