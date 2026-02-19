@@ -551,7 +551,7 @@ class PSBTFinalizeView(View):
                 network=self.settings.get_value(SettingsConstants.SETTING__NETWORK),
             )
             psbt.sign(psbt_parser.root.derive("m/1000'"))
-            psbt.sign_pkh(psbt_parser.root.derive(derivation_path))
+            psbt.sign_pub_key_hash(psbt_parser.root.derive(derivation_path))
             return Destination(PSBTSignedQRDisplayView)
 
         else:
