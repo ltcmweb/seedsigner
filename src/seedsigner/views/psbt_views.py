@@ -571,7 +571,7 @@ class PSBTFinalizeView(View):
                 return Destination(PSBTSigningErrorView)
             
             else:
-                self.controller.psbt = trimmed_psbt
+                self.controller.psbt = psbt
                 return Destination(PSBTSignedQRDisplayView)
 
 
