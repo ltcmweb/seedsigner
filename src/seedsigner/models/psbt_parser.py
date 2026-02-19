@@ -233,18 +233,29 @@ class PSBTParser():
                 self.spend_amount += self.psbt.tx.vout[i].value
 
         if isinstance(self.psbt, MwebPsbt):
-            addrs = mweb_addresses(self.root.derive("m/1000'"), 0, 1000)
+            from seedsigner.helpers.embit_utils import get_standard_derivation_path
+            derivation_path = get_standard_derivation_path(network=self.network)
+            acct = self.root.derive(derivation_path)
+            recv_addrs = addresses_pub_key_hash(acct.child(0).to_string(), 0, 2000)
+            chng_addrs = addresses_pub_key_hash(acct.child(1).to_string(), 0, 2000)
+            mweb_addrs = mweb_addresses(self.root.derive("m/1000'"), 0, 1000)
             for i, x in enumerate(self.psbt.info["Recipient"]):
-                if x["Address"] in addrs:
-                    index = addrs.index(x["Address"])
+                def add_change(derivation_path):
                     self.change_data.append({
                         "output_index": i,
                         "address": x["Address"],
                         "amount": int(x["Value"]),
                         "fingerprint": [self.seed.get_fingerprint(self.network)],
-                        "derivation_path": [f"0/{index-1}" if index else "1/0"],
+                        "derivation_path": [derivation_path],
                     })
                     self.change_amount += int(x["Value"])
+                if x["Address"] in recv_addrs:
+                    add_change(f"{derivation_path}/0/{recv_addrs.index(x["Address"])}")
+                elif x["Address"] in chng_addrs:
+                    add_change(f"{derivation_path}/1/{chng_addrs.index(x["Address"])}")
+                elif x["Address"] in mweb_addrs:
+                    index = mweb_addrs.index(x["Address"])
+                    add_change(f"0/{index-1}" if index else "1/0")
                 else:
                     self.destination_addresses.append(x["Address"])
                     self.destination_amounts.append(int(x["Value"]))
