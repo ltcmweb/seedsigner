@@ -155,7 +155,7 @@ class LoadingScreenThread(BaseThread):
         )
         position = 0
         arc_sweep = 45
-        arc_color = "#ff9416"
+        arc_color = "#345d9d"
         arc_trailing_color = "#80490b"
 
         # Need to flush the screen
