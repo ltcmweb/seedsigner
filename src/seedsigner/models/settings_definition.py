@@ -213,15 +213,15 @@ class SettingsConstants:
         return detected_languages
 
 
-    BTC_DENOMINATION__BTC = "btc"
-    BTC_DENOMINATION__SATS = "sats"
+    BTC_DENOMINATION__BTC = "ltc"
+    BTC_DENOMINATION__SATS = "lits"
     BTC_DENOMINATION__THRESHOLD = "thr"
     BTC_DENOMINATION__BTCSATSHYBRID = "hyb"
     ALL_BTC_DENOMINATIONS = [
-        (BTC_DENOMINATION__BTC, _mft("BTC")),
-        (BTC_DENOMINATION__SATS, _mft("sats")),
+        (BTC_DENOMINATION__BTC, _mft("LTC")),
+        (BTC_DENOMINATION__SATS, _mft("lits")),
         (BTC_DENOMINATION__THRESHOLD, _mft("Threshold at 0.01")),
-        (BTC_DENOMINATION__BTCSATSHYBRID, _mft("BTC | sats hybrid")),
+        (BTC_DENOMINATION__BTCSATSHYBRID, _mft("LTC | lits hybrid")),
     ]
 
     CAMERA_ROTATION__0 = 0
@@ -588,7 +588,7 @@ class SettingsDefinition:
         # Advanced options
         SettingsEntry(category=SettingsConstants.CATEGORY__FEATURES,
                       attr_name=SettingsConstants.SETTING__NETWORK,
-                      display_name=_mft("Bitcoin network"),
+                      display_name=_mft("Litecoin network"),
                       type=SettingsConstants.TYPE__SELECT_1,
                       visibility=SettingsConstants.VISIBILITY__ADVANCED,
                       selection_options=SettingsConstants.ALL_NETWORKS,
