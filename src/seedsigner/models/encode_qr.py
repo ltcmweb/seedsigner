@@ -184,6 +184,24 @@ class StaticXpubQrEncoder(BaseXpubQrEncoder, BaseStaticQrEncoder):
 
 
 
+class CakeWalletXpubQrEncoder(BaseXpubQrEncoder, BaseStaticQrEncoder):
+    def __post_init__(self):
+        super().__post_init__()
+        from seedsigner.helpers.embit_utils import get_standard_derivation_path
+        self.derivation = get_standard_derivation_path(network=self.network, wallet_type=self.sig_type, script_type=SettingsConstants.NATIVE_SEGWIT)
+        self.prep_xpub()
+        self.Ltub = self.xpub.to_string(version=b"\x01\x9d\xa4\x62")
+        self.derivation = get_standard_derivation_path(network=self.network, wallet_type=self.sig_type, script_type=SettingsConstants.MWEB)
+        self.prep_xpub()
+        self.scan_secret = self.xprv.child(0x80000000).key.secret.hex()
+        self.spend_pubkey = self.xprv.child(0x80000001).key.sec().hex()
+
+
+    def next_part(self):
+        return f"litecoin:?label=SeedSigner+{self.fingerprint.hex()}&xpub={self.Ltub}&scan_secret={self.scan_secret}&spend_pubkey={self.spend_pubkey}"
+
+
+
 """**************************************************************************************
     Simple animated QR encoders
 **************************************************************************************"""

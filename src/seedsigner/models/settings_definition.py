@@ -42,6 +42,7 @@ class SettingsConstants:
     XPUB_QR_FORMAT__UR_CRYPTO_ACCOUNT = "urca"
     XPUB_QR_FORMAT__STATIC = "sta"
     XPUB_QR_FORMAT__SPECTER_LEGACY = "spl"
+    XPUB_QR_FORMAT__CAKE_WALLET = "cake"
     ALL_XPUB_QR_FORMATS = [
         # TRANSLATOR_NOTE: QR code format option; "default" = this is the format most wallets use
         (XPUB_QR_FORMAT__UR_CRYPTO_ACCOUNT, _mft("Animated (default)")),
@@ -51,6 +52,9 @@ class SettingsConstants:
 
         # TRANSLATOR_NOTE: QR code format option: old format that Specter Desktop used to use
         (XPUB_QR_FORMAT__SPECTER_LEGACY, _mft("Specter legacy")),
+
+        # TRANSLATOR_NOTE: QR code format option: Cake Wallet
+        (XPUB_QR_FORMAT__CAKE_WALLET, _mft("Cake Wallet")),
     ]
 
     # Over-specifying current and possible future locales to reduce/eliminate main repo
@@ -631,6 +635,7 @@ class SettingsDefinition:
                       default_value=[
                             SettingsConstants.XPUB_QR_FORMAT__UR_CRYPTO_ACCOUNT,
                             SettingsConstants.XPUB_QR_FORMAT__STATIC,
+                            SettingsConstants.XPUB_QR_FORMAT__CAKE_WALLET,
                       ]),
 
         SettingsEntry(category=SettingsConstants.CATEGORY__FEATURES,
