@@ -579,8 +579,6 @@ class ToolsAddressExplorerAddressTypeView(View):
 
             if self.script_type == SettingsConstants.CUSTOM_DERIVATION:
                 derivation_path = self.custom_derivation
-            elif self.script_type == SettingsConstants.MWEB:
-                derivation_path = "m/1000'"
             elif seed_derivation_override:
                 derivation_path = seed_derivation_override
             else:

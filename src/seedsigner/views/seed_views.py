@@ -5,7 +5,9 @@ import time
 from binascii import hexlify
 from gettext import gettext as _
 
+from embit import bip32
 from embit.descriptor import Descriptor
+from embit.networks import NETWORKS
 
 from seedsigner.gui.components import FontAwesomeIconConstants, SeedSignerIconConstants
 from seedsigner.gui.screens import (RET_CODE__BACK_BUTTON, ButtonListScreen,
@@ -18,6 +20,8 @@ from seedsigner.models.settings import Settings, SettingsConstants
 from seedsigner.models.settings_definition import SettingsDefinition
 from seedsigner.models.threads import BaseThread, ThreadsafeCounter
 from seedsigner.views.view import NotYetImplementedView, OptionDisabledView, View, Destination, BackStackView, MainMenuView
+
+from mweb.mweb import addresses as mweb_addresses
 
 logger = logging.getLogger(__name__)
 
@@ -1766,6 +1770,10 @@ class AddressVerificationStartView(View):
             sig_type = SettingsConstants.SINGLE_SIG
             destination = Destination(SeedSelectSeedView, view_args=dict(flow=Controller.FLOW__VERIFY_SINGLESIG_ADDR), skip_current_view=True)
 
+        elif self.controller.unverified_address["script_type"] == SettingsConstants.MWEB:
+            sig_type = SettingsConstants.SINGLE_SIG
+            destination = Destination(SeedSelectSeedView, view_args=dict(flow=Controller.FLOW__VERIFY_SINGLESIG_ADDR), skip_current_view=True)
+
         derivation_path = embit_utils.get_standard_derivation_path(
             network=self.controller.unverified_address["network"],
             wallet_type=sig_type,
@@ -1987,6 +1995,13 @@ class SeedAddressVerificationView(View):
                 if self.descriptor:
                     receive_address = embit_utils.get_multisig_address(descriptor=self.descriptor, index=i, is_change=False, embit_network=self.embit_network)
                     change_address = embit_utils.get_multisig_address(descriptor=self.descriptor, index=i, is_change=True, embit_network=self.embit_network)
+
+                elif self.script_type == SettingsConstants.MWEB:
+                    if i % 1000 == 0:
+                        root = bip32.HDKey.from_seed(self.seed.seed_bytes, version=NETWORKS[self.embit_network]["xprv"]).derive(self.derivation_path)
+                        mweb_addrs = mweb_addresses(root, i + 1, i + 1001)
+                        change_address = mweb_addresses(root, 0, 1)[0]
+                    receive_address = mweb_addrs[i % 1000]
 
                 else:
                     receive_address = embit_utils.get_single_sig_address(xpub=self.xpub, script_type=self.script_type, index=i, is_change=False, embit_network=self.embit_network)
