@@ -482,7 +482,7 @@ class PSBTMathScreen(ButtonListScreen):
         super().__post_init__()
 
         if self.input_amount > 1e6:
-            denomination = _("btc")
+            denomination = _("ltc")
             self.input_amount /= 1e8
             self.spend_amount /= 1e8
             self.change_amount /= 1e8
@@ -536,7 +536,7 @@ class PSBTMathScreen(ButtonListScreen):
             # secondary_digit_color = GUIConstants.BODY_FONT_COLOR
             # tertiary_digit_color = GUIConstants.BODY_FONT_COLOR
             # digit_group_spacing = 0
-            if denomination == _('btc'):
+            if denomination == _('ltc'):
                 display_str = amount_str
                 main_zone = display_str[:-6]
                 mid_zone = display_str[-6:-3]
@@ -584,7 +584,7 @@ class PSBTMathScreen(ButtonListScreen):
             f" {self.change_amount}",
             # TRANSLATOR_NOTE: Denonination is inserted (e.g. your "btc change" or "sats change")
             info_text=_("{} change").format(denomination),
-            info_text_color="darkorange"  # super-sampling alters the perceived color
+            info_text_color="#345D9D"  # super-sampling alters the perceived color
         )
 
         # Resize to target and sharpen final image
