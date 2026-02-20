@@ -13,7 +13,7 @@ from seedsigner.gui.components import FontAwesomeIconConstants, SeedSignerIconCo
 from seedsigner.gui.screens import (RET_CODE__BACK_BUTTON, ButtonListScreen,
     WarningScreen, DireWarningScreen, seed_screens)
 from seedsigner.gui.screens.screen import ButtonOption, ButtonOptionWithoutTranslation
-from seedsigner.models.encode_qr import CompactSeedQrEncoder, GenericStaticQrEncoder, SeedQrEncoder, SpecterLegacyXPubQrEncoder, StaticXpubQrEncoder, UrXpubQrEncoder
+from seedsigner.models.encode_qr import CakeWalletXpubQrEncoder, CompactSeedQrEncoder, GenericStaticQrEncoder, SeedQrEncoder, SpecterLegacyXPubQrEncoder, StaticXpubQrEncoder, UrXpubQrEncoder
 from seedsigner.models.qr_type import QRType
 from seedsigner.models.seed import Seed
 from seedsigner.models.settings import Settings, SettingsConstants
@@ -985,6 +985,9 @@ class SeedExportXpubQRDisplayView(View):
 
         elif xpub_qr_format == SettingsConstants.XPUB_QR_FORMAT__SPECTER_LEGACY:
             self.qr_encoder = SpecterLegacyXPubQrEncoder(**encoder_args)
+
+        elif xpub_qr_format == SettingsConstants.XPUB_QR_FORMAT__CAKE_WALLET:
+            self.qr_encoder = CakeWalletXpubQrEncoder(**encoder_args)
 
         else:
             # Default: UR crypto-address
