@@ -46,6 +46,8 @@ def get_standard_derivation_path(network: str = SettingsConstants.MAINNET, walle
             return f"m/84'/{network_path}/0'"
         elif script_type == SettingsConstants.TAPROOT:
             return f"m/86'/{network_path}/0'"
+        elif script_type == SettingsConstants.MWEB:
+            return f"m/1000'"
         else:
             raise Exception("Unexpected script type")
 
@@ -58,6 +60,8 @@ def get_standard_derivation_path(network: str = SettingsConstants.MAINNET, walle
             return f"m/48'/{network_path}/0'/2'"
         elif script_type == SettingsConstants.TAPROOT:
             raise Exception("Taproot multisig not yet supported")
+        elif script_type == SettingsConstants.MWEB:
+            raise Exception("MWEB multisig not yet supported")
         else:
             raise Exception("Unexpected script type")
     else:
