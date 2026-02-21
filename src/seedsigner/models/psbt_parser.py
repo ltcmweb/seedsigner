@@ -236,9 +236,9 @@ class PSBTParser():
             from seedsigner.helpers.embit_utils import get_standard_derivation_path
             derivation_path = get_standard_derivation_path(network=self.network)
             acct = self.root.derive(derivation_path)
-            recv_addrs = addresses_pub_key_hash(acct.child(0).to_string(), 0, 2000)
-            chng_addrs = addresses_pub_key_hash(acct.child(1).to_string(), 0, 2000)
-            mweb_addrs = mweb_addresses(self.root.derive("m/1000'"), 0, 1000)
+            recv_addrs = addresses_pub_key_hash(acct.child(0).to_string())
+            chng_addrs = addresses_pub_key_hash(acct.child(1).to_string())
+            mweb_addrs = mweb_addresses(self.root.derive("m/1000'"), 0, 200)
             for i, x in enumerate(self.psbt.info["Recipient"]):
                 def add_change(derivation_path):
                     self.change_data.append({
@@ -472,8 +472,8 @@ class PSBTParser():
             return 0
 
         standard_derivation = "m/84'/2'/0'"
-        recv_addrs = addresses_pub_key_hash(self.root.derive(standard_derivation + "/0").to_string(), 0, 2000)
-        chng_addrs = addresses_pub_key_hash(self.root.derive(standard_derivation + "/1").to_string(), 0, 2000)
+        recv_addrs = addresses_pub_key_hash(self.root.derive(standard_derivation + "/0").to_string())
+        chng_addrs = addresses_pub_key_hash(self.root.derive(standard_derivation + "/1").to_string())
         
         def _fill_scope(scope: InputScope | OutputScope):
             """Helper function to fill missing fingerprints in a scope (input/output)"""

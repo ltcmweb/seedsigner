@@ -2000,11 +2000,11 @@ class SeedAddressVerificationView(View):
                     change_address = embit_utils.get_multisig_address(descriptor=self.descriptor, index=i, is_change=True, embit_network=self.embit_network)
 
                 elif self.script_type == SettingsConstants.MWEB:
-                    if i % 1000 == 0:
+                    if i % 100 == 0:
                         root = bip32.HDKey.from_seed(self.seed.seed_bytes, version=NETWORKS[self.embit_network]["xprv"]).derive(self.derivation_path)
-                        mweb_addrs = mweb_addresses(root, i + 1, i + 1001)
+                        mweb_addrs = mweb_addresses(root, i + 1, i + 101)
                         change_address = mweb_addresses(root, 0, 1)[0]
-                    receive_address = mweb_addrs[i % 1000]
+                    receive_address = mweb_addrs[i % 100]
 
                 else:
                     receive_address = embit_utils.get_single_sig_address(xpub=self.xpub, script_type=self.script_type, index=i, is_change=False, embit_network=self.embit_network)
