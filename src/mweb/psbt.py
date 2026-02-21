@@ -15,8 +15,8 @@ class Psbt:
         self.b64 = psbt_sign(self.b64, key)
 
     def sign_pub_key_hash(self, key):
-        recv = addresses_pub_key_hash(key.child(0).to_string(), 0, 2000)
-        chng = addresses_pub_key_hash(key.child(1).to_string(), 0, 2000)
+        recv = addresses_pub_key_hash(key.child(0).to_string())
+        chng = addresses_pub_key_hash(key.child(1).to_string())
         for i, addr in enumerate(self.info["InputAddress"]):
             k = None
             if addr in recv:

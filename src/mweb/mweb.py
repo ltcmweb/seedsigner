@@ -26,7 +26,7 @@ def addresses(key, i, j):
         "To": j,
     })["Address"]
 
-def addresses_pub_key_hash(xpub, i, j):
+def addresses_pub_key_hash(xpub, i=0, j=500):
     return do_req(lib.AddressesPubKeyHash, {
         "XPub": xpub,
         "From": i,
