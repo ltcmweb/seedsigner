@@ -4,7 +4,11 @@ from functools import lru_cache
 import json
 import os
 
-lib = cdll.LoadLibrary(os.path.join(os.path.dirname(__file__), 'mweb'))
+try:
+    lib = cdll.LoadLibrary(os.path.join(os.path.dirname(__file__), 'mweb'))
+except OSError:
+    lib = cdll.LoadLibrary(os.path.join(os.path.dirname(__file__), 'mweb-arm'))
+
 lib.FreeCString.argtypes = [c_void_p]
 
 def do_req(f, req):
