@@ -1,5 +1,6 @@
 from base64 import b64encode
 from ctypes import *
+from functools import lru_cache
 import json
 import os
 
@@ -26,6 +27,7 @@ def addresses(key, i, j):
         "To": j,
     })["Address"]
 
+@lru_cache
 def addresses_pub_key_hash(xpub, i=0, j=500):
     return do_req(lib.AddressesPubKeyHash, {
         "XPub": xpub,
