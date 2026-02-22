@@ -250,9 +250,9 @@ class PSBTParser():
                     })
                     self.change_amount += int(x["Value"])
                 if x["Address"] in recv_addrs:
-                    add_change(f"{derivation_path}/0/{recv_addrs.index(x["Address"])}")
+                    add_change(f"{derivation_path}/0/{recv_addrs.index(x['Address'])}")
                 elif x["Address"] in chng_addrs:
-                    add_change(f"{derivation_path}/1/{chng_addrs.index(x["Address"])}")
+                    add_change(f"{derivation_path}/1/{chng_addrs.index(x['Address'])}")
                 elif x["Address"] in mweb_addrs:
                     index = mweb_addrs.index(x["Address"])
                     add_change(f"0/{index-1}" if index else "1/0")
