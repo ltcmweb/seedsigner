@@ -3,7 +3,8 @@
 OUTPUT=mweb
 
 if [ "$1" = "arm" ]; then
-    export CC="arm-linux-gnueabihf-gcc -mcpu=arm1176jzf-s"
+    export CC=arm-linux-gnueabihf-gcc
+    export CGO_CFLAGS=-mcpu=arm1176jzf-s
     export CGO_ENABLED=1
     export GOARCH=arm
     export GOARM=6
