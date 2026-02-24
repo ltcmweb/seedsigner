@@ -15,7 +15,7 @@ case $1 in
         ;;
     pi02w)
         arm
-        export CGO_CFLAGS="-march=armv7-a -mfpu=neon-vfpv4 -O2"
+        export CGO_CFLAGS="-mcpu=cortex-a53 -O2"
         ;;
 esac
 
