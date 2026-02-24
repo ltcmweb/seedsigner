@@ -4,10 +4,14 @@ from functools import lru_cache
 import json
 import os
 
-try:
-    lib = cdll.LoadLibrary(os.path.join(os.path.dirname(__file__), 'mweb'))
-except OSError:
-    lib = cdll.LoadLibrary(os.path.join(os.path.dirname(__file__), 'mweb-arm'))
+for name in ["mweb", "mwebpi0", "mwebpi02w"]:
+    try:
+        lib = cdll.LoadLibrary(os.path.join(os.path.dirname(__file__), name))
+        break
+    except OSError:
+        continue
+else:
+    raise OSError("Could not load any mweb library")
 
 lib.FreeCString.argtypes = [c_void_p]
 
