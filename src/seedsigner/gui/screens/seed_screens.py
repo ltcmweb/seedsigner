@@ -252,9 +252,32 @@ class SeedMnemonicEntryScreen(BaseTopNavScreen):
 
     def _run(self):
         while True:
-            input = self.hw_inputs.wait_for(HardwareButtonsConstants.ALL_KEYS)
+            input = self.hw_inputs.wait_for(
+                HardwareButtonsConstants.KEYS__LEFT_RIGHT_UP_DOWN +
+                HardwareButtonsConstants.KEYS__ANYCLICK)
 
             with self.renderer.lock:
+                if input == HardwareButtonsConstants.KEY_BACK:
+                    return RET_CODE__BACK_BUTTON
+
+                if button := self.hw_inputs.get_button():
+                    input_override = None
+                    if button is self.matches_list_up_button:
+                        input_override = HardwareButtonsConstants.KEY1
+                    elif button is self.matches_list_highlight_button:
+                        input_override = HardwareButtonsConstants.KEY2
+                    elif button is self.matches_list_down_button:
+                        input_override = HardwareButtonsConstants.KEY3
+                    if input_override:
+                        if input == HardwareButtonsConstants.TOUCH_DOWN:
+                            input = input_override
+                        elif input == HardwareButtonsConstants.KEY_PRESS:
+                            continue
+                    if button is not self.top_nav.left_button:
+                        self.is_input_in_top_nav = False
+                        self.top_nav.left_button.is_selected = False
+                        self.top_nav.left_button.render()
+
                 if self.is_input_in_top_nav:
                     if input == HardwareButtonsConstants.KEY_PRESS:
                         # User clicked the "back" arrow
@@ -279,6 +302,8 @@ class SeedMnemonicEntryScreen(BaseTopNavScreen):
                         continue
 
                 ret_val = self.keyboard.update_from_input(input)
+                if ret_val is self.top_nav.left_button:
+                    ret_val = Keyboard.EXIT_TOP
 
                 if ret_val in Keyboard.EXIT_DIRECTIONS:
                     self.is_input_in_top_nav = True
@@ -385,6 +410,7 @@ class SeedMnemonicEntryScreen(BaseTopNavScreen):
                     self.keyboard.render_keys()
 
                 elif input in HardwareButtonsConstants.KEYS__LEFT_RIGHT_UP_DOWN \
+                        or input == HardwareButtonsConstants.TOUCH_DOWN \
                         or input in (Keyboard.ENTER_TOP, Keyboard.ENTER_BOTTOM):
                     if ret_val in self.possible_alphabet:
                         # Live joystick movement; haven't locked this new letter in yet.
@@ -875,11 +901,33 @@ class SeedAddPassphraseScreen(BaseTopNavScreen):
 
         # Start the interactive update loop
         while True:
-            input = self.hw_inputs.wait_for(HardwareButtonsConstants.ALL_KEYS)
+            input = self.hw_inputs.wait_for(
+                HardwareButtonsConstants.KEYS__LEFT_RIGHT_UP_DOWN +
+                HardwareButtonsConstants.KEYS__ANYCLICK)
 
             keyboard_swap = False
 
             with self.renderer.lock:
+                if input == HardwareButtonsConstants.KEY_BACK:
+                    return dict(passphrase=self.passphrase, is_back_button=True)
+
+                if button := self.hw_inputs.get_button():
+                    input_override = None
+                    if button is self.hw_button1:
+                        input_override = HardwareButtonsConstants.KEY1
+                    elif button is self.hw_button2:
+                        input_override = HardwareButtonsConstants.KEY2
+                    elif button is self.hw_button3:
+                        input_override = HardwareButtonsConstants.KEY3
+                    if input_override:
+                        if input == HardwareButtonsConstants.TOUCH_DOWN:
+                            input = input_override
+                        elif input == HardwareButtonsConstants.KEY_PRESS:
+                            continue
+                    if button is not self.top_nav.left_button:
+                        self.top_nav.is_selected = False
+                        self.top_nav.render_buttons()
+
                 # Check our two possible exit conditions
                 # TODO: note the unusual return value, consider refactoring to a Response object in the future
                 if input == HardwareButtonsConstants.KEY3:
@@ -979,6 +1027,10 @@ class SeedAddPassphraseScreen(BaseTopNavScreen):
                         continue
 
                     ret_val = cur_keyboard.update_from_input(input)
+                    if ret_val is self.top_nav.left_button:
+                        ret_val = Keyboard.EXIT_TOP
+                    elif not ret_val:
+                        continue
 
                 # Now process the result from the keyboard
                 if ret_val in Keyboard.EXIT_DIRECTIONS:
@@ -1157,6 +1209,7 @@ class SeedTranscribeSeedQRWholeQRScreen(WarningEdgesMixin, ButtonListScreen):
         super().__post_init__()
 
         qr_height = self.buttons[0].screen_y - self.top_nav.height - GUIConstants.COMPONENT_PADDING
+        qr_height = min(qr_height, self.canvas_width)
         qr_width = qr_height
 
         qr = QR()
@@ -1326,7 +1379,21 @@ class SeedTranscribeSeedQRZoomedInScreen(BaseScreen):
 
     def _run(self):
         while True:
-            input = self.hw_inputs.wait_for(HardwareButtonsConstants.KEYS__LEFT_RIGHT_UP_DOWN + HardwareButtonsConstants.KEYS__ANYCLICK)
+            input = self.hw_inputs.wait_for(HardwareButtonsConstants.ALL_KEYS)
+
+            if input == HardwareButtonsConstants.TOUCH_MOVE:
+                x1, y1 = self.hw_inputs.down_pos
+                x2, y2 = self.hw_inputs.get_last_pos()
+                if x1 - x2 > 20:
+                    input = HardwareButtonsConstants.KEY_RIGHT
+                elif x2 - x1 > 20:
+                    input = HardwareButtonsConstants.KEY_LEFT
+                elif y1 - y2 > 20:
+                    input = HardwareButtonsConstants.KEY_DOWN
+                elif y2 - y1 > 20:
+                    input = HardwareButtonsConstants.KEY_UP
+                if input != HardwareButtonsConstants.TOUCH_MOVE:
+                    self.hw_inputs.down_pos = x2, y2
 
             if input in HardwareButtonsConstants.KEYS__ANYCLICK:
                 # User clicked to exit

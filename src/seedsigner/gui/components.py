@@ -12,6 +12,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter
 from typing import Any, List, Tuple
 
 from seedsigner.gui.renderer import Renderer
+from seedsigner.hardware.buttons import HardwareButtons
 from seedsigner.models.settings import Settings
 from seedsigner.models.settings_definition import SettingsConstants
 from seedsigner.models.singleton import Singleton
@@ -1522,6 +1523,8 @@ class Button(BaseComponent):
             self.inactive_button_label = None
             self.inactive_button_label_kwargs = button_kwargs.copy()
 
+        HardwareButtons.get_instance().add_button(self)
+
 
     def render(self):
         if self.is_selected:
@@ -1573,7 +1576,11 @@ class Button(BaseComponent):
 
                     if self.active_button_label.needs_scroll:
                         # Activate the scrollable text line
-                        self.active_button_label.scroll_thread.start_scrolling()
+                        box = self.image_draw.textbbox((0, 0), self.text, font=self.font, anchor=self.text_anchor)
+                        if self.screen_y + self.text_y + box[1] - self.scroll_y > GUIConstants.TOP_NAV_HEIGHT:
+                            self.active_button_label.scroll_thread.start_scrolling()
+                        else:
+                            self.active_button_label.scroll_thread.stop_scrolling()
                 
                 else:
                     if self.active_button_label and self.active_button_label.needs_scroll:
@@ -1764,6 +1771,7 @@ class TopNav(BaseComponent):
 
 
     def render(self):
+        self.image_draw.rectangle((0, 0, self.width, self.height - 1), fill=0)
         self.title.render()
         self.render_buttons()
     

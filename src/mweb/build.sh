@@ -1,10 +1,13 @@
 #!/bin/sh
 
-export CC=arm-linux-gnueabihf-gcc
-export CGO_CFLAGS="-mcpu=arm1176jzf-s -O2"
+export CC=armv7a-linux-androideabi35-clang
 export CGO_ENABLED=1
 export GOARCH=arm
-export GOARM=6
-export GOOS=linux
+export GOOS=android
 
-go build -buildvcs=false -ldflags="-s -w"
+go build -buildvcs=false -ldflags="-s -w" -o ../../libs/android-v7/libmweb.so
+
+export CC=aarch64-linux-android35-clang
+export GOARCH=arm64
+
+go build -buildvcs=false -ldflags="-s -w" -o ../../libs/android-v8/libmweb.so

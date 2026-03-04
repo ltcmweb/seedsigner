@@ -29,10 +29,14 @@ RET_CODE__POWER_BUTTON = 1001
 
 @dataclass
 class BaseScreen(BaseComponent):
+    clear_hw_inputs: bool = True
+
     def __post_init__(self):
         super().__post_init__()
         
         self.hw_inputs = HardwareButtons.get_instance()
+        if self.clear_hw_inputs:
+            self.hw_inputs.clear()
 
         # Implementation classes can add their own BaseThread to run in parallel with the
         # main execution thread.
@@ -254,6 +258,10 @@ class BaseTopNavScreen(BaseScreen):
                     self.top_nav.is_selected = False
                     self.top_nav.render_buttons()
 
+                elif user_input == HardwareButtonsConstants.TOUCH_DOWN and self.hw_inputs.get_button():
+                    self.top_nav.is_selected = True
+                    self.top_nav.render_buttons()
+
                 elif self.top_nav.is_selected and user_input in HardwareButtonsConstants.KEYS__ANYCLICK:
                     return self.top_nav.selected_button
                 
@@ -314,13 +322,17 @@ class ButtonListScreen(BaseTopNavScreen):
     # ensure the screen is at least scrolled to reveal the `selected_button`.
     scroll_y_initial_offset: int = None
 
+    header_height: int = None
+
 
     def __post_init__(self):
         if not self.button_font_name:
             self.button_font_name = GUIConstants.get_button_font_name()
         if not self.button_font_size:
             self.button_font_size = GUIConstants.get_button_font_size()
-        super().__post_init__()
+        if not self.header_height:
+            super().__post_init__()
+            self.header_height = self.top_nav.height
 
         button_height = GUIConstants.BUTTON_HEIGHT
         if len(self.button_data) == 1:
@@ -331,13 +343,12 @@ class ButtonListScreen(BaseTopNavScreen):
         if self.is_bottom_list:
             button_list_y = self.canvas_height - (button_list_height + GUIConstants.EDGE_PADDING)
         else:
-            button_list_y = self.top_nav.height + int((self.canvas_height - self.top_nav.height - button_list_height) / 2)
+            button_list_y = self.header_height + int((self.canvas_height - self.header_height - button_list_height) / 2)
 
         self.has_scroll_arrows = False
-        if button_list_y < self.top_nav.height:
+        if button_list_y < self.header_height:
             # The button list is too long; force it to run off the bottom of the screen.
-            button_list_y = self.top_nav.height
-            self.has_scroll_arrows = True
+            button_list_y = self.header_height
 
             # How many buttons fit on the screen before we need to start scrolling?
             num_buttons_pre_scroll = math.floor((self.canvas_height - button_list_y - GUIConstants.EDGE_PADDING) / (button_height + GUIConstants.LIST_ITEM_PADDING))
@@ -390,7 +401,7 @@ class ButtonListScreen(BaseTopNavScreen):
         if self.has_scroll_arrows:
             self.arrow_half_width = 10
             self.up_arrow_img = Image.new("RGBA", size=(2 * self.arrow_half_width, 8), color="black")
-            self.up_arrow_img_y = self.top_nav.height - 12
+            self.up_arrow_img_y = self.header_height - 12
             arrow_draw = ImageDraw.Draw(self.up_arrow_img)
             arrow_draw.line((self.arrow_half_width, 1, 0, 7), fill=GUIConstants.BUTTON_FONT_COLOR)
             arrow_draw.line((self.arrow_half_width, 1, 2 * self.arrow_half_width, 7), fill=GUIConstants.BUTTON_FONT_COLOR)
@@ -415,8 +426,17 @@ class ButtonListScreen(BaseTopNavScreen):
 
 
     def _render(self):
-        super()._render()
+        self.clear_screen()
+
         self._render_visible_buttons()
+
+        self.image_draw.rectangle((0, 0, self.canvas_width, self.header_height - 1), fill=0)
+
+        for component in self.components:
+            component.render()
+
+        for img, coords in self.paste_images:
+            self.canvas.paste(img, coords)
 
         # Write the screen updates
         self.renderer.show_image()
@@ -433,7 +453,7 @@ class ButtonListScreen(BaseTopNavScreen):
                 continue
 
             button_position_y = button.screen_y - button.scroll_y
-            if button_position_y >= self.top_nav.height and button_position_y < self.down_arrow_img_y:
+            if button_position_y >= self.header_height and button_position_y < self.down_arrow_img_y:
                 if i == 0:
                     # We rendered the top button; no more to scroll up for.
                     self._hide_up_arrow()
@@ -484,6 +504,7 @@ class ButtonListScreen(BaseTopNavScreen):
                     HardwareButtonsConstants.KEY_DOWN,
                     HardwareButtonsConstants.KEY_LEFT,
                     HardwareButtonsConstants.KEY_RIGHT,
+                    HardwareButtonsConstants.TOUCH_MOVE,
                 ] + HardwareButtonsConstants.KEYS__ANYCLICK
             )
 
@@ -514,7 +535,7 @@ class ButtonListScreen(BaseTopNavScreen):
                         next_selected_button: Button = self.buttons[self.selected_button]
                         cur_selected_button.is_selected = False
                         next_selected_button.is_selected = True
-                        if self.has_scroll_arrows and next_selected_button.screen_y - next_selected_button.scroll_y + next_selected_button.height < self.top_nav.height:
+                        if self.has_scroll_arrows and next_selected_button.screen_y - next_selected_button.scroll_y + next_selected_button.height < self.header_height:
                             # Selected a Button that's off the top of the screen
                             frame_scroll = cur_selected_button.screen_y - next_selected_button.screen_y
                             for button in self.buttons:
@@ -561,6 +582,36 @@ class ButtonListScreen(BaseTopNavScreen):
                         if cur_selected_button:
                             cur_selected_button.render()
                         next_selected_button.render()
+
+                elif user_input == HardwareButtonsConstants.KEY_BACK:
+                    if self.top_nav.show_back_button:
+                        return RET_CODE__BACK_BUTTON
+
+                elif user_input == HardwareButtonsConstants.TOUCH_DOWN:
+                    self.buttons[self.selected_button].is_selected = False
+                    next_selected_button = self.hw_inputs.get_button()
+                    next_selected_button.is_selected = True
+                    try:
+                        self.selected_button = self.buttons.index(next_selected_button)
+                        self.top_nav.is_selected = False
+                    except ValueError:
+                        self.top_nav.is_selected = True
+                    self._render()
+
+                elif user_input == HardwareButtonsConstants.TOUCH_MOVE:
+                    last = self.buttons[-1]
+                    bottom = self.canvas_height - GUIConstants.EDGE_PADDING
+                    if last.screen_y + last.height > bottom:
+                        for button in self.buttons:
+                            button.scroll_y -= self.hw_inputs.move_delta[1]
+                        if self.buttons[0].scroll_y < 0:
+                            dy = self.buttons[0].scroll_y
+                        else:
+                            y = last.screen_y - last.scroll_y + last.height
+                            dy = max(0, bottom - y)
+                        for button in self.buttons:
+                            button.scroll_y -= dy
+                        self._render()
 
                 elif user_input in HardwareButtonsConstants.KEYS__ANYCLICK:
                     if self.top_nav.is_selected:
@@ -728,6 +779,23 @@ class LargeButtonScreen(BaseTopNavScreen):
 
                             self.buttons[self.selected_button].is_selected = False
                             self.buttons[self.selected_button].render()
+
+                elif user_input == HardwareButtonsConstants.KEY_BACK:
+                    pass
+
+                elif user_input == HardwareButtonsConstants.TOUCH_DOWN:
+                    cur_selected_button = self.buttons[self.selected_button]
+                    cur_selected_button.is_selected = False
+                    cur_selected_button.render()
+                    next_selected_button = self.hw_inputs.get_button()
+                    next_selected_button.is_selected = True
+                    next_selected_button.render()
+                    try:
+                        self.selected_button = self.buttons.index(next_selected_button)
+                        self.top_nav.is_selected = False
+                    except ValueError:
+                        self.top_nav.is_selected = True
+                    self.top_nav.render_buttons()
 
                 elif user_input in HardwareButtonsConstants.KEYS__ANYCLICK:
                     if self.top_nav.is_selected:
@@ -1222,13 +1290,14 @@ class KeyboardScreen(BaseTopNavScreen):
         while True:
             input = self.hw_inputs.wait_for(
                 HardwareButtonsConstants.KEYS__LEFT_RIGHT_UP_DOWN + [HardwareButtonsConstants.KEY_PRESS, HardwareButtonsConstants.KEY3]
+                + [HardwareButtonsConstants.KEY_BACK, HardwareButtonsConstants.TOUCH_DOWN]
             )
 
             with self.renderer.lock:
                 # Track if we need to update the title after input changes
                 title_needs_update = False
                 # Check possible exit conditions   
-                if self.top_nav.is_selected and input == HardwareButtonsConstants.KEY_PRESS:
+                if self.top_nav.is_selected and input == HardwareButtonsConstants.KEY_PRESS or input == HardwareButtonsConstants.KEY_BACK:
                     return RET_CODE__BACK_BUTTON
 
                 elif self.show_save_button and input == HardwareButtonsConstants.KEY3:
@@ -1261,6 +1330,12 @@ class KeyboardScreen(BaseTopNavScreen):
                     continue
 
                 ret_val = self.keyboard.update_from_input(input)
+
+                if ret_val is self.top_nav.left_button:
+                    ret_val = Keyboard.EXIT_TOP
+                elif ret_val:
+                    self.top_nav.is_selected = False
+                    self.top_nav.render_buttons()
 
                 # Now process the result from the keyboard
                 if ret_val in Keyboard.EXIT_DIRECTIONS:

@@ -260,7 +260,7 @@ class ScanScreen(BaseScreen):
                         # We received a valid frame, but we've already seen in
                         self.frames_decode_status.set_value(self.FRAME__REPEATED_PART)
                 
-                if self.hw_inputs.check_for_low(HardwareButtonsConstants.KEY_RIGHT) or self.hw_inputs.check_for_low(HardwareButtonsConstants.KEY_LEFT):
+                if self.hw_inputs.has_any_input():
                     self.camera.stop_video_stream_mode()
                     return False
 

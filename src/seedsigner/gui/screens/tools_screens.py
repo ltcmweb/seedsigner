@@ -35,7 +35,9 @@ class ToolsImageEntropyLivePreviewScreen(BaseScreen):
         instructions_font = Fonts.get_font(GUIConstants.get_body_font_name(), GUIConstants.get_button_font_size())
 
         while True:
-            if self.hw_inputs.check_for_low(HardwareButtonsConstants.KEY_LEFT):
+            has_input = self.hw_inputs.has_any_input()
+            input_left = self.hw_inputs.get_last_pos()[0] < self.canvas_width / 2
+            if has_input and input_left:
                 # Have to manually update last input time since we're not in a wait_for loop
                 self.hw_inputs.update_last_input_time()
                 self.words = []
@@ -75,7 +77,7 @@ class ToolsImageEntropyLivePreviewScreen(BaseScreen):
                 self.renderer.canvas.paste(frame.crop(box=box))
 
             # Check for ANYCLICK to take final entropy image
-            if self.hw_inputs.check_for_low(keys=HardwareButtonsConstants.KEYS__ANYCLICK):
+            if has_input and not input_left:
                 # Have to manually update last input time since we're not in a wait_for loop
                 self.hw_inputs.update_last_input_time()
                 self.camera.stop_video_stream_mode()
@@ -151,8 +153,9 @@ class ToolsImageEntropyFinalImageScreen(BaseScreen):
             self.renderer.show_image()
 
         # LEFT = reshoot, RIGHT / ANYCLICK = accept
-        input = self.hw_inputs.wait_for([HardwareButtonsConstants.KEY_LEFT, HardwareButtonsConstants.KEY_RIGHT] + HardwareButtonsConstants.KEYS__ANYCLICK)
-        if input == HardwareButtonsConstants.KEY_LEFT:
+        while not self.hw_inputs.has_any_input():
+            time.sleep(0.1)
+        if self.hw_inputs.get_last_pos()[0] < self.canvas_width / 2:
             return RET_CODE__BACK_BUTTON
 
 

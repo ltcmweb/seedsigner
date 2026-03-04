@@ -3,10 +3,16 @@ from functools import lru_cache
 import json
 import os
 import subprocess
+import sys
 
 def do_req(f, req):
     cmd = os.path.join(os.path.dirname(__file__), "mweb")
     req = json.dumps(req)
+    if hasattr(sys, "getandroidapilevel"):
+        from jnius import autoclass
+        activity = autoclass("org.kivy.android.PythonActivity").mActivity
+        dir = activity.getApplicationInfo().nativeLibraryDir
+        cmd = os.path.join(dir, "libmweb.so")
     res = subprocess.run([cmd, f, req], capture_output=True, text=True)
     try:
         return json.loads(res.stdout)

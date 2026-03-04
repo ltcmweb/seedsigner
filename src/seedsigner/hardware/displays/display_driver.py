@@ -65,6 +65,9 @@ class DisplayDriverFactory:
         if display_type not in ALL_DISPLAY_TYPES:
             raise ValueError(f"Invalid display type: {display_type}")
 
+        from seedsigner.hardware.displays.kivy import Display
+        return Display
+
         if display_type == DISPLAY_TYPE__ST7789:
             if width not in [240, 320] or height != 240:
                 raise ValueError("ST7789 display only supports 240x240 or 320x240 resolutions")

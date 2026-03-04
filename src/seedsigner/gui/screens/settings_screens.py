@@ -29,7 +29,7 @@ class SettingsEntryUpdateSelectionScreen(ButtonListScreen):
             self.Button_cls = CheckboxButton
         else:
             self.Button_cls = CheckedSelectionButton
-        super().__post_init__()
+        BaseTopNavScreen.__post_init__(self)
 
         self.components.append(TextArea(
             text=_(self.display_name),
@@ -48,6 +48,9 @@ class SettingsEntryUpdateSelectionScreen(ButtonListScreen):
                 screen_y=prev_component_bottom + GUIConstants.COMPONENT_PADDING,
                 auto_line_break=True,
             ))
+
+        self.header_height = self.components[-1].screen_y + self.components[-1].height + GUIConstants.COMPONENT_PADDING
+        super().__post_init__()
 
 
 

@@ -47,7 +47,6 @@ class SettingsMenuView(View):
             button_data.append(self.ADVANCED)
             next_destination = Destination(SettingsMenuView, view_args={"visibility": SettingsConstants.VISIBILITY__ADVANCED})
 
-            button_data.append(self.IO_TEST)
             button_data.append(self.DONATE)
 
         elif self.visibility == SettingsConstants.VISIBILITY__ADVANCED:

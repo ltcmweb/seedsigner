@@ -3,7 +3,9 @@
 import argparse
 import logging
 import sys
+from threading import Thread
 
+from seedsigner.hardware.displays.kivy import Display
 from seedsigner.controller import Controller
 
 logger = logging.getLogger(__name__)
@@ -37,7 +39,6 @@ def main(sys_argv=None):
     console_handler.setFormatter(
         logging.Formatter("%(asctime)s %(levelname)8s [%(name)s %(funcName)s (%(lineno)d)]: %(message)s")
     )
-    root_logger.addHandler(console_handler)
 
     # Set log levels for specific modules
     for module, level in DEFAULT_MODULE_LOG_LEVELS.items():
@@ -46,7 +47,8 @@ def main(sys_argv=None):
     logger.info(f"Starting SeedSigner with: {args.__dict__}")
 
     # Get the one and only Controller instance and start our main loop
-    Controller.get_instance().start()
+    Thread(target=Controller.get_instance().start, daemon=True).start()
+    Display.run()
 
 
 if __name__ == "__main__":

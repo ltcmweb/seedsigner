@@ -1,11 +1,13 @@
 import logging
 from typing import List
-import RPi.GPIO as GPIO
 import time
 
 from seedsigner.models.singleton import Singleton
 
 logger = logging.getLogger(__name__)
+
+
+class GPIO: RPI_INFO = dict(P1_REVISION=3)
 
 
 class HardwareButtons(Singleton):
@@ -189,6 +191,9 @@ class HardwareButtonsConstants:
         KEY3 = 8
 
     OVERRIDE = 1000
+    KEY_BACK = 1001
+    TOUCH_DOWN = 1002
+    TOUCH_MOVE = 1003
 
     ALL_KEYS = [
         KEY_UP,
@@ -199,7 +204,10 @@ class HardwareButtonsConstants:
         KEY1,
         KEY2,
         KEY3,
+        KEY_BACK,
+        TOUCH_DOWN,
+        TOUCH_MOVE,
     ]
 
     KEYS__LEFT_RIGHT_UP_DOWN = [KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN]
-    KEYS__ANYCLICK = [KEY_PRESS, KEY1, KEY2, KEY3]
+    KEYS__ANYCLICK = [KEY_PRESS, KEY1, KEY2, KEY3, KEY_BACK, TOUCH_DOWN]

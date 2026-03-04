@@ -4,7 +4,7 @@ from typing import Tuple
 from gettext import gettext as _
 
 from seedsigner.gui.components import Fonts, GUIConstants, SeedSignerIconConstants
-from seedsigner.hardware.buttons import HardwareButtonsConstants
+from seedsigner.hardware.buttons import HardwareButtons, HardwareButtonsConstants
 
 
 
@@ -106,6 +106,9 @@ class Keyboard:
         screen_x: int
         screen_y: int
         keyboard: any
+        scroll_y: int = 0
+        width: int = None
+        height: int = None
         index_x: int = None
         index_y: int = None
         code: str = None  # key/code returned on press (e.g. "x" or "cursor_left")
@@ -117,6 +120,11 @@ class Keyboard:
         def __post_init__(self):
             if not self.code:
                 self.code = self.letter
+
+            self.width = self.keyboard.key_width * self.size - 1
+            self.height = self.keyboard.key_height
+
+            HardwareButtons.get_instance().add_button(self)
 
         def render_key(self):
             font = self.keyboard.font
@@ -439,6 +447,14 @@ class Keyboard:
             self.selected_key["y"] = new_index_y
             if keyboard_exit:
                 return keyboard_exit
+
+        elif input in (HardwareButtonsConstants.KEY_PRESS, HardwareButtonsConstants.TOUCH_DOWN):
+            if key := HardwareButtons.get_instance().get_button(multi=True):
+                key = next((k for k in key if getattr(k, 'keyboard', self) is self), None)
+                if not isinstance(key, self.Key):
+                    return key
+                self.selected_key["x"] = key.index_x
+                self.selected_key["y"] = key.index_y
 
         elif input == Keyboard.ENTER_LEFT:
             # User has returned to the keyboard along the left edge

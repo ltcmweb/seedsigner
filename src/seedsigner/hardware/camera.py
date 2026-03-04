@@ -29,7 +29,7 @@ class Camera(Singleton):
 
     def start_video_stream_mode(self, resolution=(512, 384), framerate=12, format="bgr"):
         from picamera import PiCameraError
-        from seedsigner.hardware.pivideostream import PiVideoStream
+        from picamera import PiVideoStream
         if self._video_stream is not None:
             self.stop_video_stream_mode()
 
