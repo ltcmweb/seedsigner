@@ -238,7 +238,7 @@ class PSBTParser():
             acct = self.root.derive(derivation_path)
             recv_addrs = addresses_pub_key_hash(acct.child(0).to_string())
             chng_addrs = addresses_pub_key_hash(acct.child(1).to_string())
-            mweb_addrs = mweb_addresses(self.root.derive("m/1000'"), 0, 200)
+            mweb_addrs = mweb_addresses(self.root.derive("m/1000'"))
             for i, x in enumerate(self.psbt.info["Recipient"]):
                 def add_change(derivation_path):
                     self.change_data.append({

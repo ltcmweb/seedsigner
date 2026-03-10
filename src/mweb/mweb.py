@@ -15,10 +15,15 @@ def do_req(f, req):
 
 def b64(b): return b64encode(b).decode()
 
-def addresses(key, i, j):
+def addresses(key, i=0, j=500):
+    return _addresses(key.child(0x80000000).key.secret,
+                      key.child(0x80000001).key.sec(), i, j)
+
+@lru_cache
+def _addresses(scan, spendPub, i, j):
     return do_req("Addresses", {
-        "Scan": b64(key.child(0x80000000).key.secret),
-        "SpendPub": b64(key.child(0x80000001).key.sec()),
+        "Scan": b64(scan),
+        "SpendPub": b64(spendPub),
         "From": i,
         "To": j,
     })["Address"]
