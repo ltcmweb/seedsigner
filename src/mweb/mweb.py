@@ -29,7 +29,7 @@ def _addresses(scan, spendPub, i, j):
     })["Address"]
 
 @lru_cache
-def addresses_pub_key_hash(xpub, i=0, j=500):
+def addresses_pub_key_hash(xpub, i=0, j=1000):
     return do_req("AddressesPubKeyHash", {
         "XPub": xpub,
         "From": i,

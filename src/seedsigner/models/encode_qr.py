@@ -329,7 +329,6 @@ class BaseFountainQrEncoder(BaseQrEncoder):
 
 
     def next_part(self) -> str:
-        if self.is_complete: self.restart()
         return self.ur2_encode.next_part()
 
 
