@@ -333,7 +333,7 @@ class BaseFountainQrEncoder(BaseQrEncoder):
 
 
     def cur_part(self) -> str:
-        return self.ur2_encode.current_part().upper()
+        return self.ur2_encode.current_part()
     
 
     def restart(self):
