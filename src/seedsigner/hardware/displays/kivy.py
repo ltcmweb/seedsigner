@@ -56,14 +56,9 @@ class _Display(BaseDisplayDriver, App):
         if image := self.image:
             if self.do_invert:
                 image = ImageOps.invert(image)
-            texture = Texture.create(size=image.size, colorfmt='rgb')
+            texture = Texture.create(size=image.size)
             texture.flip_vertical()
-            bgr = image.tobytes()
-            rgb = bytearray(len(bgr))
-            rgb[0::3] = bgr[2::3]
-            rgb[1::3] = bgr[1::3]
-            rgb[2::3] = bgr[0::3]
-            texture.blit_buffer(rgb)
+            texture.blit_buffer(image.tobytes(), colorfmt='bgr')
             self.rect.texture = texture
             sx, sy = self.widget.size
             self.rect.size = sx, sy - self.margin_y*2

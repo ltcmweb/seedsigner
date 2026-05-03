@@ -44,7 +44,10 @@ class Image:
         return self
 
     def crop(self, box):
-        return self
+        x1, y1, x2, y2 = box
+        canvas = lvgl.Canvas('RGB565', (round(x2 - x1), round(y2 - y1)))
+        self.canvas.copyto(canvas, (-round(x1), -round(y1)))
+        return Image(canvas)
 
 def new(mode, size, color=0):
     image = Image(lvgl.Canvas(mode, size))

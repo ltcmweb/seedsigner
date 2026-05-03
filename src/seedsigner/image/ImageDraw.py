@@ -25,7 +25,10 @@ def Draw(image):
 def color_to_int(color):
     if color is None:
         return -1
-    if isinstance(color, str):
+    elif isinstance(color, tuple) and len(color) == 3:
+        r, g, b = color
+        color = r << 16 | g << 8 | b
+    elif isinstance(color, str):
         if color == 'black':
             color = '#000000'
         if color[0] == '#':
