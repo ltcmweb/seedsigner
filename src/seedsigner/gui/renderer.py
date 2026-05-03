@@ -62,7 +62,7 @@ class Renderer(ConfigurableSingleton):
             self.canvas_width = self.disp.height
             self.canvas_height = self.disp.width
 
-        self.canvas = Image.new('RGB565', (self.canvas_width, self.canvas_height))
+        self.canvas = Image.new('RGB', (self.canvas_width, self.canvas_height))
         self.draw = ImageDraw.Draw(self.canvas)
 
         self.lock.release()

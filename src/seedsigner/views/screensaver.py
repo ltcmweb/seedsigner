@@ -148,7 +148,7 @@ class ScreensaverScreen(LogoScreen):
 
         # Paste the logo in a bigger image that is the canvas + the logo dims (half the
         # logo will render off the canvas at each edge).
-        self.image = Image.new("RGB565", (self.renderer.canvas_width * 2, self.renderer.canvas_height * 2), (0,0,0))
+        self.image = Image.new("RGB", (self.renderer.canvas_width * 2, self.renderer.canvas_height * 2), (0,0,0))
 
         # Place the logo centered on the larger image
         logo_x = int((self.image.width - self.logo.width) / 2)
