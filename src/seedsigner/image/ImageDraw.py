@@ -5,10 +5,10 @@ class ImageDraw:
         self.canvas = image.canvas
 
     def rectangle(self, box, *, fill, outline=None, width=1):
-        lvgl.rectangle(self.canvas, box, color_to_int(fill), 0)
+        lvgl.rectangle(self.canvas, box, color_to_int(fill), color_to_int(outline), width, 0)
 
     def rounded_rectangle(self, box, *, fill, radius, outline=None, width=1):
-        lvgl.rectangle(self.canvas, box, color_to_int(fill), radius)
+        lvgl.rectangle(self.canvas, box, color_to_int(fill), color_to_int(outline), width, radius)
 
     def text(self, xy, text, *, font, fill, anchor):
         lvgl.text(self.canvas, xy, text, color_to_int(fill), anchor)
@@ -23,6 +23,8 @@ def Draw(image):
     return ImageDraw(image)
 
 def color_to_int(color):
+    if color is None:
+        return -1
     if isinstance(color, str):
         if color == 'black':
             color = '#000000'

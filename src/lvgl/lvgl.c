@@ -54,10 +54,10 @@ static PyObject *load(PyObject *self, PyObject *args) {
 
 static PyObject *rectangle(PyObject *self, PyObject *args) {
     CanvasObject *canvas;
-    int x1, y1, x2, y2, fill, radius;
+    int x1, y1, x2, y2, fill, outline, width, radius;
 
-    if (!PyArg_ParseTuple(args, "O!(iiii)ii", &CanvasType, &canvas,
-        &x1, &y1, &x2, &y2, &fill, &radius))
+    if (!PyArg_ParseTuple(args, "O!(iiii)iiii", &CanvasType, &canvas,
+        &x1, &y1, &x2, &y2, &fill, &outline, &width, &radius))
         return NULL;
 
     lv_layer_t layer;
@@ -65,7 +65,17 @@ static PyObject *rectangle(PyObject *self, PyObject *args) {
 
     lv_draw_rect_dsc_t dsc;
     lv_draw_rect_dsc_init(&dsc);
-    dsc.bg_color = lv_color_hex(fill);
+    if (fill >= 0) {
+        dsc.bg_color = lv_color_hex(fill);
+    } else {
+        dsc.bg_opa = LV_OPA_TRANSP;
+    }
+    if (outline >= 0) {
+        dsc.border_color = lv_color_hex(outline);
+        dsc.border_width = width;
+    } else {
+        dsc.border_opa = LV_OPA_TRANSP;
+    }
     dsc.radius = radius;
 
     lv_area_t coords = {x1, y1, x2 - 1, y2 - 1};
