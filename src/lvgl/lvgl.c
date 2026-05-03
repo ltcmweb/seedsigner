@@ -173,7 +173,12 @@ static PyObject *text(PyObject *self, PyObject *args) {
 
     switch (anchor[1]) {
     case 's':
-        y -= size.y - (size.y + 3) / 4;
+        y -= size.y - dsc.font->base_line;
+        size.y = 0;
+        for (char *p = text; *p; p++)
+            for (char *q = "gjpqy"; *q; q++)
+                if (*p == *q)
+                    size.y = dsc.font->base_line;
         break;
     }
 
@@ -181,7 +186,8 @@ static PyObject *text(PyObject *self, PyObject *args) {
     lv_draw_label(&layer, &dsc, &coords);
     lv_canvas_finish_layer(canvas->canvas, &layer);
 
-    return PyTuple_Pack(2, PyLong_FromLong(size.x), PyLong_FromLong(size.y));
+    return PyTuple_Pack(4, PyLong_FromLong(x), PyLong_FromLong(y),
+                           PyLong_FromLong(size.x), PyLong_FromLong(size.y));
 }
 
 static PyMethodDef Methods[] = {
