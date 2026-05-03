@@ -4,7 +4,7 @@ import time
 
 from dataclasses import dataclass, field
 from gettext import gettext as _
-from PIL import Image, ImageDraw, ImageColor
+from seedsigner.image import Image, ImageDraw, ImageColor
 from typing import Any, List, Tuple
 
 from seedsigner.helpers.l10n import mark_for_translation as _mft

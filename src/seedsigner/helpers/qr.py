@@ -1,7 +1,5 @@
 import qrcode
-from qrcode.image.styledpil import StyledPilImage
-from qrcode.image.styles.moduledrawers import CircleModuleDrawer, GappedSquareModuleDrawer
-from PIL import Image, ImageDraw
+from seedsigner.image import Image, ImageDraw
 import subprocess
 
 class QR:
@@ -24,8 +22,6 @@ class QR:
                 qr_image = qr.make_image(
                     fill_color="black",
                     back_color=background_color,
-                    image_factory=StyledPilImage,
-                    module_drawer=CircleModuleDrawer()
                 )
 
                 qr_image_width, _ = qr_image.size
@@ -85,8 +81,6 @@ class QR:
                 return qr.make_image(
                     fill_color="black",
                     back_color=background_color,
-                    image_factory=StyledPilImage,
-                    module_drawer=GappedSquareModuleDrawer()
                 ).resize((width,height)).convert('RGBA')
 
 

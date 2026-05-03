@@ -2,7 +2,7 @@ import time
 
 from dataclasses import dataclass
 from gettext import gettext as _
-from PIL import Image, ImageDraw
+from seedsigner.image import Image, ImageDraw
 
 from seedsigner.gui import renderer
 from seedsigner.gui.components import GUIConstants, Fonts, resize_image_to_fill

@@ -1,5 +1,5 @@
 import sys
-from PIL import ImageOps
+from seedsigner.image import ImageOps
 
 from kivy.app import App
 from kivy.clock import Clock
@@ -17,9 +17,9 @@ buttons.HardwareButtons = TouchButtons
 
 class _Display(BaseDisplayDriver, App):
     def __init__(self):
-        self.margin_y = Window.height // 16
-        width = Window.width // 3
-        height = (Window.height - self.margin_y*2) // 3
+        self.margin_y = 0 #Window.height // 16
+        width = 320 #Window.width // 3
+        height = 240 #(Window.height - self.margin_y*2) // 3
         BaseDisplayDriver.__init__(self, width, height)
         App.__init__(self)
         self.do_invert = False
@@ -49,7 +49,7 @@ class _Display(BaseDisplayDriver, App):
         self.do_invert = enabled
 
     def show_image(self, image, x, y):
-        self.image = image.copy()
+        self.image = image.convert('RGB')
         self.trigger()
 
     def redraw(self):
@@ -58,7 +58,12 @@ class _Display(BaseDisplayDriver, App):
                 image = ImageOps.invert(image)
             texture = Texture.create(size=image.size, colorfmt='rgb')
             texture.flip_vertical()
-            texture.blit_buffer(image.convert('RGB').tobytes())
+            bgr = image.tobytes()
+            rgb = bytearray(len(bgr))
+            rgb[0::3] = bgr[2::3]
+            rgb[1::3] = bgr[1::3]
+            rgb[2::3] = bgr[0::3]
+            texture.blit_buffer(rgb)
             self.rect.texture = texture
             sx, sy = self.widget.size
             self.rect.size = sx, sy - self.margin_y*2

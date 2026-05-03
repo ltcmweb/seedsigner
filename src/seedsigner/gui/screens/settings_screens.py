@@ -2,7 +2,7 @@ import time
 
 from dataclasses import dataclass
 from gettext import gettext as _
-from PIL.ImageOps import autocontrast
+from seedsigner.image.ImageOps import autocontrast
 from typing import List
 
 from seedsigner.helpers.l10n import mark_for_translation as _mft

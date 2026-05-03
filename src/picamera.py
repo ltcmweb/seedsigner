@@ -1,7 +1,7 @@
 import time
 import numpy as np
 from threading import Event
-from PIL import Image, ImageOps
+from seedsigner.image import Image, ImageOps
 
 from kivy.clock import Clock
 from kivy.core.camera import Camera

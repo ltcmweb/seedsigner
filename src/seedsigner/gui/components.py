@@ -8,7 +8,7 @@ import time
 from dataclasses import dataclass
 from decimal import Decimal
 from gettext import gettext as _
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from seedsigner.image import Image, ImageDraw, ImageFont, ImageFilter
 from typing import Any, List, Tuple
 
 from seedsigner.gui.renderer import Renderer
@@ -365,7 +365,7 @@ class TextArea(BaseComponent):
     font_color: str = GUIConstants.BODY_FONT_COLOR
     edge_padding: int = GUIConstants.EDGE_PADDING
     is_text_centered: bool = True
-    supersampling_factor: int = 2  # 1 = disabled; 2 = default, double sample (4px square rendered for 1px)
+    supersampling_factor: int = 1  # 1 = disabled; 2 = default, double sample (4px square rendered for 1px)
     auto_line_break: bool = True
     is_horizontal_scrolling_enabled: bool = False
     horizontal_scroll_speed: int = 40  # px per sec
