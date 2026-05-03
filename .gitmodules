@@ -10,3 +10,6 @@
 [submodule "src/lvgl/lvgl"]
 	path = src/lvgl/lvgl
 	url = https://github.com/lvgl/lvgl.git
+[submodule "src/lvgl/seedsigner-c-modules"]
+	path = src/lvgl/seedsigner-c-modules
+	url = https://gitlab.com/kdmukAI-bot/seedsigner-c-modules.git

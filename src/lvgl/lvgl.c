@@ -114,10 +114,10 @@ static PyObject *line(PyObject *self, PyObject *args) {
 static PyObject *text(PyObject *self, PyObject *args) {
     CanvasObject *canvas;
     int x, y, fill;
-    const char *text, *anchor;
+    const char *text, *font, *anchor;
 
-    if (!PyArg_ParseTuple(args, "O!(ii)sis", &CanvasType, &canvas,
-        &x, &y, &text, &fill, &anchor))
+    if (!PyArg_ParseTuple(args, "O!(ii)ssis", &CanvasType, &canvas,
+        &x, &y, &text, &font, &fill, &anchor))
         return NULL;
 
     lv_layer_t layer;
@@ -126,8 +126,29 @@ static PyObject *text(PyObject *self, PyObject *args) {
     lv_draw_label_dsc_t dsc;
     lv_draw_label_dsc_init(&dsc);
     dsc.color = lv_color_hex(fill);
-    dsc.font = LV_FONT_DEFAULT;
     dsc.text = text;
+
+    if (!strcmp(font, "OpenSans-Regular-17")) {
+        dsc.font = &opensans_regular_17_4bpp;
+    } else if (!strcmp(font, "OpenSans-Regular-20")) {
+        dsc.font = &opensans_regular_17_4bpp_125x;
+    } else if (!strcmp(font, "OpenSans-SemiBold-17")) {
+        dsc.font = &opensans_semibold_18_4bpp;
+    } else if (!strcmp(font, "OpenSans-SemiBold-18")) {
+        dsc.font = &opensans_semibold_18_4bpp;
+    } else if (!strcmp(font, "OpenSans-SemiBold-20")) {
+        dsc.font = &opensans_semibold_20_4bpp;
+    } else if (!strcmp(font, "OpenSans-SemiBold-26")) {
+        dsc.font = &opensans_semibold_26_4bpp;
+    } else if (!strcmp(font, "seedsigner-icons-24")) {
+        dsc.font = &seedsigner_icons_24_4bpp;
+    } else if (!strcmp(font, "seedsigner-icons-26")) {
+        dsc.font = &seedsigner_icons_24_4bpp;
+    } else if (!strcmp(font, "seedsigner-icons-30")) {
+        dsc.font = &seedsigner_icons_36_4bpp;
+    } else if (!strcmp(font, "seedsigner-icons-48")) {
+        dsc.font = &seedsigner_icons_48_4bpp;
+    }
 
     lv_point_t size;
     lv_text_get_size(&size, text, dsc.font, 0, 0, LV_COORD_MAX, LV_TEXT_FLAG_NONE);

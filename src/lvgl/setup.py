@@ -1,11 +1,12 @@
 from setuptools import setup, Extension
-import glob
+from glob import glob
 
-lvgl_sources = glob.glob("lvgl/src/**/*.c", recursive=True)
+lvgl_sources = glob("lvgl/src/**/*.c", recursive=True)
+fonts = glob("seedsigner-c-modules/components/seedsigner/fonts/*.c")
 
 module = Extension(
     "lvgl",
-    sources=["lvgl.c", "canvas.c"] + lvgl_sources,
+    sources=["lvgl.c", "canvas.c"] + lvgl_sources + fonts,
     include_dirs=[
         "lvgl",
         "lvgl/src",

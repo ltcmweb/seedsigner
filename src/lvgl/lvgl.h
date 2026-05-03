@@ -13,3 +13,14 @@ typedef struct {
 } CanvasObject;
 
 extern PyTypeObject CanvasType;
+
+LV_FONT_DECLARE(opensans_regular_17_4bpp);
+LV_FONT_DECLARE(opensans_regular_17_4bpp_125x);
+LV_FONT_DECLARE(opensans_regular_17_4bpp_150x);
+LV_FONT_DECLARE(opensans_regular_17_4bpp_200x);
+LV_FONT_DECLARE(opensans_semibold_18_4bpp);
+LV_FONT_DECLARE(opensans_semibold_20_4bpp);
+LV_FONT_DECLARE(opensans_semibold_26_4bpp);
+LV_FONT_DECLARE(seedsigner_icons_24_4bpp);
+LV_FONT_DECLARE(seedsigner_icons_36_4bpp);
+LV_FONT_DECLARE(seedsigner_icons_48_4bpp);

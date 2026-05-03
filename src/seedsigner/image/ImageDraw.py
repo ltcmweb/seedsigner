@@ -11,7 +11,7 @@ class ImageDraw:
         lvgl.rectangle(self.canvas, box, color_to_int(fill), color_to_int(outline), width, radius)
 
     def text(self, xy, text, *, font, fill, anchor):
-        lvgl.text(self.canvas, xy, text, color_to_int(fill), anchor)
+        lvgl.text(self.canvas, xy, text, font.name, color_to_int(fill), anchor)
 
     def line(self, xy, fill, width=1):
         lvgl.line(self.canvas, xy, color_to_int(fill))
