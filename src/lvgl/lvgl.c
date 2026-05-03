@@ -140,6 +140,10 @@ static PyObject *text(PyObject *self, PyObject *args) {
         dsc.font = &opensans_semibold_20_4bpp;
     } else if (!strcmp(font, "OpenSans-SemiBold-26")) {
         dsc.font = &opensans_semibold_26_4bpp;
+    } else if (!strcmp(font, "Inconsolata-SemiBold-22")) {
+        dsc.font = &Inconsolata_SemiBold;
+    } else if (!strcmp(font, "Inconsolata-SemiBold-24")) {
+        dsc.font = &Inconsolata_SemiBold;
     } else if (!strcmp(font, "seedsigner-icons-24")) {
         dsc.font = &seedsigner_icons_24_4bpp;
     } else if (!strcmp(font, "seedsigner-icons-26")) {
@@ -148,6 +152,14 @@ static PyObject *text(PyObject *self, PyObject *args) {
         dsc.font = &seedsigner_icons_36_4bpp;
     } else if (!strcmp(font, "seedsigner-icons-48")) {
         dsc.font = &seedsigner_icons_48_4bpp;
+    } else if (!strcmp(font, "seedsigner-icons-50")) {
+        dsc.font = &seedsigner_icons_48_4bpp;
+    } else if (!strcmp(font, "Font_Awesome_6_Free-Solid-900-24")) {
+        dsc.font = &Font_Awesome_6_Free_24;
+    } else if (!strcmp(font, "Font_Awesome_6_Free-Solid-900-26")) {
+        dsc.font = &Font_Awesome_6_Free_24;
+    } else if (!strcmp(font, "Font_Awesome_6_Free-Solid-900-36")) {
+        dsc.font = &Font_Awesome_6_Free_36;
     }
 
     lv_point_t size;

@@ -19,6 +19,11 @@ class ImageDraw:
     def ellipse(self, box, fill, outline=None, width=1):
         pass
 
+    def textbbox(self, xy, text, font, anchor):
+        x, y = xy
+        x1, y1, x2, y2 = font.getbbox(text, anchor=anchor)
+        return x1 + x, y1 + y, x2 + x, y2 + y
+
 def Draw(image):
     return ImageDraw(image)
 
