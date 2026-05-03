@@ -60,7 +60,7 @@ class OpeningSplashScreen(LogoScreen):
 
 
     def _render(self):
-        from seedsigner.image import Image
+        from PIL import Image
         from seedsigner.controller import Controller
         controller = Controller.get_instance()
 
@@ -141,7 +141,7 @@ class OpeningSplashScreen(LogoScreen):
 
 class ScreensaverScreen(LogoScreen):
     def __init__(self, buttons):
-        from seedsigner.image import Image
+        from PIL import Image
         super().__init__()
 
         self.buttons = buttons

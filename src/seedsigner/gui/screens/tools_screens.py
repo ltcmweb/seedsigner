@@ -3,7 +3,7 @@ import time
 from dataclasses import dataclass
 from gettext import gettext as _
 from typing import Any
-from seedsigner.image.Image import Image
+from PIL.Image import Image
 from seedsigner.gui.renderer import Renderer
 from seedsigner.hardware.camera import Camera
 from seedsigner.gui.components import FontAwesomeIconConstants, Fonts, GUIConstants, IconTextLine, SeedSignerIconConstants, TextArea

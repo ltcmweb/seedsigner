@@ -1,4 +1,4 @@
-from seedsigner.image import Image, ImageDraw
+from PIL import Image, ImageDraw
 from threading import Lock
 
 from seedsigner.hardware.displays.display_driver import ALL_DISPLAY_TYPES, DISPLAY_TYPE__ILI9341, DISPLAY_TYPE__ILI9486, DISPLAY_TYPE__ST7789, DisplayDriverFactory

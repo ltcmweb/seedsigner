@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from seedsigner.image import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont
 from typing import Tuple
 from gettext import gettext as _
 

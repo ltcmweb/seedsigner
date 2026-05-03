@@ -4,7 +4,7 @@ import time
 
 from dataclasses import dataclass
 from gettext import gettext as _
-from seedsigner.image import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter
 from typing import List
 
 from seedsigner.hardware.buttons import HardwareButtons, HardwareButtonsConstants

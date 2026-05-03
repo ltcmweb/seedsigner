@@ -1,5 +1,5 @@
 import sys
-from seedsigner.image import ImageOps
+from PIL import ImageOps
 
 from kivy.app import App
 from kivy.clock import Clock

@@ -1,5 +1,5 @@
 import qrcode
-from seedsigner.image import Image, ImageDraw
+from PIL import Image, ImageDraw
 import subprocess
 
 class QR:

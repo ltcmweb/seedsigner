@@ -1,7 +1,7 @@
 import io
 
 from gettext import gettext as _
-from seedsigner.image import Image
+from PIL import Image
 
 from seedsigner.models.settings import Settings, SettingsConstants
 from seedsigner.models.singleton import Singleton
