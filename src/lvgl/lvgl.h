@@ -1,18 +1,21 @@
-#define PY_SSIZE_T_CLEAN
-#include <Python.h>
 #include "lvgl/lvgl.h"
 
-void lvgl_init();
-
 typedef struct {
-    PyObject_HEAD
     uint8_t *buf;
     size_t size;
     int32_t w, h;
     lv_obj_t *canvas;
-} CanvasObject;
+} Canvas;
 
-extern PyTypeObject CanvasType;
+void lvgl_init();
+bool lvgl_load(Canvas *canvas, const uint8_t *data, size_t len);
+void lvgl_rect(Canvas *canvas, int x1, int y1, int x2, int y2,
+    int fill, int outline, int width, int radius);
+void lvgl_line(Canvas *canvas, int x1, int y1, int x2, int y2, int fill);
+void lvgl_text(Canvas *canvas, int x, int y, int fill,
+    const char *text, const char *font, const char *anchor, lv_area_t *box);
+bool canvas_init(Canvas *canvas, const char *mode, int w, int h);
+void canvas_copyto(Canvas *canvas, Canvas *src, int x, int y);
 
 LV_FONT_DECLARE(opensans_regular_17_4bpp);
 LV_FONT_DECLARE(opensans_regular_17_4bpp_125x);

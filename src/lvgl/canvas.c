@@ -1,11 +1,19 @@
-#include <string.h>
+#define PY_SSIZE_T_CLEAN
+#include <Python.h>
 #include "lvgl.h"
+
+typedef struct {
+    PyObject_HEAD
+    Canvas canvas;
+} CanvasObject;
+
+extern PyTypeObject CanvasType;
 
 static PyObject *Canvas_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
     CanvasObject *self = (CanvasObject*)type->tp_alloc(type, 0);
     if (self) {
-        self->buf = NULL;
-        self->canvas = NULL;
+        self->canvas.buf = NULL;
+        self->canvas.canvas = NULL;
     }
     return (PyObject*)self;
 }
@@ -16,33 +24,16 @@ static int Canvas_init(CanvasObject *self, PyObject *args, PyObject *kwds) {
     if (!PyArg_ParseTuple(args, "s(ii)", &mode, &w, &h))
         return -1;
 
-    lv_color_format_t cf = LV_COLOR_FORMAT_RGB565;
-    if (!strcmp(mode, "RGB")) {
-        cf = LV_COLOR_FORMAT_RGB888;
-        self->size = w * h * 3;
-    } else if (!strcmp(mode, "RGBA")) {
-        cf = LV_COLOR_FORMAT_ARGB8888;
-        self->size = w * h * 4;
-    } else {
-        self->size = w * h * 2;
-    }
-
-    lvgl_init();
-    self->buf = lv_malloc(self->size);
-    if (!self->buf) {
+    if (!canvas_init(&self->canvas, mode, w, h)) {
         PyErr_NoMemory();
         return -1;
     }
 
-    self->w = w;
-    self->h = h;
-    self->canvas = lv_canvas_create(lv_screen_active());
-    lv_canvas_set_buffer(self->canvas, self->buf, w, h, cf);
     return 0;
 }
 
 static void Canvas_dealloc(CanvasObject *self) {
-    lv_free(self->buf);
+    lv_free(self->canvas.buf);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -50,14 +41,14 @@ static PyObject *Canvas_size(CanvasObject *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, ""))
         return NULL;
 
-    return PyTuple_Pack(2, PyLong_FromLong(self->w), PyLong_FromLong(self->h));
+    return PyTuple_Pack(2, PyLong_FromLong(self->canvas.w), PyLong_FromLong(self->canvas.h));
 }
 
 static PyObject *Canvas_tobytes(CanvasObject *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, ""))
         return NULL;
 
-    return PyBytes_FromStringAndSize((char*)self->buf, self->size);
+    return PyBytes_FromStringAndSize((char*)self->canvas.buf, self->canvas.size);
 }
 
 static PyObject *Canvas_setbytes(CanvasObject *self, PyObject *args) {
@@ -65,7 +56,7 @@ static PyObject *Canvas_setbytes(CanvasObject *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "y*", &view))
         return NULL;
 
-    memcpy(self->buf, view.buf, self->size);
+    memcpy(self->canvas.buf, view.buf, self->canvas.size);
 
     PyBuffer_Release(&view);
     Py_RETURN_NONE;
@@ -77,16 +68,7 @@ static PyObject *Canvas_copyto(CanvasObject *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "O!(ii)", &CanvasType, &canvas, &x, &y))
         return NULL;
 
-    lv_layer_t layer;
-    lv_canvas_init_layer(canvas->canvas, &layer);
-
-    lv_draw_image_dsc_t dsc;
-    lv_draw_image_dsc_init(&dsc);
-    dsc.src = lv_canvas_get_image(self->canvas);
-
-    lv_area_t coords = {x, y, x + self->w - 1, y + self->h - 1};
-    lv_draw_image(&layer, &dsc, &coords);
-    lv_canvas_finish_layer(canvas->canvas, &layer);
+    canvas_copyto(&canvas->canvas, &self->canvas, x, y);
 
     Py_RETURN_NONE;
 }

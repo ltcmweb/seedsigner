@@ -1,3 +1,4 @@
+#include <string.h>
 #include "lvgl.h"
 
 void lvgl_init() {
@@ -9,23 +10,16 @@ void lvgl_init() {
     lv_display_create(0, 0);
 }
 
-static PyObject *load(PyObject *self, PyObject *args) {
-    const char *data;
-    Py_ssize_t len;
-
-    if (!PyArg_ParseTuple(args, "y#", &data, &len))
-        return NULL;
-
+bool lvgl_load(Canvas *canvas, const uint8_t *data, size_t len) {
     lvgl_init();
     lv_image_decoder_dsc_t dsc;
     lv_image_dsc_t img_dsc = {
         .data_size = len,
-        .data = (uint8_t*)data,
+        .data = data,
     };
     lv_image_decoder_args_t dec_args = { 0 };
     lv_image_decoder_open(&dsc, &img_dsc, &dec_args);
 
-    CanvasObject *canvas = PyObject_New(CanvasObject, &CanvasType);
     canvas->w = dsc.header.w;
     canvas->h = dsc.header.h;
 
@@ -38,10 +32,7 @@ static PyObject *load(PyObject *self, PyObject *args) {
         break;
     }
     canvas->buf = lv_malloc(canvas->size);
-    if (!canvas->buf) {
-        PyErr_NoMemory();
-        return NULL;
-    }
+    if (!canvas->buf) return false;
 
     memcpy(canvas->buf, dsc.decoded->data, canvas->size);
     lv_image_decoder_close(&dsc);
@@ -49,16 +40,11 @@ static PyObject *load(PyObject *self, PyObject *args) {
     canvas->canvas = lv_canvas_create(lv_screen_active());
     lv_canvas_set_buffer(canvas->canvas, canvas->buf, canvas->w, canvas->h, dsc.header.cf);
 
-    return (PyObject*)canvas;
+    return true;
 }
 
-static PyObject *rectangle(PyObject *self, PyObject *args) {
-    CanvasObject *canvas;
-    int x1, y1, x2, y2, fill, outline, width, radius;
-
-    if (!PyArg_ParseTuple(args, "O!(iiii)iiii", &CanvasType, &canvas,
-        &x1, &y1, &x2, &y2, &fill, &outline, &width, &radius))
-        return NULL;
+void lvgl_rect(Canvas *canvas, int x1, int y1, int x2, int y2,
+    int fill, int outline, int width, int radius) {
 
     lv_layer_t layer;
     lv_canvas_init_layer(canvas->canvas, &layer);
@@ -81,18 +67,9 @@ static PyObject *rectangle(PyObject *self, PyObject *args) {
     lv_area_t coords = {x1, y1, x2 - 1, y2 - 1};
     lv_draw_rect(&layer, &dsc, &coords);
     lv_canvas_finish_layer(canvas->canvas, &layer);
-
-    Py_RETURN_NONE;
 }
 
-static PyObject *line(PyObject *self, PyObject *args) {
-    CanvasObject *canvas;
-    int x1, y1, x2, y2, fill;
-
-    if (!PyArg_ParseTuple(args, "O!(iiii)i", &CanvasType, &canvas,
-        &x1, &y1, &x2, &y2, &fill))
-        return NULL;
-
+void lvgl_line(Canvas *canvas, int x1, int y1, int x2, int y2, int fill) {
     lv_layer_t layer;
     lv_canvas_init_layer(canvas->canvas, &layer);
 
@@ -107,18 +84,10 @@ static PyObject *line(PyObject *self, PyObject *args) {
 
     lv_draw_line(&layer, &dsc);
     lv_canvas_finish_layer(canvas->canvas, &layer);
-
-    Py_RETURN_NONE;
 }
 
-static PyObject *text(PyObject *self, PyObject *args) {
-    CanvasObject *canvas;
-    int x, y, fill;
-    const char *text, *font, *anchor;
-
-    if (!PyArg_ParseTuple(args, "O!(ii)ssis", &CanvasType, &canvas,
-        &x, &y, &text, &font, &fill, &anchor))
-        return NULL;
+void lvgl_text(Canvas *canvas, int x, int y, int fill,
+    const char *text, const char *font, const char *anchor, lv_area_t *box) {
 
     lv_layer_t layer;
     lv_canvas_init_layer(canvas->canvas, &layer);
@@ -195,7 +164,7 @@ static PyObject *text(PyObject *self, PyObject *args) {
     case 's':
         y -= size.y - dsc.font->base_line;
         size.y = 0;
-        for (char *p = text; *p; p++)
+        for (const char *p = text; *p; p++)
             for (char *q = "gjpqyQ()"; *q; q++)
                 if (*p == *q)
                     size.y = dsc.font->base_line;
@@ -206,37 +175,44 @@ static PyObject *text(PyObject *self, PyObject *args) {
     lv_draw_label(&layer, &dsc, &coords);
     lv_canvas_finish_layer(canvas->canvas, &layer);
 
-    return PyTuple_Pack(4, PyLong_FromLong(x), PyLong_FromLong(y),
-                           PyLong_FromLong(size.x), PyLong_FromLong(size.y));
+    box->x1 = x;
+    box->y1 = y;
+    box->x2 = size.x;
+    box->y2 = size.y;
 }
 
-static PyMethodDef Methods[] = {
-    {"load", load, METH_VARARGS, "Load image"},
-    {"rectangle", rectangle, METH_VARARGS, "Draw rectangle"},
-    {"line", line, METH_VARARGS, "Draw line"},
-    {"text", text, METH_VARARGS, "Draw text"},
-    {NULL, NULL, 0, NULL}
-};
+bool canvas_init(Canvas *canvas, const char *mode, int w, int h) {
+    lv_color_format_t cf = LV_COLOR_FORMAT_RGB565;
+    if (!strcmp(mode, "RGB")) {
+        cf = LV_COLOR_FORMAT_RGB888;
+        canvas->size = w * h * 3;
+    } else if (!strcmp(mode, "RGBA")) {
+        cf = LV_COLOR_FORMAT_ARGB8888;
+        canvas->size = w * h * 4;
+    } else {
+        canvas->size = w * h * 2;
+    }
 
-static struct PyModuleDef module = {
-    PyModuleDef_HEAD_INIT,
-    "lvgl",
-    NULL,
-    -1,
-    Methods
-};
+    lvgl_init();
+    canvas->buf = lv_malloc(canvas->size);
+    if (!canvas->buf) return false;
 
-extern PyTypeObject CanvasType;
+    canvas->w = w;
+    canvas->h = h;
+    canvas->canvas = lv_canvas_create(lv_screen_active());
+    lv_canvas_set_buffer(canvas->canvas, canvas->buf, w, h, cf);
+    return true;
+}
 
-PyMODINIT_FUNC PyInit_lvgl(void) {
-    if (PyType_Ready(&CanvasType) < 0)
-        return NULL;
+void canvas_copyto(Canvas *canvas, Canvas *src, int x, int y) {
+    lv_layer_t layer;
+    lv_canvas_init_layer(canvas->canvas, &layer);
 
-    PyObject *m = PyModule_Create(&module);
-    if (!m) return NULL;
+    lv_draw_image_dsc_t dsc;
+    lv_draw_image_dsc_init(&dsc);
+    dsc.src = lv_canvas_get_image(src->canvas);
 
-    Py_INCREF(&CanvasType);
-    PyModule_AddObject(m, "Canvas", (PyObject*)&CanvasType);
-
-    return m;
+    lv_area_t coords = {x, y, x + src->w - 1, y + src->h - 1};
+    lv_draw_image(&layer, &dsc, &coords);
+    lv_canvas_finish_layer(canvas->canvas, &layer);
 }
