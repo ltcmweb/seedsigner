@@ -518,7 +518,7 @@ class SeedWordsScreen(WarningEdgesMixin, ButtonListScreen):
         number_box_width = number_width + int(GUIConstants.COMPONENT_PADDING/2 * supersampling_factor)
         number_box_height = number_box_width
 
-        number_box_x = int((self.canvas_width * supersampling_factor - number_box_width - GUIConstants.COMPONENT_PADDING*supersampling_factor - max_word_width))/2
+        number_box_x = int(int((self.canvas_width * supersampling_factor - number_box_width - GUIConstants.COMPONENT_PADDING*supersampling_factor - max_word_width))/2)
         number_box_y = GUIConstants.COMPONENT_PADDING * supersampling_factor
 
         # Set up our temp supersampled rendering surface

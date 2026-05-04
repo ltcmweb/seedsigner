@@ -74,3 +74,5 @@ def alpha_composite(back, front):
 class Resampling:
     NEAREST = 0
     LANCZOS = 1
+
+LANCZOS = 1

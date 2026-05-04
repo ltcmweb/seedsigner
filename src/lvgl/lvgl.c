@@ -128,10 +128,20 @@ static PyObject *text(PyObject *self, PyObject *args) {
     dsc.color = lv_color_hex(fill);
     dsc.text = text;
 
-    if (!strcmp(font, "OpenSans-Regular-17")) {
+    if (!strcmp(font, "OpenSans-Regular-15")) {
         dsc.font = &opensans_regular_17_4bpp;
+    } else if (!strcmp(font, "OpenSans-Regular-17")) {
+        dsc.font = &opensans_regular_17_4bpp;
+    } else if (!strcmp(font, "OpenSans-Regular-18")) {
+        dsc.font = &opensans_regular_17_4bpp;
+    } else if (!strcmp(font, "OpenSans-Regular-19")) {
+        dsc.font = &opensans_regular_17_4bpp_125x;
     } else if (!strcmp(font, "OpenSans-Regular-20")) {
         dsc.font = &opensans_regular_17_4bpp_125x;
+    } else if (!strcmp(font, "OpenSans-Regular-22")) {
+        dsc.font = &opensans_regular_17_4bpp_125x;
+    } else if (!strcmp(font, "OpenSans-Regular-26")) {
+        dsc.font = &opensans_regular_17_4bpp_150x;
     } else if (!strcmp(font, "OpenSans-SemiBold-17")) {
         dsc.font = &opensans_semibold_18_4bpp;
     } else if (!strcmp(font, "OpenSans-SemiBold-18")) {
@@ -140,15 +150,25 @@ static PyObject *text(PyObject *self, PyObject *args) {
         dsc.font = &opensans_semibold_20_4bpp;
     } else if (!strcmp(font, "OpenSans-SemiBold-26")) {
         dsc.font = &opensans_semibold_26_4bpp;
+    } else if (!strcmp(font, "Inconsolata-Regular-26")) {
+        dsc.font = &Inconsolata_SemiBold;
+    } else if (!strcmp(font, "Inconsolata-SemiBold-20")) {
+        dsc.font = &Inconsolata_SemiBold;
     } else if (!strcmp(font, "Inconsolata-SemiBold-22")) {
         dsc.font = &Inconsolata_SemiBold;
     } else if (!strcmp(font, "Inconsolata-SemiBold-24")) {
         dsc.font = &Inconsolata_SemiBold;
+    } else if (!strcmp(font, "seedsigner-icons-17")) {
+        dsc.font = &seedsigner_icons_24_4bpp;
+    } else if (!strcmp(font, "seedsigner-icons-22")) {
+        dsc.font = &seedsigner_icons_24_4bpp;
     } else if (!strcmp(font, "seedsigner-icons-24")) {
         dsc.font = &seedsigner_icons_24_4bpp;
     } else if (!strcmp(font, "seedsigner-icons-26")) {
         dsc.font = &seedsigner_icons_24_4bpp;
     } else if (!strcmp(font, "seedsigner-icons-30")) {
+        dsc.font = &seedsigner_icons_36_4bpp;
+    } else if (!strcmp(font, "seedsigner-icons-34")) {
         dsc.font = &seedsigner_icons_36_4bpp;
     } else if (!strcmp(font, "seedsigner-icons-48")) {
         dsc.font = &seedsigner_icons_48_4bpp;
@@ -176,7 +196,7 @@ static PyObject *text(PyObject *self, PyObject *args) {
         y -= size.y - dsc.font->base_line;
         size.y = 0;
         for (char *p = text; *p; p++)
-            for (char *q = "gjpqy"; *q; q++)
+            for (char *q = "gjpqyQ()"; *q; q++)
                 if (*p == *q)
                     size.y = dsc.font->base_line;
         break;

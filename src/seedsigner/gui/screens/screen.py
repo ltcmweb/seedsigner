@@ -891,7 +891,7 @@ class QRDisplayScreen(BaseScreen):
             ).render()
 
             # Write our temp Image onto the main image
-            image.paste(rectangle, (0, image.height - rectangle_height - 1), rectangle)
+            image.paste(rectangle, (0, image.height - rectangle_height - 1))
 
 
         def run(self):

@@ -5,6 +5,8 @@ class ImageDraw:
         self.canvas = image.canvas
 
     def rectangle(self, box, *, fill, outline=None, width=1):
+        if len(box) == 2:
+            box = box[0] + box[1]
         lvgl.rectangle(self.canvas, box, color_to_int(fill), color_to_int(outline), width, 0)
 
     def rounded_rectangle(self, box, *, fill, radius, outline=None, width=1):
@@ -15,6 +17,9 @@ class ImageDraw:
 
     def line(self, xy, fill, width=1):
         lvgl.line(self.canvas, xy, color_to_int(fill))
+
+    def arc(self, box, start, end, fill, width):
+        pass
 
     def ellipse(self, box, fill, outline=None, width=1):
         pass
@@ -30,12 +35,25 @@ def Draw(image):
 def color_to_int(color):
     if color is None:
         return -1
-    elif isinstance(color, tuple) and len(color) == 3:
-        r, g, b = color
+    if isinstance(color, int):
+        color = color, color, color
+    if isinstance(color, tuple):
+        if len(color) == 4:
+            r, g, b, _ = color
+        else:
+            r, g, b = color
         color = r << 16 | g << 8 | b
-    elif isinstance(color, str):
+    if isinstance(color, str):
         if color == 'black':
             color = '#000000'
+        elif color == 'red':
+            color = '#ff0000'
+        elif color == 'orange':
+            color = '#ffa500'
+        elif color == 'blue':
+            color = '#0000ff'
+        elif color == 'white':
+            color = '#ffffff'
         if color[0] == '#':
             if len(color) == 7:
                 color = int(color[1:], 16)
