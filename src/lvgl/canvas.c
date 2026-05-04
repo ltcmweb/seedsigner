@@ -1,6 +1,6 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
-#include "lvgl.h"
+#include "mod_lvgl.h"
 
 typedef struct {
     PyObject_HEAD
@@ -24,7 +24,7 @@ static int Canvas_init(CanvasObject *self, PyObject *args, PyObject *kwds) {
     if (!PyArg_ParseTuple(args, "s(ii)", &mode, &w, &h))
         return -1;
 
-    if (!canvas_init(&self->canvas, mode, w, h)) {
+    if (!mod_lvgl_canvas_init(&self->canvas, mode, w, h)) {
         PyErr_NoMemory();
         return -1;
     }
@@ -68,7 +68,7 @@ static PyObject *Canvas_copyto(CanvasObject *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "O!(ii)", &CanvasType, &canvas, &x, &y))
         return NULL;
 
-    canvas_copyto(&canvas->canvas, &self->canvas, x, y);
+    mod_lvgl_canvas_copyto(&canvas->canvas, &self->canvas, x, y);
 
     Py_RETURN_NONE;
 }

@@ -1,6 +1,6 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
-#include "lvgl.h"
+#include "mod_lvgl.h"
 
 typedef struct {
     PyObject_HEAD
@@ -17,7 +17,7 @@ static PyObject *load(PyObject *self, PyObject *args) {
         return NULL;
 
     CanvasObject *canvas = PyObject_New(CanvasObject, &CanvasType);
-    if (!lvgl_load(&canvas->canvas, (const uint8_t*)data, len)) {
+    if (!mod_lvgl_load(&canvas->canvas, (const uint8_t*)data, len)) {
         PyErr_NoMemory();
         return NULL;
     }
@@ -33,7 +33,7 @@ static PyObject *rectangle(PyObject *self, PyObject *args) {
         &x1, &y1, &x2, &y2, &fill, &outline, &width, &radius))
         return NULL;
 
-    lvgl_rect(&canvas->canvas, x1, y1, x2, y2, fill, outline, width, radius);
+    mod_lvgl_rect(&canvas->canvas, x1, y1, x2, y2, fill, outline, width, radius);
 
     Py_RETURN_NONE;
 }
@@ -46,7 +46,7 @@ static PyObject *line(PyObject *self, PyObject *args) {
         &x1, &y1, &x2, &y2, &fill))
         return NULL;
 
-    lvgl_line(&canvas->canvas, x1, y1, x2, y2, fill);
+    mod_lvgl_line(&canvas->canvas, x1, y1, x2, y2, fill);
 
     Py_RETURN_NONE;
 }
@@ -61,7 +61,7 @@ static PyObject *text(PyObject *self, PyObject *args) {
         return NULL;
 
     lv_area_t box;
-    lvgl_text(&canvas->canvas, x, y, fill, text, font, anchor, &box);
+    mod_lvgl_text(&canvas->canvas, x, y, fill, text, font, anchor, &box);
 
     return PyTuple_Pack(4, PyLong_FromLong(box.x1), PyLong_FromLong(box.y1),
                            PyLong_FromLong(box.x2), PyLong_FromLong(box.y2));
@@ -92,6 +92,9 @@ PyMODINIT_FUNC PyInit_lvgl(void) {
 
     Py_INCREF(&CanvasType);
     PyModule_AddObject(m, "Canvas", (PyObject*)&CanvasType);
+
+    lv_init();
+    lv_display_create(0, 0);
 
     return m;
 }

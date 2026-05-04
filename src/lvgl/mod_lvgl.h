@@ -1,4 +1,4 @@
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 
 typedef struct {
     uint8_t *buf;
@@ -7,15 +7,14 @@ typedef struct {
     lv_obj_t *canvas;
 } Canvas;
 
-void lvgl_init();
-bool lvgl_load(Canvas *canvas, const uint8_t *data, size_t len);
-void lvgl_rect(Canvas *canvas, int x1, int y1, int x2, int y2,
+bool mod_lvgl_load(Canvas *canvas, const uint8_t *data, size_t len);
+void mod_lvgl_rect(Canvas *canvas, int x1, int y1, int x2, int y2,
     int fill, int outline, int width, int radius);
-void lvgl_line(Canvas *canvas, int x1, int y1, int x2, int y2, int fill);
-void lvgl_text(Canvas *canvas, int x, int y, int fill,
+void mod_lvgl_line(Canvas *canvas, int x1, int y1, int x2, int y2, int fill);
+void mod_lvgl_text(Canvas *canvas, int x, int y, int fill,
     const char *text, const char *font, const char *anchor, lv_area_t *box);
-bool canvas_init(Canvas *canvas, const char *mode, int w, int h);
-void canvas_copyto(Canvas *canvas, Canvas *src, int x, int y);
+bool mod_lvgl_canvas_init(Canvas *canvas, const char *mode, int w, int h);
+void mod_lvgl_canvas_copyto(Canvas *canvas, Canvas *src, int x, int y);
 
 LV_FONT_DECLARE(opensans_regular_17_4bpp);
 LV_FONT_DECLARE(opensans_regular_17_4bpp_125x);
