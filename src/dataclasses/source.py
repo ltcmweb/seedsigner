@@ -15,11 +15,6 @@ def init(fields: list[Field], post_init: bool = False) -> str:
             arg += "=FACTORY_SENTINEL"
         args.append(arg)
 
-    # Force all arguments to be keyword-only. Positional arguments are confusing
-    # in our use case because we don't preserve the user's field ordering.
-    if args:
-        args.insert(0, "*")
-
     body = [line for f in fields if (line := init_initialize_field(f))]
 
     if post_init:

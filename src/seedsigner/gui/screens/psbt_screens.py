@@ -1,7 +1,7 @@
 import math
 import time
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from gettext import gettext as _
 from gettext import ngettext
 from PIL import Image, ImageDraw, ImageFilter
@@ -17,14 +17,14 @@ from .screen import ButtonListScreen, ButtonOption
 
 @dataclass
 class PSBTOverviewScreen(ButtonListScreen):
-    spend_amount: int = 0
-    change_amount: int = 0
-    fee_amount: int = 0
-    num_inputs: int = 0
-    num_self_transfer_outputs: int = 0
-    num_change_outputs: int = 0
-    destination_addresses: list[str] = None
-    has_op_return: bool = False
+    spend_amount: int = field(1, default=0)
+    change_amount: int = field(2, default=0)
+    fee_amount: int = field(3, default=0)
+    num_inputs: int = field(4, default=0)
+    num_self_transfer_outputs: int = field(5, default=0)
+    num_change_outputs: int = field(6, default=0)
+    destination_addresses: list[str] = field(7, default=None)
+    has_op_return: bool = field(8, default=False)
     
 
     def __post_init__(self):
@@ -465,12 +465,12 @@ class PSBTOverviewScreen(ButtonListScreen):
 
 @dataclass
 class PSBTMathScreen(ButtonListScreen):
-    input_amount: int = 0
-    num_inputs: int = 0
-    spend_amount: int = 0
-    num_recipients: int = 0
-    fee_amount: int = 0
-    change_amount: int = 0
+    input_amount: int = field(1, default=0)
+    num_inputs: int = field(2, default=0)
+    spend_amount: int = field(3, default=0)
+    num_recipients: int = field(4, default=0)
+    fee_amount: int = field(5, default=0)
+    change_amount: int = field(6, default=0)
 
 
     def __post_init__(self):
@@ -595,8 +595,8 @@ class PSBTMathScreen(ButtonListScreen):
 
 @dataclass
 class PSBTAddressDetailsScreen(ButtonListScreen):
-    address: str = None
-    amount: int = 0
+    address: str = field(1, default=None)
+    amount: int = field(2, default=0)
 
     def __post_init__(self):
         # Customize defaults
@@ -646,14 +646,14 @@ class PSBTAddressDetailsScreen(ButtonListScreen):
 
 @dataclass
 class PSBTChangeDetailsScreen(ButtonListScreen):
-    amount: int = 0
-    address: str = None
-    is_multisig: bool = False
-    fingerprint: str = None
-    derivation_path: str = None
-    is_change_derivation_path: bool = True
-    derivation_path_addr_index: int = 0
-    is_change_addr_verified: bool = False
+    amount: int = field(1, default=0)
+    address: str = field(2, default=None)
+    is_multisig: bool = field(3, default=False)
+    fingerprint: str = field(4, default=None)
+    derivation_path: str = field(5, default=None)
+    is_change_derivation_path: bool = field(6, default=True)
+    derivation_path_addr_index: int = field(7, default=0)
+    is_change_addr_verified: bool = field(8, default=False)
 
     def __post_init__(self):
         # Customize defaults
@@ -712,7 +712,7 @@ class PSBTChangeDetailsScreen(ButtonListScreen):
 
 @dataclass
 class PSBTOpReturnScreen(ButtonListScreen):
-    op_return_data: bytes = None
+    op_return_data: bytes = field(1, default=None)
 
     def __post_init__(self):
         # Customize defaults

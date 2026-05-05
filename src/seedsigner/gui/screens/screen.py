@@ -29,7 +29,7 @@ RET_CODE__POWER_BUTTON = 1001
 
 @dataclass
 class BaseScreen(BaseComponent):
-    clear_hw_inputs: bool = True
+    clear_hw_inputs: bool = field(1, default=True)
 
     def __post_init__(self):
         super().__post_init__()
@@ -210,12 +210,12 @@ class LoadingScreenThread(BaseThread):
 
 @dataclass
 class BaseTopNavScreen(BaseScreen):
-    top_nav_icon_name: str = None
-    top_nav_icon_color: str = None
-    title: str = "Screen Title"
-    title_font_size: int = GUIConstants.get_top_nav_title_font_size()
-    show_back_button: bool = True
-    show_power_button: bool = False
+    top_nav_icon_name: str = field(1, default=None)
+    top_nav_icon_color: str = field(2, default=None)
+    title: str = field(3, default="Screen Title")
+    title_font_size: int = field(4, default=GUIConstants.get_top_nav_title_font_size())
+    show_back_button: bool = field(5, default=True)
+    show_power_button: bool = field(6, default=False)
 
     def __post_init__(self):
         super().__post_init__()
@@ -279,15 +279,15 @@ class ButtonOption:
     """
     Note: The babel config in setup.cfg will extract the `button_label` string for translation
     """
-    button_label: str = field()
-    icon_name: str = None
-    icon_color: str = None
-    right_icon_name: str = None
-    button_label_color: str = None
-    return_data: Any = None
-    active_button_label: str = None  # Changes displayed button label when button is active
-    font_name: str = None  # Optional override
-    font_size: int = None  # Optional override
+    button_label: str = field(1)
+    icon_name: str = field(2, default=None)
+    icon_color: str = field(3, default=None)
+    right_icon_name: str = field(4, default=None)
+    button_label_color: str = field(5, default=None)
+    return_data: Any = field(6, default=None)
+    active_button_label: str = field(7, default=None)  # Changes displayed button label when button is active
+    font_name: str = field(8, default=None)  # Optional override
+    font_size: int = field(9, default=None)  # Optional override
 
 
 
@@ -302,27 +302,27 @@ class ButtonOptionWithoutTranslation(ButtonOption):
 
 @dataclass
 class ButtonListScreen(BaseTopNavScreen):
-    button_data: list[ButtonOption] = None
-    selected_button: int = 0
-    is_button_text_centered: bool = True
-    is_bottom_list: bool = False
+    button_data: list[ButtonOption] = field(1, default=None)
+    selected_button: int = field(2, default=0)
+    is_button_text_centered: bool = field(3, default=True)
+    is_bottom_list: bool = field(4, default=False)
 
     # Cannot define these class attrs w/the get_*_font_*() methods because the attrs will
     # not be dynamically reinterpreted after initial class import.
-    button_font_name: str = None
-    button_font_size: int = None
+    button_font_name: str = field(5, default=None)
+    button_font_size: int = field(6, default=None)
 
-    button_selected_color: str = GUIConstants.ACCENT_COLOR
+    button_selected_color: str = field(7, default=GUIConstants.ACCENT_COLOR)
 
     # Params for version of list used for Settings
     Button_cls = Button
-    checked_buttons: List[int] = None
+    checked_buttons: List[int] = field(8, default=None)
 
     # Enables returning w/buttons rendered at the same place; default behavior will
     # ensure the screen is at least scrolled to reveal the `selected_button`.
-    scroll_y_initial_offset: int = None
+    scroll_y_initial_offset: int = field(9, default=None)
 
-    header_height: int = None
+    header_height: int = field(10, default=None)
 
 
     def __post_init__(self):
@@ -625,15 +625,15 @@ class ButtonListScreen(BaseTopNavScreen):
 
 @dataclass
 class LargeButtonScreen(BaseTopNavScreen):
-    button_data: list = None
+    button_data: list = field(1, default=None)
 
     # Cannot define these class attrs w/the get_*_font_*() methods because the attrs will
     # not be dynamically reinterpreted after initial class import.
-    button_font_name: str = None
-    button_font_size: int = None
+    button_font_name: str = field(2, default=None)
+    button_font_size: int = field(3, default=None)
 
-    button_selected_color: str = GUIConstants.ACCENT_COLOR
-    selected_button: int = 0
+    button_selected_color: str = field(4, default=GUIConstants.ACCENT_COLOR)
+    selected_button: int = field(5, default=0)
 
     def __post_init__(self):
         if not self.button_font_name:
@@ -809,7 +809,7 @@ class LargeButtonScreen(BaseTopNavScreen):
 
 @dataclass
 class QRDisplayScreen(BaseScreen):
-    qr_encoder: BaseQrEncoder = None
+    qr_encoder: BaseQrEncoder = field(1, default=None)
 
     class QRDisplayThread(BaseThread):
         def __init__(self, qr_encoder: BaseQrEncoder, qr_brightness: ThreadsafeCounter, tips_start_time: ThreadsafeCounter):
@@ -981,14 +981,14 @@ class QRDisplayScreen(BaseScreen):
 
 @dataclass
 class LargeIconStatusScreen(ButtonListScreen):
-    title: str = _mft("Success!")
-    status_icon_name: str = SeedSignerIconConstants.SUCCESS
-    status_icon_size: int = GUIConstants.ICON_PRIMARY_SCREEN_SIZE
-    status_color: str = GUIConstants.SUCCESS_COLOR
-    status_headline: str = None
-    text: str = ""                          # The body text of the screen
-    text_edge_padding: int = GUIConstants.EDGE_PADDING
-    button_data: list = None
+    title: str = field(1, default=_mft("Success!"))
+    status_icon_name: str = field(2, default=SeedSignerIconConstants.SUCCESS)
+    status_icon_size: int = field(3, default=GUIConstants.ICON_PRIMARY_SCREEN_SIZE)
+    status_color: str = field(4, default=GUIConstants.SUCCESS_COLOR)
+    status_headline: str = field(5, default=None)
+    text: str = field(6, default="")                          # The body text of the screen
+    text_edge_padding: int = field(7, default=GUIConstants.EDGE_PADDING)
+    button_data: list = field(8, default=None)
 
 
     def __post_init__(self):
@@ -1095,8 +1095,8 @@ class WarningEdgesThread(BaseThread):
 
 @dataclass
 class WarningEdgesMixin:
-    status_color: str = GUIConstants.WARNING_COLOR
-    text_edge_padding: int = 2 * GUIConstants.EDGE_PADDING
+    status_color: str = field(1, default=GUIConstants.WARNING_COLOR)
+    text_edge_padding: int = field(2, default=2 * GUIConstants.EDGE_PADDING)
 
     def __post_init__(self):
         super().__post_init__()
@@ -1110,11 +1110,11 @@ class WarningScreen(WarningEdgesMixin, LargeIconStatusScreen):
     """
     Exclamation point icon + yellow WARNING color
     """
-    title: str = _mft("Caution")
-    status_icon_name: str = SeedSignerIconConstants.WARNING
-    status_color: str = GUIConstants.WARNING_COLOR
-    status_headline: str = _mft("Privacy Leak!")     # The colored text under the alert icon
-    button_data: list = field(default_factory=lambda: [ButtonOption("I understand")])
+    title: str = field(1, default=_mft("Caution"))
+    status_icon_name: str = field(2, default=SeedSignerIconConstants.WARNING)
+    status_color: str = field(3, default=GUIConstants.WARNING_COLOR)
+    status_headline: str = field(4, default=_mft("Privacy Leak!"))     # The colored text under the alert icon
+    button_data: list = field(5, default_factory=lambda: [ButtonOption("I understand")])
 
 
 
@@ -1123,8 +1123,8 @@ class DireWarningScreen(WarningScreen):
     """
     Exclamation point icon + orange DIRE_WARNING color
     """
-    status_headline: str = _mft("Classified Info!")     # The colored text under the alert icon
-    status_color: str = GUIConstants.DIRE_WARNING_COLOR
+    status_headline: str = field(1, default=_mft("Classified Info!"))     # The colored text under the alert icon
+    status_color: str = field(2, default=GUIConstants.DIRE_WARNING_COLOR)
 
 
 
@@ -1133,9 +1133,9 @@ class ErrorScreen(WarningScreen):
     """
     X icon + red ERROR color
     """
-    title: str = _mft("Error")
-    status_icon_name: str = SeedSignerIconConstants.ERROR
-    status_color: str = GUIConstants.ERROR_COLOR
+    title: str = field(1, default=_mft("Error"))
+    status_icon_name: str = field(2, default=SeedSignerIconConstants.ERROR)
+    status_color: str = field(3, default=GUIConstants.ERROR_COLOR)
 
 
 
@@ -1187,16 +1187,16 @@ class KeyboardScreen(BaseTopNavScreen):
         * show_save_button: Render a KEY3 soft button for save & exit
         * initial_value: initialize the TextEntryDisplay with an existing string
     """
-    rows: int = None
-    cols: int = None
-    keyboard_font_name: str = GUIConstants.FIXED_WIDTH_EMPHASIS_FONT_NAME
-    keyboard_font_size: int = None
-    key_height: int = None
-    keys_charset: str = None
-    keys_to_values: dict = None
-    return_after_n_chars: int = None
-    show_save_button: bool = False
-    initial_value: str = ""
+    rows: int = field(1, default=None)
+    cols: int = field(2, default=None)
+    keyboard_font_name: str = field(3, default=GUIConstants.FIXED_WIDTH_EMPHASIS_FONT_NAME)
+    keyboard_font_size: int = field(4, default=None)
+    key_height: int = field(5, default=None)
+    keys_charset: str = field(6, default=None)
+    keys_to_values: dict = field(7, default=None)
+    return_after_n_chars: int = field(8, default=None)
+    show_save_button: bool = field(9, default=False)
+    initial_value: str = field(10, default="")
 
     def __post_init__(self):
         if self.keyboard_font_size is None:
@@ -1397,6 +1397,6 @@ class KeyboardScreen(BaseTopNavScreen):
 @dataclass
 class MainMenuScreen(LargeButtonScreen):
     # Override LargeButtonScreen defaults
-    title_font_size: int = 26
-    show_back_button: bool = False
-    show_power_button: bool = True
+    title_font_size: int = field(1, default=26)
+    show_back_button: bool = field(2, default=False)
+    show_power_button: bool = field(3, default=True)

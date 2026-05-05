@@ -3,7 +3,7 @@ import math
 from embit import bip32
 from embit.networks import NETWORKS
 from binascii import hexlify
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List
 from embit import bip32
 from embit.networks import NETWORKS
@@ -21,7 +21,7 @@ from urtypes.crypto import Account, HDKey, Output, Keypath, PathComponent, SCRIP
 
 @dataclass
 class BaseQrEncoder:
-    qr_density: str = SettingsConstants.DENSITY__MEDIUM
+    qr_density: str = field(1, default=SettingsConstants.DENSITY__MEDIUM)
 
 
     def __post_init__(self):
@@ -85,8 +85,8 @@ class BaseStaticQrEncoder(BaseQrEncoder):
 
 @dataclass
 class SeedQrEncoder(BaseStaticQrEncoder):
-    mnemonic: List[str] = None
-    wordlist_language_code: str = SettingsConstants.WORDLIST_LANGUAGE__ENGLISH
+    mnemonic: List[str] = field(1, default=None)
+    wordlist_language_code: str = field(2, default=SettingsConstants.WORDLIST_LANGUAGE__ENGLISH)
 
 
     def __post_init__(self):
@@ -138,7 +138,7 @@ class CompactSeedQrEncoder(SeedQrEncoder):
 
 @dataclass
 class GenericStaticQrEncoder(BaseStaticQrEncoder):
-    data: str = None
+    data: str = field(1, default=None)
 
     def next_part(self):
         return self.data
@@ -150,10 +150,10 @@ class BaseXpubQrEncoder(BaseQrEncoder):
     """
     Base Xpub QrEncoder for static and animated formats
     """
-    seed: Seed = None
-    derivation: str = None
-    network: str = SettingsConstants.MAINNET
-    sig_type : str = None
+    seed: Seed = field(1, default=None)
+    derivation: str = field(2, default=None)
+    network: str = field(3, default=SettingsConstants.MAINNET)
+    sig_type: str = field(4, default=None)
 
     def prep_xpub(self):
             
@@ -416,7 +416,7 @@ class UrXpubQrEncoder(BaseFountainQrEncoder, BaseXpubQrEncoder):
 
 @dataclass
 class UrPsbtQrEncoder(BaseFountainQrEncoder):
-    psbt: PSBT = None
+    psbt: PSBT = field(1, default=None)
 
     def __post_init__(self):
         super().__post_init__()

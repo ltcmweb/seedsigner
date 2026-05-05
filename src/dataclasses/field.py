@@ -18,6 +18,7 @@ class FrozenInstanceError(AttributeError):
 
 
 def field(
+    order: int,
     *,
     default: Any | MissingLiteral = MISSING,
     default_factory: DefaultFactory | MissingLiteral = MISSING,
@@ -28,6 +29,7 @@ def field(
 ) -> "Field":
     """Function for explicitly declaring a field."""
     return Field(
+        order=order,
         default=default,
         default_factory=default_factory,
         init=init,
@@ -43,6 +45,7 @@ class Field:
     Users should not directly instantiate this class.
     """
 
+    order: int
     name: str
     type: type = object
     default: Any | MissingLiteral
@@ -56,6 +59,7 @@ class Field:
 
     def __init__(
         self,
+        order: int,
         name: str = "<UNSET>",
         default: Any = MISSING,
         default_factory: DefaultFactory | MissingLiteral = MISSING,
@@ -65,6 +69,7 @@ class Field:
         compare: bool = True,
         init_only: bool = False,
     ) -> None:
+        self.order = order
         self.name = name
         self.default = default
         self.default_factory = default_factory

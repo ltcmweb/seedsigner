@@ -50,6 +50,7 @@ class TransformSpec:
         fields: dict[str, Field] = {}
         # Propagate any existing fields from base class.
         fields.update(getattr(cls, FIELDS_NAME, {}))
+        index = max((f.order for f in fields.values()), default=0) + 1
 
         for name in cls.__dict__.keys():
             # This is subtly different than fetching the value from __dict__.
@@ -75,5 +76,6 @@ class TransformSpec:
                     continue
                 field = Field(name, value)
 
+            field.order += index
             fields[name] = field
-        self.fields = sorted(fields.values(), key=lambda f: f.name)
+        self.fields = sorted(fields.values(), key=lambda f: f.order)

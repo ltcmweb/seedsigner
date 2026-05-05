@@ -1,6 +1,6 @@
 import logging
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from gettext import gettext as _
 
 from seedsigner.gui.components import BaseComponent, GUIConstants, Icon, SeedSignerIconConstants, TextArea
@@ -11,13 +11,13 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ToastOverlay(BaseComponent):
-    icon_name: str = None
-    color: str = GUIConstants.NOTIFICATION_COLOR
-    font_color: str = GUIConstants.NOTIFICATION_COLOR
-    label_text: str = None
-    height: int = GUIConstants.ICON_TOAST_FONT_SIZE + 2*GUIConstants.EDGE_PADDING
-    font_size: int = 19
-    outline_thickness: int = 2  # pixels
+    icon_name: str = field(1, default=None)
+    color: str = field(2, default=GUIConstants.NOTIFICATION_COLOR)
+    font_color: str = field(3, default=GUIConstants.NOTIFICATION_COLOR)
+    label_text: str = field(4, default=None)
+    height: int = field(5, default=GUIConstants.ICON_TOAST_FONT_SIZE + 2*GUIConstants.EDGE_PADDING)
+    font_size: int = field(6, default=19)
+    outline_thickness: int = field(7, default=2)  # pixels
 
     def __post_init__(self):
         super().__post_init__()

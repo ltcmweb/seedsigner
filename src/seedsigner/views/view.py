@@ -1,5 +1,5 @@
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from gettext import gettext as _
 from typing import Type
 
@@ -129,10 +129,10 @@ class Destination:
         Basic struct to pass back to the Controller to tell it which View the user should
         be presented with next.
     """
-    View_cls: Type[View]                # The target View to route to
-    view_args: dict = None              # The input args required to instantiate the target View
-    skip_current_view: bool = False     # The current View is just forwarding; omit current View from history
-    clear_history: bool = False         # Optionally clears the back_stack to prevent "back"
+    View_cls: Type[View] = field(1)                # The target View to route to
+    view_args: dict = field(2, default=None)              # The input args required to instantiate the target View
+    skip_current_view: bool = field(3, default=False)     # The current View is just forwarding; omit current View from history
+    clear_history: bool = field(4, default=False)         # Optionally clears the back_stack to prevent "back"
 
 
     def __repr__(self):
@@ -293,7 +293,7 @@ class NotYetImplementedView(View):
     """
         Temporary View to use during dev.
     """
-    text: str = _mft("This is still on our to-do list!")
+    text: str = field(1, default=_mft("This is still on our to-do list!"))
 
 
     def run(self):
@@ -311,13 +311,13 @@ class NotYetImplementedView(View):
 
 @dataclass
 class ErrorView(View):
-    title: str = _mft("Error")
-    show_back_button: bool = True
-    status_icon_name: str = SeedSignerIconConstants.ERROR
-    status_headline: str = None
-    text: str = None
-    button_text: str = None
-    next_destination: Destination = None
+    title: str = field(1, default=_mft("Error"))
+    show_back_button: bool = field(2, default=True)
+    status_icon_name: str = field(3, default=SeedSignerIconConstants.ERROR)
+    status_headline: str = field(4, default=None)
+    text: str = field(5, default=None)
+    button_text: str = field(6, default=None)
+    next_destination: Destination = field(7, default=None)
 
     def run(self):
         self.run_screen(
@@ -335,7 +335,7 @@ class ErrorView(View):
 
 @dataclass
 class NetworkMismatchErrorView(ErrorView):
-    derivation_path: str = None
+    derivation_path: str = field(1, default=None)
 
     def __post_init__(self):
         from seedsigner.views.settings_views import SettingsEntryUpdateSelectionView
@@ -362,7 +362,7 @@ class NetworkMismatchErrorView(ErrorView):
 
 @dataclass
 class UnhandledExceptionView(View):
-    error: list[str]
+    error: list[str] = field(1)
 
     def __post_init__(self):
         from seedsigner.hardware.camera import CameraConnectionError
@@ -408,9 +408,9 @@ class CameraConnectionErrorView(View):
 
 @dataclass
 class OptionDisabledView(View):
-    UPDATE_SETTING = ButtonOption("Update setting")
-    DONE = ButtonOption("Back to Main Menu")
-    settings_attr: str
+    settings_attr: str = field(1)
+    UPDATE_SETTING = field(2, default=ButtonOption("Update setting"))
+    DONE = field(3, default=ButtonOption("Back to Main Menu"))
 
     def __post_init__(self):
         super().__post_init__()

@@ -3,7 +3,7 @@ import os
 import random
 import time
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from gettext import gettext as _
 
 from seedsigner.gui.components import Fonts, GUIConstants, load_image
@@ -43,7 +43,7 @@ class LogoScreen(BaseScreen):
 
 @dataclass
 class OpeningSplashView(View):
-    force_partner_logos: bool|None = None
+    force_partner_logos: bool|None = field(1, default=None)
 
     def run(self):
         self.run_screen(

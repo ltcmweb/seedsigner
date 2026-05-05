@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from PIL import Image, ImageDraw, ImageFont
 from typing import Tuple
 from gettext import gettext as _
@@ -102,20 +102,20 @@ class Keyboard:
             individual key in the keyboard and its state. Attrs with defaults must be
             listed last.
         """
-        letter: str     # display value
-        screen_x: int
-        screen_y: int
-        keyboard: any
-        scroll_y: int = 0
-        width: int = None
-        height: int = None
-        index_x: int = None
-        index_y: int = None
-        code: str = None  # key/code returned on press (e.g. "x" or "cursor_left")
-        size: int = 1
-        is_active: bool = True
-        is_selected: bool = False
-        is_additional_key: bool = False
+        letter: str = field(1)     # display value
+        screen_x: int = field(2)
+        screen_y: int = field(3)
+        keyboard: any = field(4)
+        scroll_y: int = field(5, default=0)
+        width: int = field(6, default=None)
+        height: int = field(7, default=None)
+        index_x: int = field(8, default=None)
+        index_y: int = field(9, default=None)
+        code: str = field(10, default=None)  # key/code returned on press (e.g. "x" or "cursor_left")
+        size: int = field(11, default=1)
+        is_active: bool = field(12, default=True)
+        is_selected: bool = field(13, default=False)
+        is_additional_key: bool = field(14, default=False)
 
         def __post_init__(self):
             if not self.code:
@@ -533,16 +533,16 @@ class TextEntryDisplayConstants:
 
 @dataclass
 class TextEntryDisplay(TextEntryDisplayConstants):
-    canvas: Image
-    rect: Tuple[int,int,int,int]
-    font_name: str = GUIConstants.FIXED_WIDTH_EMPHASIS_FONT_NAME
-    font_size: int = 24
-    accent_color: str = GUIConstants.ACCENT_COLOR
-    background_color: str = GUIConstants.BUTTON_BACKGROUND_COLOR
-    cursor_mode: str = TextEntryDisplayConstants.CURSOR_MODE__BLOCK
-    is_centered: bool = True
-    cur_text: str = " "
-    text_offset = 0
+    canvas: Image = field(1)
+    rect: Tuple[int,int,int,int] = field(2)
+    font_name: str = field(3, default=GUIConstants.FIXED_WIDTH_EMPHASIS_FONT_NAME)
+    font_size: int = field(4, default=24)
+    accent_color: str = field(5, default=GUIConstants.ACCENT_COLOR)
+    background_color: str = field(6, default=GUIConstants.BUTTON_BACKGROUND_COLOR)
+    cursor_mode: str = field(7, default=TextEntryDisplayConstants.CURSOR_MODE__BLOCK)
+    is_centered: bool = field(8, default=True)
+    cur_text: str = field(9, default=" ")
+    text_offset = field(10, default=0)
 
 
     def __post_init__(self):

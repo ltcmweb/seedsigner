@@ -1,6 +1,6 @@
 import time
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from gettext import gettext as _
 from PIL.ImageOps import autocontrast
 from typing import List
@@ -17,10 +17,10 @@ from seedsigner.models.settings import SettingsConstants
 
 @dataclass
 class SettingsEntryUpdateSelectionScreen(ButtonListScreen):
-    display_name: str = None
-    help_text: str = None
-    checked_buttons: List[int] = None
-    settings_entry_type: str = SettingsConstants.TYPE__ENABLED_DISABLED
+    display_name: str = field(1, default=None)
+    help_text: str = field(2, default=None)
+    checked_buttons: List[int] = field(3, default=None)
+    settings_entry_type: str = field(4, default=SettingsConstants.TYPE__ENABLED_DISABLED)
 
     def __post_init__(self):
         self.title = _("Settings")
@@ -319,10 +319,10 @@ class DonateScreen(BaseTopNavScreen):
 
 @dataclass
 class SettingsQRConfirmationScreen(ButtonListScreen):
-    config_name: str = None
-    title: str = _mft("Settings QR")
-    status_message: str = _mft("Settings updated...")
-    is_bottom_list: bool = True
+    config_name: str = field(1, default=None)
+    title: str = field(2, default=_mft("Settings QR"))
+    status_message: str = field(3, default=_mft("Settings updated..."))
+    is_bottom_list: bool = field(4, default=True)
 
     def __post_init__(self):
         # Customize defaults

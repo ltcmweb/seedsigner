@@ -1,6 +1,6 @@
 import time
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from gettext import gettext as _
 from typing import Any
 from PIL.Image import Image
@@ -125,7 +125,7 @@ class ToolsImageEntropyLivePreviewScreen(BaseScreen):
 
 @dataclass
 class ToolsImageEntropyFinalImageScreen(BaseScreen):
-    final_image: Image = None
+    final_image: Image = field(1, default=None)
 
     def _run(self):
         instructions_font = Fonts.get_font(GUIConstants.get_body_font_name(), GUIConstants.get_button_font_size())
@@ -203,8 +203,8 @@ class ToolsDiceEntropyEntryScreen(KeyboardScreen):
 
 @dataclass
 class ToolsCalcFinalWordFinalizePromptScreen(ButtonListScreen):
-    mnemonic_length: int = None
-    num_entropy_bits: int = None
+    mnemonic_length: int = field(1, default=None)
+    num_entropy_bits: int = field(2, default=None)
 
     def __post_init__(self):
         # TRANSLATOR_NOTE: Build the last word in a 12 or 24 word BIP-39 mnemonic seed phrase.
@@ -260,10 +260,10 @@ class ToolsCoinFlipEntryScreen(KeyboardScreen):
 
 @dataclass
 class ToolsCalcFinalWordScreen(ButtonListScreen):
-    selected_final_word: str = None
-    selected_final_bits: str = None
-    checksum_bits: str = None
-    actual_final_word: str = None
+    selected_final_word: str = field(1, default=None)
+    selected_final_bits: str = field(2, default=None)
+    checksum_bits: str = field(3, default=None)
+    actual_final_word: str = field(4, default=None)
 
     def __post_init__(self):
         self.is_bottom_list = True
@@ -410,9 +410,9 @@ class ToolsCalcFinalWordScreen(ButtonListScreen):
 
 @dataclass
 class ToolsCalcFinalWordDoneScreen(ButtonListScreen):
-    final_word: str = None
-    mnemonic_word_length: int = 12
-    fingerprint: str = None
+    final_word: str = field(1, default=None)
+    mnemonic_word_length: int = field(2, default=12)
+    fingerprint: str = field(3, default=None)
 
     def __post_init__(self):
         # Manually specify 12 vs 24 case for easier ordinal translation
@@ -447,10 +447,10 @@ class ToolsCalcFinalWordDoneScreen(ButtonListScreen):
 
 @dataclass
 class ToolsAddressExplorerAddressTypeScreen(ButtonListScreen):
-    fingerprint: str = None
-    wallet_descriptor_display_name: Any = None
-    script_type: str = None
-    custom_derivation_path: str = None
+    fingerprint: str = field(1, default=None)
+    wallet_descriptor_display_name: Any = field(2, default=None)
+    script_type: str = field(3, default=None)
+    custom_derivation_path: str = field(4, default=None)
 
     def __post_init__(self):
         # TRANSLATOR_NOTE: a label for the tool to explore public addresses for this seed.
@@ -502,8 +502,8 @@ class ToolsAddressExplorerAddressTypeScreen(ButtonListScreen):
 
 @dataclass
 class ToolsAddressExplorerAddressListScreen(ButtonListScreen):
-    start_index: int = 0
-    addresses: list[str] = None
+    start_index: int = field(1, default=0)
+    addresses: list[str] = field(2, default=None)
 
     def __post_init__(self):
         self.button_font_name = GUIConstants.FIXED_WIDTH_EMPHASIS_FONT_NAME

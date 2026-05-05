@@ -2,7 +2,7 @@ import logging
 import math
 import time
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from gettext import gettext as _
 from PIL import Image, ImageDraw, ImageFilter
 from typing import List
@@ -23,8 +23,8 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class SeedMnemonicEntryScreen(BaseTopNavScreen):
-    initial_letters: list = None
-    wordlist: list = None
+    initial_letters: list = field(1, default=None)
+    wordlist: list = field(2, default=None)
 
     def __post_init__(self):
         super().__post_init__()
@@ -441,9 +441,9 @@ class SeedMnemonicEntryScreen(BaseTopNavScreen):
 
 @dataclass
 class SeedFinalizeScreen(ButtonListScreen):
-    fingerprint: str = None
-    is_bottom_list: bool = True
-    button_data: list = None
+    fingerprint: str = field(1, default=None)
+    is_bottom_list: bool = field(2, default=True)
+    button_data: list = field(3, default=None)
 
     def __post_init__(self):
         self.show_back_button = False
@@ -466,7 +466,7 @@ class SeedFinalizeScreen(ButtonListScreen):
 
 @dataclass
 class SeedOptionsScreen(ButtonListScreen):
-    fingerprint: str = None
+    fingerprint: str = field(1, default=None)
 
     def __post_init__(self):
         self.top_nav_icon_name = SeedSignerIconConstants.FINGERPRINT
@@ -481,11 +481,11 @@ class SeedOptionsScreen(ButtonListScreen):
 
 @dataclass
 class SeedWordsScreen(WarningEdgesMixin, ButtonListScreen):
-    words: List[str] = None
-    page_index: int = 0
-    num_pages: int = 3
-    is_bottom_list: bool = True
-    status_color: str = GUIConstants.DIRE_WARNING_COLOR
+    words: List[str] = field(1, default=None)
+    page_index: int = field(2, default=0)
+    num_pages: int = field(3, default=3)
+    is_bottom_list: bool = field(4, default=True)
+    status_color: str = field(5, default=GUIConstants.DIRE_WARNING_COLOR)
 
 
     def __post_init__(self):
@@ -613,10 +613,10 @@ class SeedExportXpubCustomDerivationScreen(KeyboardScreen):
 @dataclass
 class SeedExportXpubDetailsScreen(WarningEdgesMixin, ButtonListScreen):
     # Customize defaults
-    is_bottom_list: bool = True
-    fingerprint: str = None
-    derivation_path: str = "m/84'/0'/0'"
-    xpub: str = "zpub6r..."
+    is_bottom_list: bool = field(1, default=True)
+    fingerprint: str = field(2, default=None)
+    derivation_path: str = field(3, default="m/84'/0'/0'")
+    xpub: str = field(4, default="zpub6r...")
 
     def __post_init__(self):
         # Programmatically set up other args
@@ -671,10 +671,10 @@ class SeedExportXpubDetailsScreen(WarningEdgesMixin, ButtonListScreen):
 
 @dataclass
 class SeedAddPassphraseScreen(BaseTopNavScreen):
-    passphrase: str = ""
+    passphrase: str = field(1, default="")
 
     # Only used by the screenshot generator
-    initial_keyboard: str = None
+    initial_keyboard: str = field(2, default=None)
 
     KEYBOARD__LOWERCASE_BUTTON_TEXT = "abc"
     KEYBOARD__UPPERCASE_BUTTON_TEXT = "ABC"
@@ -1100,9 +1100,9 @@ class SeedAddPassphraseScreen(BaseTopNavScreen):
 
 @dataclass
 class SeedReviewPassphraseScreen(ButtonListScreen):
-    fingerprint_without: str = None
-    fingerprint_with: str = None
-    passphrase: str = None
+    fingerprint_without: str = field(1, default=None)
+    fingerprint_with: str = field(2, default=None)
+    passphrase: str = field(3, default=None)
 
     def __post_init__(self):
         # Customize defaults
@@ -1196,8 +1196,8 @@ class SeedTranscribeSeedQRFormatScreen(ButtonListScreen):
 
 @dataclass
 class SeedTranscribeSeedQRWholeQRScreen(WarningEdgesMixin, ButtonListScreen):
-    qr_data: str = None
-    num_modules: int = None
+    qr_data: str = field(1, default=None)
+    num_modules: int = field(2, default=None)
 
     def __post_init__(self):
         self.title = _("Transcribe SeedQR")
@@ -1236,10 +1236,10 @@ class SeedTranscribeSeedQRZoomedInScreen(BaseScreen):
     corresponds to the SeedQR templates which include zone guidelines and labels
     (e.g. "B-3").
     """
-    qr_data: str = None
-    num_modules: int = None
-    initial_zone_x: int = 0
-    initial_zone_y: int = 0
+    qr_data: str = field(1, default=None)
+    num_modules: int = field(2, default=None)
+    initial_zone_x: int = field(3, default=0)
+    initial_zone_y: int = field(4, default=0)
 
     def __post_init__(self):
         super().__post_init__()
@@ -1450,7 +1450,7 @@ class SeedTranscribeSeedQRConfirmQRPromptScreen(ButtonListScreen):
 
 @dataclass
 class AddressVerificationSigTypeScreen(ButtonListScreen):
-    text: str = ""
+    text: str = field(1, default="")
 
     def __post_init__(self):
         self.is_bottom_list = True
@@ -1465,7 +1465,7 @@ class AddressVerificationSigTypeScreen(ButtonListScreen):
 
 @dataclass
 class SeedSelectSeedScreen(ButtonListScreen):
-    text: str = ""
+    text: str = field(1, default="")
 
     def __post_init__(self):
         self.is_bottom_list = True
@@ -1486,14 +1486,14 @@ class SeedAddressVerificationScreen(ButtonListScreen):
         `BruteForceAddressVerificationThread` can just check the ThreadsafeCounter's
         value and resume its work from the updated index.
     """
-    address: str = None
-    derivation_path: str = None
-    script_type: str = None
-    sig_type: str = None
-    network: str = None
-    is_mainnet: bool = None
-    threadsafe_counter: ThreadsafeCounter = None
-    verified_index: ThreadsafeCounter = None
+    address: str = field(1, default=None)
+    derivation_path: str = field(2, default=None)
+    script_type: str = field(3, default=None)
+    sig_type: str = field(4, default=None)
+    network: str = field(5, default=None)
+    is_mainnet: bool = field(6, default=None)
+    threadsafe_counter: ThreadsafeCounter = field(7, default=None)
+    verified_index: ThreadsafeCounter = field(8, default=None)
 
 
     def __post_init__(self):
@@ -1581,9 +1581,9 @@ class SeedAddressVerificationScreen(ButtonListScreen):
 
 @dataclass
 class SeedAddressVerificationSuccessScreen(LargeIconStatusScreen):
-    address: str = None
-    verified_index: int = None
-    verified_index_is_change: bool = None
+    address: str = field(1, default=None)
+    verified_index: int = field(2, default=None)
+    verified_index_is_change: bool = field(3, default=None)
 
 
     def __post_init__(self):
@@ -1639,8 +1639,8 @@ class LoadMultisigWalletDescriptorScreen(ButtonListScreen):
 
 @dataclass
 class MultisigWalletDescriptorScreen(ButtonListScreen):
-    policy: str = None
-    fingerprints: List[str] = None
+    policy: str = field(1, default=None)
+    fingerprints: List[str] = field(2, default=None)
 
     def __post_init__(self):
         self.title = _("Descriptor Loaded")
@@ -1670,7 +1670,7 @@ class MultisigWalletDescriptorScreen(ButtonListScreen):
 
 @dataclass
 class SeedSignMessageConfirmMessageScreen(ButtonListScreen):
-    page_num: int = None
+    page_num: int = field(1, default=None)
 
     def __post_init__(self):
         from seedsigner.controller import Controller
@@ -1713,8 +1713,8 @@ class SeedSignMessageConfirmMessageScreen(ButtonListScreen):
 
 @dataclass
 class SeedSignMessageConfirmAddressScreen(ButtonListScreen):
-    derivation_path: str = None
-    address: str = None
+    derivation_path: str = field(1, default=None)
+    address: str = field(2, default=None)
 
     def __post_init__(self):
         self.title = _("Confirm Address")

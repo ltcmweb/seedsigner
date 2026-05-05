@@ -435,15 +435,15 @@ class SettingsEntry:
             entries should shift to using the tuple form.
     """
     # TODO: Handle multi-language `display_name` and `help_text`
-    category: str = field()
-    attr_name: str = field()
-    display_name: str = field()
-    abbreviated_name: str = None
-    visibility: str = SettingsConstants.VISIBILITY__GENERAL
-    type: str = SettingsConstants.TYPE__ENABLED_DISABLED
-    help_text: str = None
-    selection_options: list[tuple[str | int], str] = None
-    default_value: Any = None
+    category: str = field(1)
+    attr_name: str = field(2)
+    display_name: str = field(3)
+    abbreviated_name: str = field(4, default=None)
+    visibility: str = field(5, default=SettingsConstants.VISIBILITY__GENERAL)
+    type: str = field(6, default=SettingsConstants.TYPE__ENABLED_DISABLED)
+    help_text: str = field(7, default=None)
+    selection_options: list[tuple[str | int], str] = field(8, default=None)
+    default_value: Any = field(9, default=None)
 
     def __post_init__(self):
         if self.type == SettingsConstants.TYPE__ENABLED_DISABLED:

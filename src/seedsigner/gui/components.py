@@ -5,7 +5,7 @@ import pathlib
 import re
 import time
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from decimal import Decimal
 from gettext import gettext as _
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
@@ -306,8 +306,8 @@ class TextDoesNotFitException(Exception):
 
 @dataclass
 class BaseComponent:
-    image_draw: ImageDraw.ImageDraw = None
-    canvas: Image.Image = None
+    image_draw: ImageDraw.ImageDraw = field(1, default=None)
+    canvas: Image.Image = field(2, default=None)
 
     def __post_init__(self):
         from seedsigner.gui.renderer import Renderer
@@ -352,26 +352,26 @@ class TextArea(BaseComponent):
 
         Attrs with defaults must be listed last.
     """
-    text: str = "My text content"
-    width: int = None       # TODO: Implement autosize width?
-    height: int = None      # None = special case: autosize to min height
-    screen_x: int = 0
-    screen_y: int = 0
-    scroll_y: int = 0
-    min_text_x: int = 0  # Text can not start at x any less than this
-    background_color: str = GUIConstants.BACKGROUND_COLOR
-    font_name: str = None
-    font_size: int = None
-    font_color: str = GUIConstants.BODY_FONT_COLOR
-    edge_padding: int = GUIConstants.EDGE_PADDING
-    is_text_centered: bool = True
-    supersampling_factor: int = 1  # 1 = disabled; 2 = default, double sample (4px square rendered for 1px)
-    auto_line_break: bool = True
-    is_horizontal_scrolling_enabled: bool = False
-    horizontal_scroll_speed: int = 40  # px per sec
-    horizontal_scroll_begin_hold_secs: float = 2.0
-    horizontal_scroll_end_hold_secs: float = 1.0
-    height_ignores_below_baseline: bool = False  # If True, characters that render below the baseline (e.g. "pqgy") will not affect the final height calculation
+    text: str = field(1, default="My text content")
+    width: int = field(2, default=None)       # TODO: Implement autosize width?
+    height: int = field(3, default=None)      # None = special case: autosize to min height
+    screen_x: int = field(4, default=0)
+    screen_y: int = field(5, default=0)
+    scroll_y: int = field(6, default=0)
+    min_text_x: int = field(7, default=0)  # Text can not start at x any less than this
+    background_color: str = field(8, default=GUIConstants.BACKGROUND_COLOR)
+    font_name: str = field(9, default=None)
+    font_size: int = field(10, default=None)
+    font_color: str = field(11, default=GUIConstants.BODY_FONT_COLOR)
+    edge_padding: int = field(12, default=GUIConstants.EDGE_PADDING)
+    is_text_centered: bool = field(13, default=True)
+    supersampling_factor: int = field(14, default=1)  # 1 = disabled; 2 = default, double sample (4px square rendered for 1px)
+    auto_line_break: bool = field(15, default=True)
+    is_horizontal_scrolling_enabled: bool = field(16, default=False)
+    horizontal_scroll_speed: int = field(17, default=40)  # px per sec
+    horizontal_scroll_begin_hold_secs: float = field(18, default=2.0)
+    horizontal_scroll_end_hold_secs: float = field(19, default=1.0)
+    height_ignores_below_baseline: bool = field(20, default=False)  # If True, characters that render below the baseline (e.g. "pqgy") will not affect the final height calculation
 
 
     def __post_init__(self):
@@ -762,11 +762,11 @@ class ScrollableTextLine(TextArea):
 
 @dataclass
 class Icon(BaseComponent):
-    screen_x: int = 0
-    screen_y: int = 0
-    icon_name: str = SeedSignerIconConstants.BITCOIN_ALT
-    icon_size: int = GUIConstants.ICON_FONT_SIZE
-    icon_color: str = GUIConstants.BODY_FONT_COLOR
+    screen_x: int = field(1, default=0)
+    screen_y: int = field(2, default=0)
+    icon_name: str = field(3, default=SeedSignerIconConstants.BITCOIN_ALT)
+    icon_size: int = field(4, default=GUIConstants.ICON_FONT_SIZE)
+    icon_color: str = field(5, default=GUIConstants.BODY_FONT_COLOR)
 
     def __post_init__(self):
         super().__post_init__()
@@ -797,18 +797,18 @@ class IconTextLine(BaseComponent):
     """
         Renders an icon next to a label/value pairing. Icon is optional as is label.
     """
-    height: int = None
-    icon_name: str = None
-    icon_size: int = GUIConstants.ICON_FONT_SIZE
-    icon_color: str = GUIConstants.BODY_FONT_COLOR
-    label_text: str = None
-    value_text: str = ""
-    font_name: str = None
-    font_size: int = None
-    is_text_centered: bool = False
-    auto_line_break: bool = False
-    screen_x: int = 0
-    screen_y: int = 0
+    height: int = field(1, default=None)
+    icon_name: str = field(2, default=None)
+    icon_size: int = field(3, default=GUIConstants.ICON_FONT_SIZE)
+    icon_color: str = field(4, default=GUIConstants.BODY_FONT_COLOR)
+    label_text: str = field(5, default=None)
+    value_text: str = field(6, default="")
+    font_name: str = field(7, default=None)
+    font_size: int = field(8, default=None)
+    is_text_centered: bool = field(9, default=False)
+    auto_line_break: bool = field(10, default=False)
+    screen_x: int = field(11, default=0)
+    screen_y: int = field(12, default=0)
 
     def __post_init__(self):
         if not self.font_name:
@@ -927,15 +927,15 @@ class FormattedAddress(BaseComponent):
 
         * max_lines: forces truncation on long addresses to fit
     """
-    width: int = 0
-    screen_x: int = 0
-    screen_y: int = 0
-    address: str = None
-    max_lines: int = None
-    font_name: str = GUIConstants.FIXED_WIDTH_FONT_NAME
-    font_size: int = 24
-    font_accent_color: str = GUIConstants.ACCENT_COLOR
-    font_base_color: str = GUIConstants.LABEL_FONT_COLOR
+    width: int = field(1, default=0)
+    screen_x: int = field(2, default=0)
+    screen_y: int = field(3, default=0)
+    address: str = field(4, default=None)
+    max_lines: int = field(5, default=None)
+    font_name: str = field(6, default=GUIConstants.FIXED_WIDTH_FONT_NAME)
+    font_size: int = field(7, default=24)
+    font_accent_color: str = field(8, default=GUIConstants.ACCENT_COLOR)
+    font_base_color: str = field(9, default=GUIConstants.LABEL_FONT_COLOR)
 
     def __post_init__(self):
         super().__post_init__()
@@ -1090,11 +1090,11 @@ class BtcAmount(BaseComponent):
         * threshold: btc display at or above 0.01 btc; otherwise sats
         * btcsatshybrd: "B" icon + 2-decimal amount + "|" + up to 6-digit, comma-separated sats + "sats"
     """
-    total_sats: int = None
-    icon_size: int = 34
-    font_size: int = 24
-    screen_x: int = 0
-    screen_y: int = None
+    total_sats: int = field(1, default=None)
+    icon_size: int = field(2, default=34)
+    font_size: int = field(3, default=24)
+    screen_x: int = field(4, default=0)
+    screen_y: int = field(5, default=None)
 
 
     def __post_init__(self):
@@ -1336,38 +1336,38 @@ class Button(BaseComponent):
         should not to used with l10n content whose length might vary by language.
 
     """
-    text: str = "Button Label"
-    active_text: str = None  # Optional alt text to replace the button label when the button is selected
-    screen_x: int = 0
-    screen_y: int = 0
-    scroll_y: int = 0
-    width: int = None
-    height: int = None
-    icon_name: str = None   # Optional icon to accompany the text
-    icon_size: int = GUIConstants.ICON_INLINE_FONT_SIZE
-    icon_color: str = GUIConstants.BUTTON_FONT_COLOR
-    selected_icon_color: str = "black"
-    icon_y_offset: int = 0
-    is_icon_inline: bool = True    # True = render next to text; False = render centered above text
-    right_icon_name: str = None    # Optional icon rendered right-justified
-    right_icon_size: int = GUIConstants.ICON_INLINE_FONT_SIZE
-    right_icon_color: str = GUIConstants.BUTTON_FONT_COLOR
-    text_y_offset: int = 0
-    background_color: str = GUIConstants.BUTTON_BACKGROUND_COLOR
-    selected_color: str = GUIConstants.ACCENT_COLOR
+    text: str = field(1, default="Button Label")
+    active_text: str = field(2, default=None)  # Optional alt text to replace the button label when the button is selected
+    screen_x: int = field(3, default=0)
+    screen_y: int = field(4, default=0)
+    scroll_y: int = field(5, default=0)
+    width: int = field(6, default=None)
+    height: int = field(7, default=None)
+    icon_name: str = field(8, default=None)   # Optional icon to accompany the text
+    icon_size: int = field(9, default=GUIConstants.ICON_INLINE_FONT_SIZE)
+    icon_color: str = field(10, default=GUIConstants.BUTTON_FONT_COLOR)
+    selected_icon_color: str = field(11, default="black")
+    icon_y_offset: int = field(12, default=0)
+    is_icon_inline: bool = field(13, default=True)    # True = render next to text; False = render centered above text
+    right_icon_name: str = field(14, default=None)    # Optional icon rendered right-justified
+    right_icon_size: int = field(15, default=GUIConstants.ICON_INLINE_FONT_SIZE)
+    right_icon_color: str = field(16, default=GUIConstants.BUTTON_FONT_COLOR)
+    text_y_offset: int = field(17, default=0)
+    background_color: str = field(18, default=GUIConstants.BUTTON_BACKGROUND_COLOR)
+    selected_color: str = field(19, default=GUIConstants.ACCENT_COLOR)
 
     # Cannot define these class attrs w/the get_*_font_*() methods because the attrs will
     # not be dynamically reinterpreted after initial class import.
-    font_name: str = None
-    font_size: int = None
+    font_name: str = field(20, default=None)
+    font_size: int = field(21, default=None)
 
-    font_color: str = GUIConstants.BUTTON_FONT_COLOR
-    selected_font_color: str = GUIConstants.BUTTON_SELECTED_FONT_COLOR
-    outline_color: str = None
-    selected_outline_color: str = None
-    is_text_centered: bool = True
-    is_selected: bool = False
-    is_scrollable_text: bool = True  # True: active state will automatically scroll if necessary, text is rendered once (not dynamic)
+    font_color: str = field(22, default=GUIConstants.BUTTON_FONT_COLOR)
+    selected_font_color: str = field(23, default=GUIConstants.BUTTON_SELECTED_FONT_COLOR)
+    outline_color: str = field(24, default=None)
+    selected_outline_color: str = field(25, default=None)
+    is_text_centered: bool = field(26, default=True)
+    is_selected: bool = field(27, default=False)
+    is_scrollable_text: bool = field(28, default=True)  # True: active state will automatically scroll if necessary, text is rendered once (not dynamic)
 
 
     def __post_init__(self):
@@ -1613,7 +1613,7 @@ class Button(BaseComponent):
 
 @dataclass
 class CheckedSelectionButton(Button):
-    is_checked: bool = False
+    is_checked: bool = field(1, default=False)
 
     def __post_init__(self):
         self.is_text_centered = False
@@ -1631,7 +1631,7 @@ class CheckedSelectionButton(Button):
 
 @dataclass
 class CheckboxButton(Button):
-    is_checked: bool = False
+    is_checked: bool = field(1, default=False)
 
     def __post_init__(self):
         self.is_text_centered = False
@@ -1650,11 +1650,11 @@ class IconButton(Button):
     """
         A button that is just an icon (e.g. the BACK arrow)
     """
-    icon_size: int = GUIConstants.ICON_INLINE_FONT_SIZE
-    text: str = None
-    is_icon_inline: bool = False
-    is_text_centered: bool = True
-    is_scrollable_text: bool = False
+    icon_size: int = field(1, default=GUIConstants.ICON_INLINE_FONT_SIZE)
+    text: str = field(2, default=None)
+    is_icon_inline: bool = field(3, default=False)
+    is_text_centered: bool = field(4, default=True)
+    is_scrollable_text: bool = field(5, default=False)
 
 
 
@@ -1664,30 +1664,30 @@ class LargeIconButton(IconButton):
         A button that is primarily a big icon (e.g. the Home screen buttons) w/text below
         the icon.
     """
-    icon_size: int = GUIConstants.ICON_LARGE_BUTTON_SIZE
-    icon_y_offset: int = GUIConstants.COMPONENT_PADDING
-    is_scrollable_text: bool = True
+    icon_size: int = field(1, default=GUIConstants.ICON_LARGE_BUTTON_SIZE)
+    icon_y_offset: int = field(2, default=GUIConstants.COMPONENT_PADDING)
+    is_scrollable_text: bool = field(3, default=True)
 
 
 
 @dataclass
 class TopNav(BaseComponent):
-    text: str = "Screen Title"
-    width: int = None
-    height: int = GUIConstants.TOP_NAV_HEIGHT
-    background_color: str = GUIConstants.BACKGROUND_COLOR
-    icon_name: str = None
-    icon_color: str = GUIConstants.BODY_FONT_COLOR
+    text: str = field(1, default="Screen Title")
+    width: int = field(2, default=None)
+    height: int = field(3, default=GUIConstants.TOP_NAV_HEIGHT)
+    background_color: str = field(4, default=GUIConstants.BACKGROUND_COLOR)
+    icon_name: str = field(5, default=None)
+    icon_color: str = field(6, default=GUIConstants.BODY_FONT_COLOR)
 
     # Cannot define these class attrs w/the get_*_font_*() methods because the attrs will
     # not be dynamically reinterpreted after initial class import.
-    font_name: str = None
-    font_size: int = None
+    font_name: str = field(7, default=None)
+    font_size: int = field(8, default=None)
 
-    font_color: str = GUIConstants.BODY_FONT_COLOR
-    show_back_button: bool = True
-    show_power_button: bool = False
-    is_selected: bool = False
+    font_color: str = field(9, default=GUIConstants.BODY_FONT_COLOR)
+    show_back_button: bool = field(10, default=True)
+    show_power_button: bool = field(11, default=False)
+    is_selected: bool = field(12, default=False)
 
 
     def __post_init__(self):

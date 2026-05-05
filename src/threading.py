@@ -2,7 +2,7 @@ import _thread
 
 
 class Thread:
-    def __init__(self, group=None, target=None, name=None, args=(), kwargs=None):
+    def __init__(self, group=None, target=None, name=None, daemon=None, args=(), kwargs=None):
         self.target = target
         self.args = args
         self.kwargs = {} if kwargs is None else kwargs

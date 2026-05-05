@@ -21,6 +21,15 @@ _level_dict = {
     NOTSET: "NOTSET",
 }
 
+_nameToLevel = {
+    "CRITICAL": CRITICAL,
+    "ERROR": ERROR,
+    "WARNING": WARNING,
+    "INFO": INFO,
+    "DEBUG": DEBUG,
+    "NOTSET": NOTSET,
+}
+
 _loggers = {}
 _stream = sys.stderr
 _default_fmt = "%(levelname)s:%(name)s:%(message)s"
@@ -102,6 +111,8 @@ class Formatter:
             "msecs": record.msecs,
             "asctime": record.asctime,
             "levelname": record.levelname,
+            "funcName": "",
+            "lineno": 1,
         }
 
 
@@ -215,6 +226,10 @@ def shutdown():
 
 def addLevelName(level, name):
     _level_dict[level] = name
+
+
+def getLevelName(level):
+    return _nameToLevel[level]
 
 
 def basicConfig(

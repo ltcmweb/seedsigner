@@ -1,6 +1,6 @@
 import time
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from gettext import gettext as _
 from PIL import Image, ImageDraw
 
@@ -40,11 +40,11 @@ class ScanScreen(BaseScreen):
     Note: This is quite a lot of important tasks for a Screen to be managing; much of
     this should probably be refactored into the Controller.
     """
-    decoder: DecodeQR = None
-    instructions_text: str = None
-    resolution: tuple[int,int] = (480, 480)
-    framerate: int = 6  # TODO: alternate optimization for Pi Zero 2W?
-    render_rect: tuple[int,int,int,int] = None
+    decoder: DecodeQR = field(1, default=None)
+    instructions_text: str = field(2, default=None)
+    resolution: tuple[int,int] = field(3, default=(480, 480))
+    framerate: int = field(4, default=6)  # TODO: alternate optimization for Pi Zero 2W?
+    render_rect: tuple[int,int,int,int] = field(5, default=None)
 
     FRAME__ADDED_PART = 1
     FRAME__REPEATED_PART = 2

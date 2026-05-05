@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 
-class BackStack(list[Destination]):
+class BackStack(list):
     def __repr__(self):
         if len(self) == 0:
             return "[]"

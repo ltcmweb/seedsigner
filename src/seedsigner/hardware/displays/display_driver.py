@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 DISPLAY_TYPE__ST7789 = "st7789"
@@ -11,8 +11,8 @@ ALL_DISPLAY_TYPES = [DISPLAY_TYPE__ST7789, DISPLAY_TYPE__ILI9341, DISPLAY_TYPE__
 
 @dataclass
 class BaseDisplayDriver:
-    _width: int
-    _height: int
+    _width: int = field(1)
+    _height: int = field(2)
 
     def __str__(self):
         return f"DisplayDriver(display_type={getattr(self, 'display_type', None)}, width={self.width}, height={self.height})"
@@ -64,9 +64,6 @@ class DisplayDriverFactory:
     def instantiate_display_driver(cls, display_type: str = DISPLAY_TYPE__ST7789, width: int = None, height: int = None) -> BaseDisplayDriver:
         if display_type not in ALL_DISPLAY_TYPES:
             raise ValueError(f"Invalid display type: {display_type}")
-
-        from seedsigner.hardware.displays.kivy import Display
-        return Display
 
         if display_type == DISPLAY_TYPE__ST7789:
             if width not in [240, 320] or height != 240:
