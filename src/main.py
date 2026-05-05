@@ -5,7 +5,6 @@ import logging
 import sys
 from threading import Thread
 
-from seedsigner.hardware.displays.kivy import Display
 from seedsigner.controller import Controller
 
 logger = logging.getLogger(__name__)

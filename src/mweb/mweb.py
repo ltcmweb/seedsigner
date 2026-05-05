@@ -1,23 +1,13 @@
 from base64 import b64encode
-from functools import lru_cache
 import json
-import os
-import subprocess
-import sys
+from mweb_go import mweb
 
 def do_req(f, req):
-    cmd = os.path.join(os.path.dirname(__file__), "mweb")
-    req = json.dumps(req)
-    if hasattr(sys, "getandroidapilevel"):
-        from jnius import autoclass
-        activity = autoclass("org.kivy.android.PythonActivity").mActivity
-        dir = activity.getApplicationInfo().nativeLibraryDir
-        cmd = os.path.join(dir, "libmweb.so")
-    res = subprocess.run([cmd, f, req], capture_output=True, text=True)
+    res = mweb(f, json.dumps(req))
     try:
-        return json.loads(res.stdout)
-    except json.JSONDecodeError:
-        raise ValueError(res.stderr)
+        return json.loads(res)
+    except ValueError:
+        raise ValueError(res)
 
 def b64(b): return b64encode(b).decode()
 
@@ -25,7 +15,6 @@ def addresses(key, i=0, j=500):
     return _addresses(key.child(0x80000000).key.secret,
                       key.child(0x80000001).key.sec(), i, j)
 
-@lru_cache
 def _addresses(scan, spendPub, i, j):
     return do_req("Addresses", {
         "Scan": b64(scan),
@@ -34,7 +23,6 @@ def _addresses(scan, spendPub, i, j):
         "To": j,
     })["Address"]
 
-@lru_cache
 def addresses_pub_key_hash(xpub, i=0, j=1000):
     return do_req("AddressesPubKeyHash", {
         "XPub": xpub,

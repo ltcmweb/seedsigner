@@ -1,5 +1,4 @@
 from builtins import open as pyopen
-import numpy as np
 import lvgl
 
 from .ImageDraw import Draw
@@ -60,12 +59,6 @@ def open(name):
 def frombytes(mode, size, data):
     canvas = lvgl.Canvas(mode, size)
     canvas.setbytes(data)
-    return Image(canvas)
-
-def fromarray(frame, mode):
-    frame = np.ascontiguousarray(frame)
-    canvas = lvgl.Canvas(mode, frame.shape)
-    canvas.setbytes(memoryview(frame))
     return Image(canvas)
 
 def alpha_composite(back, front):

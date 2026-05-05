@@ -19,7 +19,7 @@ class InvalidSettingsQRData(Exception):
 
 
 class Settings(Singleton):
-    HOSTNAME = platform.uname()[1]
+    HOSTNAME = ""
     SEEDSIGNER_OS = "seedsigner-os"
     SETTINGS_FILENAME = "/mnt/microsd/settings.json" if HOSTNAME == SEEDSIGNER_OS else "settings.json"
         

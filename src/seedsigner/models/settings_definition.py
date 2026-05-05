@@ -1,6 +1,6 @@
 import os
 import pathlib
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, List
 
 from seedsigner.helpers.l10n import mark_for_translation as _mft
@@ -435,9 +435,9 @@ class SettingsEntry:
             entries should shift to using the tuple form.
     """
     # TODO: Handle multi-language `display_name` and `help_text`
-    category: str
-    attr_name: str
-    display_name: str
+    category: str = field()
+    attr_name: str = field()
+    display_name: str = field()
     abbreviated_name: str = None
     visibility: str = SettingsConstants.VISIBILITY__GENERAL
     type: str = SettingsConstants.TYPE__ENABLED_DISABLED

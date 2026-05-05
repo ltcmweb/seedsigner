@@ -279,7 +279,7 @@ class ButtonOption:
     """
     Note: The babel config in setup.cfg will extract the `button_label` string for translation
     """
-    button_label: str
+    button_label: str = field()
     icon_name: str = None
     icon_color: str = None
     right_icon_name: str = None

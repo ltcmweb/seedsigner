@@ -5,6 +5,9 @@ class Singleton:
         # Singleton pattern must prevent normal instantiation
         raise Exception("Cannot directly instantiate a Singleton. Access via get_instance()")
 
+    def __new__(cls):
+        return object.__new__(cls)
+
     @classmethod
     def get_instance(cls):
         # This is the only way to access the one and only instance
