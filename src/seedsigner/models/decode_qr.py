@@ -5,7 +5,6 @@ import re
 import zlib
 
 from binascii import a2b_base64, b2a_base64
-from enum import IntEnum
 from embit import psbt, bip39
 from pyzbar import pyzbar
 from pyzbar.pyzbar import ZBarSymbol
@@ -26,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 
-class DecodeQRStatus(IntEnum):
+class DecodeQRStatus:
     """
         Used in DecodeQR to communicate status of adding qr frame/segment
     """

@@ -28,6 +28,7 @@ bool mod_lvgl_load(Canvas *canvas, const uint8_t *data, size_t len) {
     lv_image_decoder_close(&dsc);
 
     canvas->canvas = lv_canvas_create(lv_screen_active());
+    lv_obj_add_flag(canvas->canvas, LV_OBJ_FLAG_HIDDEN);
     lv_canvas_set_buffer(canvas->canvas, canvas->buf, canvas->w, canvas->h, dsc.header.cf);
 
     return true;
@@ -171,7 +172,7 @@ void mod_lvgl_text(Canvas *canvas, int x, int y, int fill,
     box->y2 = size.y;
 }
 
-bool mod_lvgl_canvas_init(Canvas *canvas, const char *mode, int w, int h) {
+bool mod_lvgl_canvas_init(Canvas *canvas, const char *mode, int w, int h, bool visible) {
     lv_color_format_t cf = LV_COLOR_FORMAT_RGB565;
     if (!strcmp(mode, "RGB")) {
         cf = LV_COLOR_FORMAT_RGB888;
@@ -189,6 +190,7 @@ bool mod_lvgl_canvas_init(Canvas *canvas, const char *mode, int w, int h) {
     canvas->w = w;
     canvas->h = h;
     canvas->canvas = lv_canvas_create(lv_screen_active());
+    if (!visible) lv_obj_add_flag(canvas->canvas, LV_OBJ_FLAG_HIDDEN);
     lv_canvas_set_buffer(canvas->canvas, canvas->buf, w, h, cf);
     return true;
 }

@@ -481,6 +481,7 @@ class SeedOptionsScreen(ButtonListScreen):
 
 @dataclass
 class SeedWordsScreen(WarningEdgesMixin, ButtonListScreen):
+    _super = ButtonListScreen
     words: List[str] = field(1, default=None)
     page_index: int = field(2, default=0)
     num_pages: int = field(3, default=3)
@@ -612,6 +613,7 @@ class SeedExportXpubCustomDerivationScreen(KeyboardScreen):
 
 @dataclass
 class SeedExportXpubDetailsScreen(WarningEdgesMixin, ButtonListScreen):
+    _super = ButtonListScreen
     # Customize defaults
     is_bottom_list: bool = field(1, default=True)
     fingerprint: str = field(2, default=None)
@@ -1196,6 +1198,7 @@ class SeedTranscribeSeedQRFormatScreen(ButtonListScreen):
 
 @dataclass
 class SeedTranscribeSeedQRWholeQRScreen(WarningEdgesMixin, ButtonListScreen):
+    _super = ButtonListScreen
     qr_data: str = field(1, default=None)
     num_modules: int = field(2, default=None)
 

@@ -32,7 +32,7 @@ class TransformSpec:
         frozen: bool = False,
     ) -> None:
         self.init = init and ("__init__" not in cls.__dict__)
-        self.post_init = "__post_init__" in cls.__dict__
+        self.post_init = hasattr(cls, "__post_init__")
         self.repr = repr and ("__repr__" not in cls.__dict__)
         self.eq = eq
         self.order = order
@@ -49,33 +49,26 @@ class TransformSpec:
 
         fields: dict[str, Field] = {}
         # Propagate any existing fields from base class.
-        fields.update(getattr(cls, FIELDS_NAME, {}))
-        index = max((f.order for f in fields.values()), default=0) + 1
+        index = 0
+        for base in reversed(cls.__bases__):
+            idx = index
+            for name, field in getattr(base, FIELDS_NAME, {}).items():
+                fields[name] = Field(
+                    order=field.order + idx,
+                    name=field.name,
+                    default=field.default,
+                    default_factory=field.default_factory,
+                    init=field.init,
+                    repr=field.repr,
+                    hash=field.hash,
+                    compare=field.compare,
+                    init_only=field.init_only,
+                )
+                index = max(index, field.order + idx + 1)
 
-        for name in cls.__dict__.keys():
-            # This is subtly different than fetching the value from __dict__.
-            # classmethods in particular are not callable when accessed via
-            # __dict__.
-            value = getattr(cls, name)
-            field: Field
+        for name, value in cls.__dict__.items():
             if isinstance(value, Field):
-                field = value
-                field.name = name
-            else:
-                # Convert implicit field to an explicit one.
-
-                # Exclude properties, methods, and other non-field attributes.
-                # Normally these would be not be present in the annotations
-                # dict.
-                if (
-                    isinstance(value, property)
-                    or callable(value)
-                    or name.startswith("__")
-                ):
-                    # Ignore methods and dunder attributes
-                    continue
-                field = Field(name, value)
-
-            field.order += index
-            fields[name] = field
+                value.name = name
+                value.order += index
+                fields[name] = value
         self.fields = sorted(fields.values(), key=lambda f: f.order)

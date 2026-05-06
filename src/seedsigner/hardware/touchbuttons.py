@@ -62,8 +62,9 @@ class TouchButtons(Singleton):
                 continue
 
             try:
-                op, x, y = self.queue.get(timeout=5)
+                op, x, y = self.queue.get_nowait()
             except queue.Empty:
+                time.sleep(0.1)
                 continue
             self.update_last_input_time()
 

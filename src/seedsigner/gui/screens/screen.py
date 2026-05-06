@@ -1099,7 +1099,7 @@ class WarningEdgesMixin:
     text_edge_padding: int = field(2, default=2 * GUIConstants.EDGE_PADDING)
 
     def __post_init__(self):
-        super().__post_init__()
+        self._super.__post_init__(self)
 
         self.threads.append(WarningEdgesThread(args=(self,)))
 
@@ -1107,6 +1107,7 @@ class WarningEdgesMixin:
 
 @dataclass
 class WarningScreen(WarningEdgesMixin, LargeIconStatusScreen):
+    _super = LargeIconStatusScreen
     """
     Exclamation point icon + yellow WARNING color
     """

@@ -373,6 +373,10 @@ class ToolsCalcFinalWordShowFinalWordView(View):
         #   * 7 bits to a 12-word seed (plus 4-bit checksum)
         from seedsigner.helpers import mnemonic_generation
 
+        def format(x, y):
+            s = bin(x)[2:]
+            return '0' * (11 - len(s)) + s
+
         wordlist_language_code = self.settings.get_value(SettingsConstants.SETTING__WORDLIST_LANGUAGE)
         wordlist = Seed.get_wordlist(wordlist_language_code)
 

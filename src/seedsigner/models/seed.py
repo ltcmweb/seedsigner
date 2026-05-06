@@ -49,7 +49,7 @@ class Seed:
         try:
             self.seed_bytes = bip39.mnemonic_to_seed(self.mnemonic_str, password=self._passphrase, wordlist=self.wordlist)
         except Exception as e:
-            logger.info(repr(e), exc_info=True)
+            logger.exception(repr(e), exc_info=True)
             raise InvalidSeedException(repr(e))
 
 

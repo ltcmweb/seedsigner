@@ -48,8 +48,8 @@ class Image:
         self.canvas.copyto(canvas, (-round(x1), -round(y1)))
         return Image(canvas)
 
-def new(mode, size, color=0):
-    image = Image(lvgl.Canvas(mode, size))
+def new(mode, size, color=0, visible=False):
+    image = Image(lvgl.Canvas(mode, size, visible))
     Draw(image).rectangle((0, 0) + size, fill=color)
     return image
 

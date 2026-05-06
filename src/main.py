@@ -4,6 +4,10 @@ import argparse
 import logging
 import sys
 
+from seedsigner.hardware import buttons
+from seedsigner.hardware.touchbuttons import TouchButtons
+buttons.HardwareButtons = TouchButtons
+
 from seedsigner.controller import Controller
 
 logger = logging.getLogger(__name__)

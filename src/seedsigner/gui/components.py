@@ -1406,7 +1406,7 @@ class Button(BaseComponent):
             self.visible_text_width = self.width - 2*GUIConstants.COMPONENT_PADDING
 
             if self.text_width > self.visible_text_width and not self.is_scrollable_text:
-                logger.warning("Button label \"{self.text}\" will not fit but is_scrollable_text is False")
+                logger.warning(f"Button label \"{self.text}\" will not fit but is_scrollable_text is False")
 
             if self.is_text_centered and self.text_width < self.visible_text_width:
                 # self.text_x = int(self.width/2)

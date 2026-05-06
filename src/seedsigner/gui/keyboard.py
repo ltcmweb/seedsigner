@@ -542,7 +542,7 @@ class TextEntryDisplay(TextEntryDisplayConstants):
     cursor_mode: str = field(7, default=TextEntryDisplayConstants.CURSOR_MODE__BLOCK)
     is_centered: bool = field(8, default=True)
     cur_text: str = field(9, default=" ")
-    text_offset = field(10, default=0)
+    text_offset = 0
 
 
     def __post_init__(self):

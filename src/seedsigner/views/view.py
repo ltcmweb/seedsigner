@@ -408,9 +408,9 @@ class CameraConnectionErrorView(View):
 
 @dataclass
 class OptionDisabledView(View):
+    UPDATE_SETTING = ButtonOption("Update setting")
+    DONE = ButtonOption("Back to Main Menu")
     settings_attr: str = field(1)
-    UPDATE_SETTING = field(2, default=ButtonOption("Update setting"))
-    DONE = field(3, default=ButtonOption("Back to Main Menu"))
 
     def __post_init__(self):
         super().__post_init__()

@@ -81,6 +81,47 @@ class BackgroundImportThread(BaseThread):
 
 
 
+class GcThread(BaseThread):
+    def run(self):
+        import gc
+        while True:
+            gc.collect()
+            time.sleep(2)
+
+
+
+class InputThread(BaseThread):
+    def read_key(self):
+        import sys
+        import select
+
+        poll = select.poll()
+        poll.register(sys.stdin, select.POLLIN)
+
+        ch = sys.stdin.read(1)
+        if ch == '\n':
+            return 'enter'
+        if ch != '\x1b':
+            return ch
+        if poll.poll(50):
+            ch = sys.stdin.read(1)
+            if ch == '[':
+                ch = sys.stdin.read(1)
+                if ch == 'A': return 'up'
+                if ch == 'B': return 'down'
+                if ch == 'C': return 'right'
+                if ch == 'D': return 'left'
+        return 'escape'
+
+    def run(self):
+        from seedsigner.hardware.touchbuttons import TouchButtons
+        while True:
+            key = self.read_key()
+            if key in ['up', 'down', 'left', 'right', '1', '2', '3', 'enter', 'escape']:
+                TouchButtons.get_instance().queue.put_nowait((key, 0, 0))
+
+
+
 class Controller(Singleton):
     """
         The Controller is a globally available singleton that maintains SeedSigner state.
@@ -197,6 +238,9 @@ class Controller(Singleton):
     
         background_import_thread = BackgroundImportThread()
         background_import_thread.start()
+
+        GcThread().start()
+        InputThread().start()
 
         return cls._instance
 
@@ -461,7 +505,7 @@ class Controller(Singleton):
             exception_msg = ""
 
         # Scan for the last debugging line that includes a line number reference
-        line_info = None
+        line_info = ""
         for i in range(len(traceback.format_exc().splitlines()) - 1, 0, -1):
             traceback_line = traceback.format_exc().splitlines()[i]
             if ", line " in traceback_line:

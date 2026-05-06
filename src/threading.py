@@ -1,17 +1,29 @@
 import _thread
 
+_thread.stack_size(8 * 1024)
+
 
 class Thread:
-    def __init__(self, group=None, target=None, name=None, daemon=None, args=(), kwargs=None):
-        self.target = target
-        self.args = args
-        self.kwargs = {} if kwargs is None else kwargs
+    def __init__(self, group=None, target=None, name=None,
+                 args=(), kwargs=None, *, daemon=None):
+        self._target = target
+        self._args = args
+        self._kwargs = {} if kwargs is None else kwargs
+        self._is_alive = False
 
     def start(self):
-        _thread.start_new_thread(self.run, ())
+        self._is_alive = True
+        _thread.start_new_thread(self._bootstrap, ())
 
     def run(self):
-        self.target(*self.args, **self.kwargs)
+        self._target(*self._args, **self._kwargs)
+
+    def _bootstrap(self):
+        self.run()
+        self._is_alive = False
+
+    def is_alive(self):
+        return self._is_alive
 
 
 Lock = _thread.allocate_lock
