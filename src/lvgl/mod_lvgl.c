@@ -12,6 +12,7 @@ bool mod_lvgl_load(Canvas *canvas, const uint8_t *data, size_t len) {
 
     canvas->w = dsc.header.w;
     canvas->h = dsc.header.h;
+    canvas->canvas = NULL;
 
     switch (dsc.header.cf) {
     case LV_COLOR_FORMAT_RGB888:
@@ -21,6 +22,7 @@ bool mod_lvgl_load(Canvas *canvas, const uint8_t *data, size_t len) {
         canvas->size = canvas->w * canvas->h * 4;
         break;
     }
+
     canvas->buf = lv_malloc(canvas->size);
     if (!canvas->buf) return false;
 
@@ -28,6 +30,8 @@ bool mod_lvgl_load(Canvas *canvas, const uint8_t *data, size_t len) {
     lv_image_decoder_close(&dsc);
 
     canvas->canvas = lv_canvas_create(lv_screen_active());
+    if (!canvas->canvas) return false;
+
     lv_obj_add_flag(canvas->canvas, LV_OBJ_FLAG_HIDDEN);
     lv_canvas_set_buffer(canvas->canvas, canvas->buf, canvas->w, canvas->h, dsc.header.cf);
 
@@ -184,15 +188,30 @@ bool mod_lvgl_canvas_init(Canvas *canvas, const char *mode, int w, int h, bool v
         canvas->size = w * h * 2;
     }
 
+    canvas->w = w;
+    canvas->h = h;
+    canvas->canvas = NULL;
+
     canvas->buf = lv_malloc(canvas->size);
     if (!canvas->buf) return false;
 
-    canvas->w = w;
-    canvas->h = h;
     canvas->canvas = lv_canvas_create(lv_screen_active());
+    if (!canvas->canvas) return false;
+
     if (!visible) lv_obj_add_flag(canvas->canvas, LV_OBJ_FLAG_HIDDEN);
     lv_canvas_set_buffer(canvas->canvas, canvas->buf, w, h, cf);
     return true;
+}
+
+void mod_lvgl_canvas_del(Canvas *canvas) {
+    if (canvas->canvas) {
+        lv_obj_delete(canvas->canvas);
+        canvas->canvas = NULL;
+    }
+    if (canvas->buf) {
+        lv_free(canvas->buf);
+        canvas->buf = NULL;
+    }
 }
 
 void mod_lvgl_canvas_copyto(Canvas *canvas, Canvas *src, int x, int y) {
