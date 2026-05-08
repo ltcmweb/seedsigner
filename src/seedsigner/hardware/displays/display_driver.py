@@ -66,7 +66,7 @@ class DisplayDriverFactory:
             raise ValueError(f"Invalid display type: {display_type}")
 
         from seedsigner.hardware.displays.lvgl import LvglDisplay
-        return LvglDisplay(_width=480, _height=320)
+        return LvglDisplay()
 
         if display_type == DISPLAY_TYPE__ST7789:
             if width not in [240, 320] or height != 240:
