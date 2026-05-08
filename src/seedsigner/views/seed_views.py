@@ -1290,7 +1290,9 @@ class SeedWordsBackupTestView(View):
         fake_word3 = ButtonOptionWithoutTranslation(bip39.WORDLIST[int(random.random() * 2047)])
 
         button_data = [real_word, fake_word1, fake_word2, fake_word3]
-        random.shuffle(button_data)
+        for i in range(len(button_data) - 1, 0, -1):
+            j = random.randint(0, i)
+            button_data[i], button_data[j] = button_data[j], button_data[i]
 
         # TRANSLATOR_NOTE: Inserts the word number (e.g. "Verify Word #1")
         title = _("Verify Word #{}").format(self.cur_index + 1)

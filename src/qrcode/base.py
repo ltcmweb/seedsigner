@@ -315,20 +315,20 @@ class Polynomial:
         return Polynomial(num, 0)
 
     def __mod__(self, other):
-        difference = len(self) - len(other)
-        if difference < 0:
-            return self
+        while True:
+            difference = len(self) - len(other)
+            if difference < 0:
+                return self
 
-        ratio = glog(self[0]) - glog(other[0])
+            ratio = glog(self[0]) - glog(other[0])
 
-        num = [
-            item ^ gexp(glog(other_item) + ratio)
-            for item, other_item in zip(self, other)]
-        if difference:
-            num.extend(self[-difference:])
+            num = [
+                item ^ gexp(glog(other_item) + ratio)
+                for item, other_item in zip(self, other)]
+            if difference:
+                num.extend(self[-difference:])
 
-        # recursive call
-        return Polynomial(num, 0) % other
+            self = Polynomial(num, 0)
 
 
 class RSBlock:

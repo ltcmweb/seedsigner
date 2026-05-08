@@ -19,7 +19,7 @@ class ImageDraw:
         lvgl.line(self.canvas, xy, color_to_int(fill))
 
     def arc(self, box, start, end, fill, width):
-        pass
+        lvgl.arc(self.canvas, box, start, end, color_to_int(fill), width)
 
     def ellipse(self, box, fill, outline=None, width=1):
         pass

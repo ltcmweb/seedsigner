@@ -607,6 +607,8 @@ class TextArea(BaseComponent):
             self.horizontal_scroll_position = 0
             self.scroll_increment_sign = 1
             self.scrolling_active = True
+            if not self.is_alive():
+                self.start()
 
 
         def run(self):
@@ -625,8 +627,7 @@ class TextArea(BaseComponent):
 
             while self.keep_running:
                 if not self.scrolling_active:
-                    time.sleep(0.1)
-                    continue
+                    return
 
                 if cur_hold_duration is not None:
                     # We're currently holding; see if we've held long enough

@@ -11,6 +11,8 @@ bool mod_lvgl_load(Canvas *canvas, const uint8_t *data, size_t len);
 void mod_lvgl_rect(Canvas *canvas, int x1, int y1, int x2, int y2,
     int fill, int outline, int width, int radius);
 void mod_lvgl_line(Canvas *canvas, int x1, int y1, int x2, int y2, int fill);
+void mod_lvgl_arc(Canvas *canvas, int x1, int y1, int x2, int y2,
+    int start, int end, int fill, int width);
 void mod_lvgl_text(Canvas *canvas, int x, int y, int fill,
     const char *text, const char *font, const char *anchor, lv_area_t *box);
 bool mod_lvgl_canvas_init(Canvas *canvas, const char *mode, int w, int h, bool visible);

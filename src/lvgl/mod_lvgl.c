@@ -59,7 +59,7 @@ void mod_lvgl_rect(Canvas *canvas, int x1, int y1, int x2, int y2,
     }
     dsc.radius = radius;
 
-    lv_area_t coords = {x1, y1, x2 - 1, y2 - 1};
+    lv_area_t coords = {x1, y1, x2, y2};
     lv_draw_rect(&layer, &dsc, &coords);
     lv_canvas_finish_layer(canvas->canvas, &layer);
 }
@@ -78,6 +78,26 @@ void mod_lvgl_line(Canvas *canvas, int x1, int y1, int x2, int y2, int fill) {
     dsc.p2.y = y2;
 
     lv_draw_line(&layer, &dsc);
+    lv_canvas_finish_layer(canvas->canvas, &layer);
+}
+
+void mod_lvgl_arc(Canvas *canvas, int x1, int y1, int x2, int y2,
+    int start, int end, int fill, int width) {
+
+    lv_layer_t layer;
+    lv_canvas_init_layer(canvas->canvas, &layer);
+
+    lv_draw_arc_dsc_t dsc;
+    lv_draw_arc_dsc_init(&dsc);
+    dsc.color = lv_color_hex(fill);
+    dsc.width = width;
+    dsc.start_angle = start;
+    dsc.end_angle = end;
+    dsc.center.x = (x1 + x2) / 2;
+    dsc.center.y = (y1 + y2) / 2;
+    dsc.radius = (x2 - x1) / 2;
+
+    lv_draw_arc(&layer, &dsc);
     lv_canvas_finish_layer(canvas->canvas, &layer);
 }
 

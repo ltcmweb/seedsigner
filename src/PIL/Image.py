@@ -31,7 +31,7 @@ class Image:
         image.canvas.copyto(self.canvas, pos)
 
     def copy(self):
-        return self.convert('RGB')
+        return self.convert('RGB565')
 
     def tobytes(self):
         return self.canvas.tobytes()
@@ -44,12 +44,12 @@ class Image:
 
     def crop(self, box):
         x1, y1, x2, y2 = box
-        canvas = lvgl.Canvas('RGB', (round(x2 - x1), round(y2 - y1)))
+        canvas = lvgl.Canvas('RGB565', (round(x2 - x1), round(y2 - y1)))
         self.canvas.copyto(canvas, (-round(x1), -round(y1)))
         return Image(canvas)
 
 def new(mode, size, color=0, visible=False):
-    image = Image(lvgl.Canvas(mode, size, visible))
+    image = Image(lvgl.Canvas('RGB565', size, visible))
     Draw(image).rectangle((0, 0) + size, fill=color)
     return image
 
