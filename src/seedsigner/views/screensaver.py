@@ -204,15 +204,14 @@ class ScreensaverScreen(LogoScreen):
         # never gives up the lock until it returns.
         with self.renderer.lock:
             try:
+                crop = self.image.crop((0, 0) + self.renderer.canvas.size)
                 while self._is_running:
-                    gc.collect()
+                    time.sleep(0.05)
                     if self.buttons.has_any_input() or self.buttons.override_ind:
                         break
 
                     # Must crop the image to the exact display size
-                    crop = self.image.crop((
-                        self.cur_x, self.cur_y,
-                        self.cur_x + self.renderer.canvas_width, self.cur_y + self.renderer.canvas_height))
+                    crop.paste(self.image, (-round(self.cur_x), -round(self.cur_y)))
                     self.renderer.disp.show_image(crop, 0, 0)
 
                     self.cur_x += self.increment_x

@@ -196,6 +196,12 @@ void mod_lvgl_text(Canvas *canvas, int x, int y, int fill,
     box->y2 = size.y;
 }
 
+void mod_lvgl_putalpha(Canvas *canvas, int alpha) {
+    uint8_t *p = canvas->buf + 3;
+    for (; p < canvas->buf + canvas->size; p += 4)
+        *p = alpha;
+}
+
 bool mod_lvgl_canvas_init(Canvas *canvas, const char *mode, int w, int h, bool visible) {
     lv_color_format_t cf = LV_COLOR_FORMAT_RGB565;
     if (!strcmp(mode, "RGB")) {
@@ -212,7 +218,7 @@ bool mod_lvgl_canvas_init(Canvas *canvas, const char *mode, int w, int h, bool v
     canvas->h = h;
     canvas->canvas = NULL;
 
-    canvas->buf = lv_malloc(canvas->size);
+    canvas->buf = lv_malloc_zeroed(canvas->size);
     if (!canvas->buf) return false;
 
     canvas->canvas = lv_canvas_create(lv_screen_active());

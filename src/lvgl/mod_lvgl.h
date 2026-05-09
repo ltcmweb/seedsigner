@@ -15,6 +15,7 @@ void mod_lvgl_arc(Canvas *canvas, int x1, int y1, int x2, int y2,
     int start, int end, int fill, int width);
 void mod_lvgl_text(Canvas *canvas, int x, int y, int fill,
     const char *text, const char *font, const char *anchor, lv_area_t *box);
+void mod_lvgl_putalpha(Canvas *canvas, int alpha);
 bool mod_lvgl_canvas_init(Canvas *canvas, const char *mode, int w, int h, bool visible);
 void mod_lvgl_canvas_del(Canvas *canvas);
 void mod_lvgl_canvas_copyto(Canvas *canvas, Canvas *src, int x, int y);
