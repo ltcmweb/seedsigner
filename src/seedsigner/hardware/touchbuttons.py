@@ -1,8 +1,23 @@
+import lvgl
 import queue
 import time
 
 from seedsigner.hardware.buttons import HardwareButtonsConstants
 from seedsigner.models.singleton import Singleton
+
+
+def lvgl_input_cb(op, x, y):
+    LV_EVENT_PRESSING = 2
+    LV_EVENT_RELEASED = 11
+
+    hw_input = TouchButtons.get_instance()
+    if op == LV_EVENT_PRESSING:
+        op = 'touch_move' if hw_input.touch_down else 'touch_down'
+        hw_input.touch_down = True
+    if op == LV_EVENT_RELEASED:
+        op = 'touch_up'
+        hw_input.touch_down = False
+    hw_input.queue.put_nowait((op, x, y))
 
 
 class TouchButtons(Singleton):
@@ -16,6 +31,7 @@ class TouchButtons(Singleton):
     def _initialize(self):
         self.queue = queue.Queue()
         self.last_input_time = int(time.time() * 1000)
+        lvgl.register_input_cb(lvgl_input_cb)
 
     def add_button(self, button):
         self._buttons.append(button)

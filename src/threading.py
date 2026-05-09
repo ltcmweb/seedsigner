@@ -1,6 +1,6 @@
 import _thread
 
-_thread.stack_size(8 * 1024)
+_thread.stack_size(12 * 1024)
 
 
 class Thread:

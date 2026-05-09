@@ -271,12 +271,8 @@ class RestartView(View):
             # exiting.
             time.sleep(0.25)
 
-            # Flush any buffered data.
-            sys.stdout.flush() 
-            sys.stderr.flush()
-
             # Replace the current process with a new one.
-            os.execv(sys.executable, [sys.executable] + sys.argv)
+            sys.exit()
 
 
 

@@ -592,9 +592,10 @@ class ButtonListScreen(BaseTopNavScreen):
                     next_selected_button = self.hw_inputs.get_button()
                     next_selected_button.is_selected = True
                     try:
-                        self.selected_button = self.buttons.index(next_selected_button)
+                        self.selected_button = next(i for i, button in enumerate(self.buttons)
+                                                    if button is next_selected_button)
                         self.top_nav.is_selected = False
-                    except ValueError:
+                    except StopIteration:
                         self.top_nav.is_selected = True
                     self._render()
 
@@ -791,9 +792,10 @@ class LargeButtonScreen(BaseTopNavScreen):
                     next_selected_button.is_selected = True
                     next_selected_button.render()
                     try:
-                        self.selected_button = self.buttons.index(next_selected_button)
+                        self.selected_button = next(i for i, button in enumerate(self.buttons)
+                                                    if button is next_selected_button)
                         self.top_nav.is_selected = False
-                    except ValueError:
+                    except StopIteration:
                         self.top_nav.is_selected = True
                     self.top_nav.render_buttons()
 
