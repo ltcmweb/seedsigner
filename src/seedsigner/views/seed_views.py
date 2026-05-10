@@ -11,7 +11,7 @@ from embit.networks import NETWORKS
 
 from seedsigner.gui.components import FontAwesomeIconConstants, SeedSignerIconConstants
 from seedsigner.gui.screens import (RET_CODE__BACK_BUTTON, ButtonListScreen,
-    WarningScreen, DireWarningScreen, seed_screens)
+    WarningScreen, DireWarningScreen, loader as seed_screens)
 from seedsigner.gui.screens.screen import ButtonOption, ButtonOptionWithoutTranslation
 from seedsigner.models.encode_qr import CakeWalletXpubQrEncoder, CompactSeedQrEncoder, GenericStaticQrEncoder, SeedQrEncoder, SpecterLegacyXPubQrEncoder, StaticXpubQrEncoder, UrXpubQrEncoder
 from seedsigner.models.qr_type import QRType
@@ -2197,7 +2197,7 @@ class SeedSignMessageConfirmMessageView(View):
 
 
     def run(self):
-        from seedsigner.gui.screens.seed_screens import SeedSignMessageConfirmMessageScreen
+        from seedsigner.gui.screens.loader import SeedSignMessageConfirmMessageScreen
 
         selected_menu_num = self.run_screen(
             SeedSignMessageConfirmMessageScreen,
@@ -2260,7 +2260,7 @@ class SeedSignMessageConfirmAddressView(View):
 
 
     def run(self):
-        from seedsigner.gui.screens.seed_screens import SeedSignMessageConfirmAddressScreen
+        from seedsigner.gui.screens.loader import SeedSignMessageConfirmAddressScreen
         selected_menu_num = self.run_screen(
             SeedSignMessageConfirmAddressScreen,
             derivation_path=self.derivation_path,

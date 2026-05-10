@@ -272,7 +272,8 @@ class RestartView(View):
             time.sleep(0.25)
 
             # Replace the current process with a new one.
-            sys.exit()
+            import machine
+            machine.reset()
 
 
 

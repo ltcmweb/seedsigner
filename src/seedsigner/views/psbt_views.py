@@ -111,7 +111,7 @@ class PSBTOverviewView(View):
 
 
     def run(self):
-        from seedsigner.gui.screens.psbt_screens import PSBTOverviewScreen
+        from seedsigner.gui.screens.loader import PSBTOverviewScreen
         psbt_parser = self.controller.psbt_parser
 
         change_data = psbt_parser.change_data
@@ -220,7 +220,7 @@ class PSBTMathView(View):
         + change value
     """
     def run(self):
-        from seedsigner.gui.screens.psbt_screens import PSBTMathScreen
+        from seedsigner.gui.screens.loader import PSBTMathScreen
         psbt_parser: PSBTParser = self.controller.psbt_parser
         if not psbt_parser:
             # Should not be able to get here
@@ -257,7 +257,7 @@ class PSBTAddressDetailsView(View):
 
 
     def run(self):
-        from seedsigner.gui.screens.psbt_screens import PSBTAddressDetailsScreen
+        from seedsigner.gui.screens.loader import PSBTAddressDetailsScreen
         psbt_parser: PSBTParser = self.controller.psbt_parser
 
         if not psbt_parser:
@@ -315,7 +315,7 @@ class PSBTChangeDetailsView(View):
 
 
     def run(self):
-        from seedsigner.gui.screens.psbt_screens import PSBTChangeDetailsScreen
+        from seedsigner.gui.screens.loader import PSBTChangeDetailsScreen
         psbt_parser: PSBTParser = self.controller.psbt_parser
 
         if not psbt_parser:
@@ -496,7 +496,7 @@ class PSBTOpReturnView(View):
         Shows the OP_RETURN data
     """
     def run(self):
-        from seedsigner.gui.screens.psbt_screens import PSBTOpReturnScreen
+        from seedsigner.gui.screens.loader import PSBTOpReturnScreen
         psbt_parser: PSBTParser = self.controller.psbt_parser
 
         if not psbt_parser:
@@ -528,7 +528,7 @@ class PSBTFinalizeView(View):
     
     def run(self):
         from embit.psbt import PSBT
-        from seedsigner.gui.screens.psbt_screens import PSBTFinalizeScreen
+        from seedsigner.gui.screens.loader import PSBTFinalizeScreen
 
         psbt_parser: PSBTParser = self.controller.psbt_parser
         psbt: PSBT = self.controller.psbt

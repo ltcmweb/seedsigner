@@ -150,7 +150,8 @@ class SeedMnemonicEntryScreen(BaseTopNavScreen):
 
 
     def calc_possible_words(self):
-        self.possible_words = [i for i in self.wordlist if i.startswith("".join(self.letters).strip())]
+        prefix = "".join(self.letters).strip()
+        self.possible_words = [i for i in self.wordlist if i.startswith(prefix)]
         self.selected_possible_words_index = 0        
 
 

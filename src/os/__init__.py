@@ -9,7 +9,9 @@ except ImportError:
 
 def walk(top):
     dirs, files = [], []
-    for name, code, _, _ in ilistdir(top):
+    for entry in ilistdir(top):
+        name = entry[0]
+        code = entry[1]
         if name not in ('.', '..'):
             if code & 0x4000:
                 dirs.append(name)

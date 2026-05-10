@@ -67,7 +67,7 @@ class ToolsMenuView(View):
 ****************************************************************************"""
 class ToolsImageEntropyLivePreviewView(View):
     def run(self):
-        from seedsigner.gui.screens.tools_screens import ToolsImageEntropyLivePreviewScreen
+        from seedsigner.gui.screens.loader import ToolsImageEntropyLivePreviewScreen
         self.controller.image_entropy_preview_frames = None
         ret = self.run_screen(ToolsImageEntropyLivePreviewScreen)
 
@@ -83,7 +83,7 @@ class ToolsImageEntropyFinalImageView(View):
     def run(self):
         from PIL import Image
         from PIL.ImageOps import autocontrast
-        from seedsigner.gui.screens.tools_screens import ToolsImageEntropyFinalImageScreen
+        from seedsigner.gui.screens.loader import ToolsImageEntropyFinalImageScreen
         if not self.controller.image_entropy_final_image:
             from seedsigner.hardware.camera import Camera
             # Take the final full-res image
@@ -245,7 +245,7 @@ class ToolsDiceEntropyEntryView(View):
     
 
     def run(self):
-        from seedsigner.gui.screens.tools_screens import ToolsDiceEntropyEntryScreen
+        from seedsigner.gui.screens.loader import ToolsDiceEntropyEntryScreen
         ret = self.run_screen(
             ToolsDiceEntropyEntryScreen,
             return_after_n_chars=self.total_rolls,
@@ -303,7 +303,7 @@ class ToolsCalcFinalWordFinalizePromptView(View):
     ZEROS = ButtonOption("Finalize with zeros")
 
     def run(self):
-        from seedsigner.gui.screens.tools_screens import ToolsCalcFinalWordFinalizePromptScreen
+        from seedsigner.gui.screens.loader import ToolsCalcFinalWordFinalizePromptScreen
         mnemonic = self.controller.storage.pending_mnemonic
         mnemonic_length = len(mnemonic)
         if mnemonic_length == 12:
@@ -341,7 +341,7 @@ class ToolsCalcFinalWordFinalizePromptView(View):
 
 class ToolsCalcFinalWordCoinFlipsView(View):
     def run(self):
-        from seedsigner.gui.screens.tools_screens import ToolsCoinFlipEntryScreen
+        from seedsigner.gui.screens.loader import ToolsCoinFlipEntryScreen
         mnemonic_length = len(self.controller.storage.pending_mnemonic)
 
         if mnemonic_length == 12:
@@ -421,7 +421,7 @@ class ToolsCalcFinalWordShowFinalWordView(View):
 
 
     def run(self):
-        from seedsigner.gui.screens.tools_screens import ToolsCalcFinalWordScreen
+        from seedsigner.gui.screens.loader import ToolsCalcFinalWordScreen
         button_data = [self.NEXT]
 
         # TRANSLATOR_NOTE: label to calculate the last word of a BIP-39 mnemonic seed phrase
@@ -450,7 +450,7 @@ class ToolsCalcFinalWordDoneView(View):
     DISCARD = ButtonOption("Discard", button_label_color="red")
 
     def run(self):
-        from seedsigner.gui.screens.tools_screens import ToolsCalcFinalWordDoneScreen
+        from seedsigner.gui.screens.loader import ToolsCalcFinalWordDoneScreen
         mnemonic = self.controller.storage.pending_mnemonic
         mnemonic_word_length = len(mnemonic)
         final_word = mnemonic[-1]
@@ -603,7 +603,7 @@ class ToolsAddressExplorerAddressTypeView(View):
 
 
     def run(self):
-        from seedsigner.gui.screens.tools_screens import ToolsAddressExplorerAddressTypeScreen
+        from seedsigner.gui.screens.loader import ToolsAddressExplorerAddressTypeScreen
         data = self.controller.address_explorer_data
 
         wallet_descriptor_display_name = None
@@ -654,7 +654,7 @@ class ToolsAddressExplorerAddressListView(View):
 
 
     def run(self):
-        from seedsigner.gui.screens.tools_screens import ToolsAddressExplorerAddressListScreen
+        from seedsigner.gui.screens.loader import ToolsAddressExplorerAddressListScreen
         self.loading_screen = None
 
         addresses = []
