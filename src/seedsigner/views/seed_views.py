@@ -1963,7 +1963,7 @@ class SeedAddressVerificationView(View):
 
             # Block until the thread has stopped
             while self.addr_verification_thread.is_alive():
-                time.sleep(0.01)
+                time.sleep(0.1)
 
         return Destination(MainMenuView)
 

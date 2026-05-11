@@ -84,7 +84,7 @@ class BaseScreen(BaseComponent):
                 # handles threads that were never run (necessary for screenshot generator
                 # compatibility, perhaps other edge cases).
                 while t.is_alive():
-                    time.sleep(0.01)
+                    time.sleep(0.1)
 
 
     def clear_screen(self):
@@ -416,6 +416,8 @@ class ButtonListScreen(BaseTopNavScreen):
         cur_selected_button = self.buttons[self.selected_button]
         cur_selected_button.is_selected = True
 
+        self.header_image = Image.new("RGB", (self.canvas_width, self.header_height))
+
 
     def get_threads(self) -> List[BaseThread]:
         threads = super().get_threads()
@@ -426,17 +428,9 @@ class ButtonListScreen(BaseTopNavScreen):
 
 
     def _render(self):
-        self.clear_screen()
-
+        super()._render()
+        self.header_image.paste(self.canvas)
         self._render_visible_buttons()
-
-        self.image_draw.rectangle((0, 0, self.canvas_width, self.header_height - 1), fill=0)
-
-        for component in self.components:
-            component.render()
-
-        for img, coords in self.paste_images:
-            self.canvas.paste(img, coords)
 
         # Write the screen updates
         self.renderer.show_image()
@@ -448,22 +442,12 @@ class ButtonListScreen(BaseTopNavScreen):
             self._render_down_arrow()
 
         for i, button in enumerate(self.buttons):
-            if not self.has_scroll_arrows:
-                button.render()
-                continue
-
             button_position_y = button.screen_y - button.scroll_y
-            if button_position_y >= self.header_height and button_position_y < self.down_arrow_img_y:
-                if i == 0:
-                    # We rendered the top button; no more to scroll up for.
-                    self._hide_up_arrow()
-
-                if i == len(self.buttons) - 1:
-                    # We just pulled up the last button; no more to scroll down for.
-                    self._hide_down_arrow()
-
+            if button_position_y + button.height >= self.header_height and button_position_y < self.canvas_height:
                 # Render the button after the arrows to cover up overlap
                 button.render()
+
+        self.canvas.paste(self.header_image)
 
 
     def _render_up_arrow(self):
@@ -492,6 +476,7 @@ class ButtonListScreen(BaseTopNavScreen):
 
 
     def _run(self):
+        last_render_time = 0
         while True:
             ret = self._run_callback()
             if ret is not None:
@@ -524,6 +509,7 @@ class ButtonListScreen(BaseTopNavScreen):
 
                         self.top_nav.is_selected = True
                         self.top_nav.render_buttons()
+                        self.header_image.paste(self.canvas)
 
                 elif user_input == HardwareButtonsConstants.KEY_UP:
                     if self.top_nav.is_selected:
@@ -558,6 +544,7 @@ class ButtonListScreen(BaseTopNavScreen):
                     if self.top_nav.is_selected:
                         self.top_nav.is_selected = False
                         self.top_nav.render_buttons()
+                        self.header_image.paste(self.canvas)
 
                         cur_selected_button = None
                         next_selected_button = self.buttons[self.selected_button]
@@ -612,7 +599,10 @@ class ButtonListScreen(BaseTopNavScreen):
                             dy = max(0, bottom - y)
                         for button in self.buttons:
                             button.scroll_y -= dy
-                        self._render()
+                        if time.time() - last_render_time < 1/30:
+                            continue
+                        self.image_draw.rectangle((0, self.header_height) + self.canvas.size, fill=0)
+                        self._render_visible_buttons()
 
                 elif user_input in HardwareButtonsConstants.KEYS__ANYCLICK:
                     if self.top_nav.is_selected:
@@ -621,6 +611,7 @@ class ButtonListScreen(BaseTopNavScreen):
 
                 # Write the screen updates
                 self.renderer.show_image()
+                last_render_time = time.time()
 
 
 
@@ -952,14 +943,7 @@ class QRDisplayScreen(BaseScreen):
         from seedsigner.models.settings import Settings
 
         while True:
-            user_input = self.hw_inputs.wait_for(
-                [
-                    HardwareButtonsConstants.KEY_UP,
-                    HardwareButtonsConstants.KEY_DOWN,
-                    HardwareButtonsConstants.KEY_LEFT,
-                    HardwareButtonsConstants.KEY_RIGHT,
-                ] + HardwareButtonsConstants.KEYS__ANYCLICK
-            )
+            user_input = self.hw_inputs.wait_for(HardwareButtonsConstants.ALL_KEYS)
             if user_input == HardwareButtonsConstants.KEY_DOWN:
                 # Reduce QR code background brightness
                 self.qr_brightness.set_value(max(31, self.qr_brightness.cur_count - 31))
@@ -974,7 +958,7 @@ class QRDisplayScreen(BaseScreen):
                 # Any other input exits the screen
                 self.threads[-1].stop()
                 while self.threads[-1].is_alive():
-                    time.sleep(0.01)
+                    time.sleep(0.1)
                 break
 
         Settings.get_instance().set_value(SettingsConstants.SETTING__QR_BRIGHTNESS, self.qr_brightness.cur_count)

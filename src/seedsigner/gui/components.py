@@ -625,6 +625,8 @@ class TextArea(BaseComponent):
             hold_started_at = None
             cur_hold_duration = None
 
+            img = Image.new("RGB", (self.visible_width, self.rendered_text_img.height))
+
             while self.keep_running:
                 if not self.scrolling_active:
                     return
@@ -694,7 +696,7 @@ class TextArea(BaseComponent):
                             continue
 
                         # The pre-rendered text img slides within a cropping window
-                        img = self.rendered_text_img.crop((self.horizontal_scroll_position, 0, self.horizontal_scroll_position + self.visible_width, self.rendered_text_img.height))
+                        img.paste(self.rendered_text_img, (-self.horizontal_scroll_position, 0))
                         self.renderer.canvas.paste(img, (self.screen_x, self.screen_y - self.scroll_y))
                         self.renderer.show_image()
 

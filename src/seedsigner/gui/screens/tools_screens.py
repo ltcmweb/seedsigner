@@ -48,7 +48,7 @@ class ToolsImageEntropyLivePreviewScreen(BaseScreen):
 
             if frame is None:
                 # Camera probably isn't ready yet
-                time.sleep(0.01)
+                time.sleep(0.1)
                 continue
 
             with self.renderer.lock:

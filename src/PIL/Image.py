@@ -25,9 +25,7 @@ class Image:
         return Image(canvas)
 
     def putalpha(self, alpha):
-        image = self.convert('RGBA')
-        lvgl.putalpha(image.canvas, alpha)
-        self.canvas = image.canvas
+        lvgl.putalpha(self.canvas, alpha)
 
     def paste(self, image, pos=(0, 0)):
         image.canvas.copyto(self.canvas, pos)

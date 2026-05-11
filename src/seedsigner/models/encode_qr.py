@@ -146,7 +146,7 @@ class GenericStaticQrEncoder(BaseStaticQrEncoder):
 
 
 @dataclass
-class BaseXpubQrEncoder(BaseQrEncoder):
+class BaseXpubQrEncoder:
     """
     Base Xpub QrEncoder for static and animated formats
     """
@@ -172,6 +172,7 @@ class BaseXpubQrEncoder(BaseQrEncoder):
 
 
 
+@dataclass
 class StaticXpubQrEncoder(BaseXpubQrEncoder, BaseStaticQrEncoder):
     def __post_init__(self):
         super().__post_init__()
@@ -184,6 +185,7 @@ class StaticXpubQrEncoder(BaseXpubQrEncoder, BaseStaticQrEncoder):
 
 
 
+@dataclass
 class CakeWalletXpubQrEncoder(BaseXpubQrEncoder, BaseStaticQrEncoder):
     def __post_init__(self):
         super().__post_init__()

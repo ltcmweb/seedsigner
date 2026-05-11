@@ -17,7 +17,7 @@ class QR:
         qr.add_data(data)
         qr.make(fit=True)
         if not style or style == QR.STYLE__DEFAULT:
-            return qr.make_image(fill_color="black", back_color=background_color).resize((width,height)).convert('RGBA')
+            return qr.make_image(fill_color="black", back_color=background_color).resize((width,height))
         else:
             if style == QR.STYLE__ROUNDED:
                 qr_image = qr.make_image(
@@ -89,6 +89,19 @@ class QR:
                 ).resize((width,height)).convert('RGBA')
 
 
+    def qrimage_c(self, data, width=240, height=240, border=3, style=None, background_color="#444"):
+        import qrcode_c
+        data = qrcode_c.encode_to_string(data)
+        rows = data.splitlines()
+        qr_w, qr_h = len(rows[0]) + border * 2, len(rows) + border * 2
+        scale_x, scale_y = width // qr_w, height // qr_h
+        x_off = (width - qr_w * scale_x) // 2 + border * scale_x
+        y_off = (height - qr_h * scale_y) // 2 + border * scale_y
+        buf = bytearray(b'\xff\xff' * (width * height))
+        qrcode_c.encode_to_rgb565(buf, data + '\n\0', width, scale_x, scale_y, y_off * width + x_off)
+        return Image.frombytes('RGB565', (width, height), buf)
+
+
     def qrimage_io(self, data, width=240, height=240, border=3, background_color="808080"):
         if 1 <= border <= 10:
             border_str = str(border)
@@ -100,7 +113,7 @@ class QR:
 
         # if qrencode fails, fall back to only encoder
         if rv != 0:
-            return self.qrimage(data,width,height,border,None,"white")
+            return self.qrimage_c(data,width,height,border,None,"white")
         img = Image.open("/tmp/qrcode.png").resize((width,height), Image.Resampling.NEAREST).convert("RGBA")
 
         return img

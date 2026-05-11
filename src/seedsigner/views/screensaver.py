@@ -1,4 +1,3 @@
-import gc
 import logging
 import os
 import random
@@ -82,15 +81,15 @@ class OpeningSplashScreen(LogoScreen):
         else:
             logo_offset_y = 0
 
-        background = Image.new("RGBA", size=self.logo.size, color="black")
         if not self.renderer.is_screenshot_generator:
             # Fade in alpha
+            logo = self.logo.convert("RGBA")
             for i in range(250, -1, -25):
-                self.logo.putalpha(255 - i)
-                self.renderer.canvas.paste(
-                    Image.alpha_composite(background, self.logo),
-                    (logo_offset_x, logo_offset_y)
-                )
+                logo.putalpha(255 - i)
+                pos = logo_offset_x, logo_offset_y
+                pos2 = pos[0] + logo.width, pos[1] + logo.height
+                self.renderer.draw.rectangle(pos + pos2, fill="black")
+                self.renderer.canvas.paste(logo, pos)
                 self.renderer.show_image()
         else:
             # Skip animation for the screenshot generator
@@ -149,7 +148,7 @@ class ScreensaverScreen(LogoScreen):
 
         # Paste the logo in a bigger image that is the canvas + the logo dims (half the
         # logo will render off the canvas at each edge).
-        self.image = Image.new("RGB", (self.renderer.canvas_width * 2, self.renderer.canvas_height * 2), (0,0,0))
+        self.image = Image.new("RGB", (self.renderer.canvas_width, self.renderer.canvas_height), (0,0,0))
 
         # Place the logo centered on the larger image
         logo_x = int((self.image.width - self.logo.width) / 2)
@@ -157,11 +156,11 @@ class ScreensaverScreen(LogoScreen):
         self.image.paste(self.logo, (logo_x, logo_y))
 
         self.min_coords = (0, 0)
-        self.max_coords = (self.image.width // 2, self.image.height // 2)
+        self.max_coords = (self.image.width, self.image.height)
 
         # Update our first rendering position so we're centered
-        self.cur_x = int(self.logo.width / 2)
-        self.cur_y = int(self.logo.height / 2)
+        self.cur_x = int(self.image.width / 2)
+        self.cur_y = int(self.image.height / 2)
 
         self.increment_x = self.rand_increment()
         self.increment_y = self.rand_increment()
@@ -204,15 +203,18 @@ class ScreensaverScreen(LogoScreen):
         # never gives up the lock until it returns.
         with self.renderer.lock:
             try:
-                crop = self.image.crop((0, 0) + self.renderer.canvas.size)
                 while self._is_running:
                     time.sleep(0.05)
                     if self.buttons.has_any_input() or self.buttons.override_ind:
                         break
 
                     # Must crop the image to the exact display size
-                    crop.paste(self.image, (-round(self.cur_x), -round(self.cur_y)))
-                    self.renderer.disp.show_image(crop, 0, 0)
+                    from PIL import ImageDraw
+                    ImageDraw.Draw(self.image).rectangle((0, 0) + self.image.size, fill="black")
+                    pos_x = round(self.cur_x - self.logo.width / 2)
+                    pos_y = round(self.cur_y - self.logo.height / 2)
+                    self.image.paste(self.logo, (pos_x, pos_y))
+                    self.renderer.disp.show_image(self.image, 0, 0)
 
                     self.cur_x += self.increment_x
                     self.cur_y += self.increment_y
