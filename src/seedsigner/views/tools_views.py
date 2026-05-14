@@ -92,7 +92,7 @@ class ToolsImageEntropyFinalImageView(View):
 
             # Final image will be at least 4x the number of pixels the screen can
             # actually display.
-            camera.start_single_frame_mode(resolution=(2*max_dim, 2*max_dim))
+            camera.start_single_frame_mode(resolution=(max_dim, max_dim))
 
             time.sleep(0.25)
             self.controller.image_entropy_final_image = camera.capture_frame()
@@ -153,13 +153,12 @@ class ToolsImageEntropyMnemonicLengthView(View):
 
             # Build in some hardware-level uniqueness via CPU unique Serial num
             try:
-                stream = os.popen("cat /proc/cpuinfo | grep Serial")
-                output = stream.read()
-                serial_num = output.split(":")[-1].strip().encode('utf-8')
+                import machine
+                serial_num = machine.unique_id()
                 serial_hash = hashlib.sha256(serial_num)
                 hash_bytes = serial_hash.digest()
             except Exception as e:
-                logger.info(repr(e), exc_info=True)
+                logger.exception(repr(e), exc_info=True)
                 hash_bytes = b'0'
 
             # Build in modest entropy via millis since power on

@@ -3,7 +3,7 @@ import time
 from dataclasses import dataclass, field
 from gettext import gettext as _
 from typing import Any
-from PIL.Image import Image
+from PIL import Image
 from seedsigner.gui.renderer import Renderer
 from seedsigner.hardware.camera import Camera
 from seedsigner.gui.components import FontAwesomeIconConstants, Fonts, GUIConstants, IconTextLine, SeedSignerIconConstants, TextArea
@@ -33,6 +33,7 @@ class ToolsImageEntropyLivePreviewScreen(BaseScreen):
         preview_images = []
         max_entropy_frames = 50
         instructions_font = Fonts.get_font(GUIConstants.get_body_font_name(), GUIConstants.get_button_font_size())
+        frame = Image.new("RGB565", self.canvas.size)
 
         while True:
             has_input = self.hw_inputs.has_any_input()
@@ -44,7 +45,7 @@ class ToolsImageEntropyLivePreviewScreen(BaseScreen):
                 self.camera.stop_video_stream_mode()
                 return RET_CODE__BACK_BUTTON
 
-            frame: Image = self.camera.read_video_stream(as_image=True)
+            self.camera.read_video_stream(frame)
 
             if frame is None:
                 # Camera probably isn't ready yet
@@ -125,7 +126,7 @@ class ToolsImageEntropyLivePreviewScreen(BaseScreen):
 
 @dataclass
 class ToolsImageEntropyFinalImageScreen(BaseScreen):
-    final_image: Image = field(1, default=None)
+    final_image: Image.Image = field(1, default=None)
 
     def _run(self):
         instructions_font = Fonts.get_font(GUIConstants.get_body_font_name(), GUIConstants.get_button_font_size())

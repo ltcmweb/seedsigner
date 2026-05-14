@@ -27,7 +27,7 @@ class Image:
     def putalpha(self, alpha):
         lvgl.putalpha(self.canvas, alpha)
 
-    def paste(self, image, pos=(0, 0)):
+    def paste(self, image, pos=(0, 0), mask=None):
         image.canvas.copyto(self.canvas, pos)
 
     def copy(self):
@@ -36,20 +36,24 @@ class Image:
     def tobytes(self):
         return self.canvas.tobytes()
 
-    def resize(self, size, resample=None):
-        return self
+    def resize(self, size, resample=None, box=None):
+        return self.crop(box)
 
     def filter(self, filter):
         return self
 
-    def crop(self, box):
+    def crop(self, box=None):
+        if box is None:
+            return self
         x1, y1, x2, y2 = box
         canvas = lvgl.Canvas('RGB565', (x2 - x1, y2 - y1))
         self.canvas.copyto(canvas, (-x1, -y1))
         return Image(canvas)
 
 def new(mode, size, color=0, visible=False):
-    image = Image(lvgl.Canvas('RGB565', size, visible))
+    if mode == 'RGB':
+        mode = 'RGB565'
+    image = Image(lvgl.Canvas(mode, size, visible))
     if color != 0:
         Draw(image).rectangle((0, 0) + size, fill=color)
     return image
@@ -70,5 +74,6 @@ def alpha_composite(back, front):
 class Resampling:
     NEAREST = 0
     LANCZOS = 1
+    BICUBIC = 2
 
 LANCZOS = 1

@@ -27,30 +27,34 @@ class Camera(Singleton):
         return cls._instance
 
 
+    def _start(self, resolution):
+        import camera
+        dim = max(resolution)
+        camera.start(dim, dim)
+        self._buffer = bytearray(dim * dim * 2)
+        self._resolution = dim, dim
+        return camera
+
+
     def start_video_stream_mode(self, resolution=(512, 384), framerate=12, format="bgr"):
-        from picamera import PiCameraError
-        from picamera import PiVideoStream
         if self._video_stream is not None:
             self.stop_video_stream_mode()
 
         try:
-            self._video_stream = PiVideoStream(resolution=resolution,framerate=framerate, format=format)
-            self._video_stream.start()
-        except PiCameraError:
+            self._video_stream = self._start(resolution)
+        except RuntimeError:
             # This error most often occurs because the camera connection is loose
             raise CameraConnectionError()
 
 
-    def read_video_stream(self, as_image=False):
+    def read_video_stream(self, frame: Image.Image):
         if not self._video_stream:
             raise Exception("Must call start_video_stream first.")
-        frame = self._video_stream.read()
-        if not as_image:
-            return frame
-        else:
-            if frame is not None:
-                return Image.fromarray(frame.astype('uint8'), 'RGB').convert('RGBA').rotate(90 + self._camera_rotation)
-        return None
+        if frame.width != self._resolution[0]:
+            raise Exception("Frame width doesn't match camera.")
+        self._video_stream.read(self._buffer)
+        offset = (self._resolution[1] - frame.height) * frame.width
+        frame.canvas.setbytes(memoryview(self._buffer)[offset:])
 
 
     def stop_video_stream_mode(self):
@@ -60,16 +64,14 @@ class Camera(Singleton):
 
 
     def start_single_frame_mode(self, resolution=(720, 480)):
-        from picamera import PiCamera, PiCameraError
         if self._video_stream is not None:
             self.stop_video_stream_mode()
         if self._picamera is not None:
-            self._picamera.close()
+            self._picamera.stop()
 
         try:
-            self._picamera = PiCamera(resolution=resolution, framerate=24)
-            self._picamera.start_preview()
-        except PiCameraError:
+            self._picamera = self._start(resolution)
+        except RuntimeError:
             # This error most often occurs because the camera connection is loose
             raise CameraConnectionError()
 
@@ -78,23 +80,12 @@ class Camera(Singleton):
         if self._picamera is None:
             raise Exception("Must call start_single_frame_mode first.")
 
-        # Set auto-exposure values
-        self._picamera.shutter_speed = self._picamera.exposure_speed
-        self._picamera.exposure_mode = 'off'
-        g = self._picamera.awb_gains
-        self._picamera.awb_mode = 'off'
-        self._picamera.awb_gains = g
-
-        stream = io.BytesIO()
-        self._picamera.capture(stream, format='jpeg')
-
-        # "Rewind" the stream to the beginning so we can read its content
-        stream.seek(0)
-        return Image.open(stream).rotate(90 + self._camera_rotation)
+        self._picamera.read(self._buffer)
+        return Image.frombytes('RGB565', self._resolution, self._buffer)
 
 
     def stop_single_frame_mode(self):
         if self._picamera is not None:
-            self._picamera.close()
+            self._picamera.stop()
             self._picamera = None
 

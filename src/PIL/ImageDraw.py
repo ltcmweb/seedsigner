@@ -10,19 +10,26 @@ class ImageDraw:
         lvgl.rectangle(self.canvas, box, color_to_int(fill), color_to_int(outline), width, 0)
 
     def rounded_rectangle(self, box, *, fill, radius, outline=None, width=1):
+        if len(box) == 2:
+            box = box[0] + box[1]
         lvgl.rectangle(self.canvas, box, color_to_int(fill), color_to_int(outline), width, radius)
 
-    def text(self, xy, text, *, font, fill, anchor):
-        lvgl.text(self.canvas, xy, text, font.name, color_to_int(fill), anchor)
+    def text(self, xy, text, *, font, fill, anchor="lt", stroke_width=0, stroke_fill=None):
+        lvgl.text(self.canvas, xy, text, font.name, color_to_int(fill),
+                  anchor, stroke_width, color_to_int(stroke_fill))
 
-    def line(self, xy, fill, width=1):
+    def line(self, xy, fill=None, width=0, joint=None):
         lvgl.line(self.canvas, xy, color_to_int(fill))
 
     def arc(self, box, start, end, fill, width):
         lvgl.arc(self.canvas, box, start, end, color_to_int(fill), width)
 
     def ellipse(self, box, fill, outline=None, width=1):
-        pass
+        if len(box) == 2:
+            box = box[0] + box[1]
+        x1, y1, x2, y2 = box
+        radius = min(x2 - x1 + 1, y2 - y1 + 1) // 2
+        lvgl.rectangle(self.canvas, box, color_to_int(fill), color_to_int(outline), width, radius)
 
     def textbbox(self, xy, text, font, anchor):
         x, y = xy
@@ -34,15 +41,9 @@ def Draw(image):
 
 def color_to_int(color):
     if color is None:
-        return -1
+        return 0
     if isinstance(color, int):
         color = color, color, color
-    if isinstance(color, tuple):
-        if len(color) == 4:
-            r, g, b, _ = color
-        else:
-            r, g, b = color
-        color = r << 16 | g << 8 | b
     if isinstance(color, str):
         if color == 'black':
             color = '#000000'
@@ -56,7 +57,12 @@ def color_to_int(color):
             color = '#ffffff'
         if color[0] == '#':
             if len(color) == 7:
-                color = int(color[1:], 16)
+                color = tuple(bytes.fromhex(color[1:]))
             elif len(color) == 4:
-                color = int(''.join(c * 2 for c in color[1:]), 16)
+                color = tuple(int(c * 2, 16) for c in color[1:])
+    if isinstance(color, tuple):
+        if len(color) == 3:
+            color += 0xff,
+        r, g, b, a = color
+        color = a << 24 | r << 16 | g << 8 | b
     return color

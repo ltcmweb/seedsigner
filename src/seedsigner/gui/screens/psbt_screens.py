@@ -57,7 +57,7 @@ class PSBTOverviewScreen(ButtonListScreen):
 
         # We need to supersample the whole panel so that small/thin elements render
         # clearly.
-        ssf = 4  # super-sampling factor
+        ssf = 1  # super-sampling factor
 
         # Set up our temp supersampled rendering surface
         image = Image.new(
@@ -517,7 +517,7 @@ class PSBTMathScreen(ButtonListScreen):
         # TODO: Test rendering the numeric amounts without the supersampling
         body_width = self.canvas_width - 2*GUIConstants.EDGE_PADDING
         body_height = self.buttons[0].screen_y - self.top_nav.height - 2*GUIConstants.COMPONENT_PADDING
-        ssf = 2  # Super-sampling factor
+        ssf = 1  # Super-sampling factor
         image = Image.new("RGB", (body_width*ssf, body_height*ssf))
         draw = ImageDraw.Draw(image)
 
@@ -527,7 +527,7 @@ class PSBTMathScreen(ButtonListScreen):
         digits_width, digits_height = right - left, bottom - top
 
         # Draw each line of the equation
-        cur_y = 0
+        cur_y = digits_height
 
         def render_amount(cur_y, amount_str, info_text, info_text_color=GUIConstants.BODY_FONT_COLOR):
             secondary_digit_color = "#888"
@@ -545,12 +545,12 @@ class PSBTMathScreen(ButtonListScreen):
                 main_zone_width, th = right - left, bottom - top
                 left, top, right, bottom  = fixed_width_font.getbbox(end_zone)
                 mid_zone_width, th = right - left, bottom - top
-                draw.text((0, cur_y), text=main_zone, font=fixed_width_font, fill=GUIConstants.BODY_FONT_COLOR)
-                draw.text((main_zone_width + digit_group_spacing, cur_y), text=mid_zone, font=fixed_width_font, fill=secondary_digit_color)
-                draw.text((main_zone_width + digit_group_spacing + mid_zone_width + digit_group_spacing, cur_y), text=end_zone, font=fixed_width_font, fill=tertiary_digit_color)
+                draw.text((0, cur_y), text=main_zone, font=fixed_width_font, fill=GUIConstants.BODY_FONT_COLOR, anchor="ls")
+                draw.text((main_zone_width + digit_group_spacing, cur_y), text=mid_zone, font=fixed_width_font, fill=secondary_digit_color, anchor="ls")
+                draw.text((main_zone_width + digit_group_spacing + mid_zone_width + digit_group_spacing, cur_y), text=end_zone, font=fixed_width_font, fill=tertiary_digit_color, anchor="ls")
             else:
-                draw.text((0, cur_y), text=amount_str, font=fixed_width_font, fill=GUIConstants.BODY_FONT_COLOR)
-            draw.text((digits_width + 3*digit_group_spacing, cur_y), text=info_text, font=body_font, fill=info_text_color)
+                draw.text((0, cur_y), text=amount_str, font=fixed_width_font, fill=GUIConstants.BODY_FONT_COLOR, anchor="ls")
+            draw.text((digits_width + 3*digit_group_spacing, cur_y), text=info_text, font=body_font, fill=info_text_color, anchor="ls")
 
         render_amount(
             cur_y,
@@ -575,9 +575,9 @@ class PSBTMathScreen(ButtonListScreen):
             info_text=_("fee"),
         )
 
-        cur_y += digits_height + GUIConstants.BODY_LINE_SPACING * ssf
-        draw.line((0, cur_y, image.width, cur_y), fill=GUIConstants.BODY_FONT_COLOR, width=1)
         cur_y += GUIConstants.BODY_LINE_SPACING * ssf
+        draw.line((0, cur_y, image.width, cur_y), fill=GUIConstants.BODY_FONT_COLOR, width=1)
+        cur_y += digits_height + GUIConstants.BODY_LINE_SPACING * ssf
 
         render_amount(
             cur_y,

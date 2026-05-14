@@ -39,24 +39,18 @@ bool mod_lvgl_load(Canvas *canvas, const uint8_t *data, size_t len) {
 }
 
 void mod_lvgl_rect(Canvas *canvas, int x1, int y1, int x2, int y2,
-    int fill, int outline, int width, int radius) {
+    uint32_t fill, uint32_t outline, int width, int radius) {
 
     lv_layer_t layer;
     lv_canvas_init_layer(canvas->canvas, &layer);
 
     lv_draw_rect_dsc_t dsc;
     lv_draw_rect_dsc_init(&dsc);
-    if (fill >= 0) {
-        dsc.bg_color = lv_color_hex(fill);
-    } else {
-        dsc.bg_opa = LV_OPA_TRANSP;
-    }
-    if (outline >= 0) {
-        dsc.border_color = lv_color_hex(outline);
-        dsc.border_width = width;
-    } else {
-        dsc.border_opa = LV_OPA_TRANSP;
-    }
+    dsc.bg_color = lv_color_hex(fill);
+    dsc.bg_opa = fill >> 24;
+    dsc.border_color = lv_color_hex(outline);
+    dsc.border_opa = outline >> 24;
+    dsc.border_width = width;
     dsc.radius = radius;
 
     lv_area_t coords = {x1, y1, x2, y2};
@@ -64,7 +58,7 @@ void mod_lvgl_rect(Canvas *canvas, int x1, int y1, int x2, int y2,
     lv_canvas_finish_layer(canvas->canvas, &layer);
 }
 
-void mod_lvgl_line(Canvas *canvas, int x1, int y1, int x2, int y2, int fill) {
+void mod_lvgl_line(Canvas *canvas, int x1, int y1, int x2, int y2, uint32_t fill) {
     lv_layer_t layer;
     lv_canvas_init_layer(canvas->canvas, &layer);
 
@@ -82,7 +76,7 @@ void mod_lvgl_line(Canvas *canvas, int x1, int y1, int x2, int y2, int fill) {
 }
 
 void mod_lvgl_arc(Canvas *canvas, int x1, int y1, int x2, int y2,
-    int start, int end, int fill, int width) {
+    int start, int end, uint32_t fill, int width) {
 
     lv_layer_t layer;
     lv_canvas_init_layer(canvas->canvas, &layer);
@@ -101,8 +95,9 @@ void mod_lvgl_arc(Canvas *canvas, int x1, int y1, int x2, int y2,
     lv_canvas_finish_layer(canvas->canvas, &layer);
 }
 
-void mod_lvgl_text(Canvas *canvas, int x, int y, int fill,
-    const char *text, const char *font, const char *anchor, lv_area_t *box) {
+void mod_lvgl_text(Canvas *canvas, int x, int y, uint32_t fill,
+    const char *text, const char *font, const char *anchor,
+    int stroke_width, uint32_t stroke_fill, lv_area_t *box) {
 
     lv_layer_t layer;
     lv_canvas_init_layer(canvas->canvas, &layer);
@@ -110,7 +105,11 @@ void mod_lvgl_text(Canvas *canvas, int x, int y, int fill,
     lv_draw_label_dsc_t dsc;
     lv_draw_label_dsc_init(&dsc);
     dsc.color = lv_color_hex(fill);
+    dsc.opa = fill >> 24;
     dsc.text = text;
+    dsc.outline_stroke_color = lv_color_hex(stroke_fill);
+    dsc.outline_stroke_opa = stroke_fill >> 24;
+    dsc.outline_stroke_width = stroke_width;
 
     if (!strcmp(font, "OpenSans-Regular-15")) {
         dsc.font = &opensans_regular_17_4bpp;
@@ -124,6 +123,8 @@ void mod_lvgl_text(Canvas *canvas, int x, int y, int fill,
         dsc.font = &opensans_regular_17_4bpp_125x;
     } else if (!strcmp(font, "OpenSans-Regular-22")) {
         dsc.font = &opensans_regular_17_4bpp_125x;
+    } else if (!strcmp(font, "OpenSans-Regular-24")) {
+        dsc.font = &opensans_regular_17_4bpp_150x;
     } else if (!strcmp(font, "OpenSans-Regular-26")) {
         dsc.font = &opensans_regular_17_4bpp_150x;
     } else if (!strcmp(font, "OpenSans-SemiBold-17")) {
@@ -134,6 +135,10 @@ void mod_lvgl_text(Canvas *canvas, int x, int y, int fill,
         dsc.font = &opensans_semibold_20_4bpp;
     } else if (!strcmp(font, "OpenSans-SemiBold-26")) {
         dsc.font = &opensans_semibold_26_4bpp;
+    } else if (!strcmp(font, "Inconsolata-Regular-23")) {
+        dsc.font = &Inconsolata_SemiBold;
+    } else if (!strcmp(font, "Inconsolata-Regular-24")) {
+        dsc.font = &Inconsolata_SemiBold;
     } else if (!strcmp(font, "Inconsolata-Regular-26")) {
         dsc.font = &Inconsolata_SemiBold;
     } else if (!strcmp(font, "Inconsolata-SemiBold-20")) {
@@ -173,9 +178,15 @@ void mod_lvgl_text(Canvas *canvas, int x, int y, int fill,
     case 'm':
         x -= size.x / 2;
         break;
+    case 'r':
+        x -= size.x;
+        break;
     }
 
     switch (anchor[1]) {
+    case 'm':
+        y -= size.y / 2;
+        break;
     case 's':
         y -= size.y - dsc.font->base_line;
         size.y = 0;

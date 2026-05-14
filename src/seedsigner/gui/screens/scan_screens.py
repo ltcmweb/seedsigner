@@ -1,3 +1,4 @@
+from threading import Lock
 import time
 
 from dataclasses import dataclass, field
@@ -42,7 +43,7 @@ class ScanScreen(BaseScreen):
     """
     decoder: DecodeQR = field(1, default=None)
     instructions_text: str = field(2, default=None)
-    resolution: tuple[int,int] = field(3, default=(480, 480))
+    resolution: tuple[int,int] = field(3, default=None)
     framerate: int = field(4, default=6)  # TODO: alternate optimization for Pi Zero 2W?
     render_rect: tuple[int,int,int,int] = field(5, default=None)
 
@@ -58,12 +59,19 @@ class ScanScreen(BaseScreen):
         # TODO: Arrange this with UI elements rather than text
         self.instructions_text = "< " + _("back") + "  |  " + _(self.instructions_text)
 
+        if self.resolution is None:
+            self.resolution = self.canvas.size
         self.camera = Camera.get_instance()
         self.camera.start_video_stream_mode(resolution=self.resolution, framerate=self.framerate, format="rgb")
 
         self.frames_decode_status = ThreadsafeCounter()
 
+        self.frame_preview = Image.new("RGB565", self.resolution)
+        self.frame_updated = False
+        self.frame_lock = Lock()
+
         self.threads.append(ScanScreen.LivePreviewThread(
+            screen=self,
             decoder=self.decoder,
             renderer=self.renderer,
             instructions_text=self.instructions_text,
@@ -73,10 +81,11 @@ class ScanScreen(BaseScreen):
 
 
     class LivePreviewThread(BaseThread):
-        def __init__(self, decoder: DecodeQR, renderer: renderer.Renderer, instructions_text: str, render_rect: tuple[int,int,int,int], frame_decode_status: ThreadsafeCounter):
+        def __init__(self, screen, decoder: DecodeQR, renderer: renderer.Renderer, instructions_text: str, render_rect: tuple[int,int,int,int], frame_decode_status: ThreadsafeCounter):
             from seedsigner.hardware.camera import Camera
 
             self.camera = Camera.get_instance()
+            self.screen = screen
             self.decoder = decoder
             self.renderer = renderer
             self.instructions_text = instructions_text
@@ -101,8 +110,9 @@ class ScanScreen(BaseScreen):
 
             num_frames = 0
             while self.keep_running:
-                frame = self.camera.read_video_stream(as_image=True)
-                if frame is not None:
+                self.screen.frame_lock.acquire()
+                frame = self.screen.frame_preview
+                if self.screen.frame_updated:
                     num_frames += 1
                     
                     scan_text = None
@@ -163,7 +173,7 @@ class ScanScreen(BaseScreen):
                             progress_bar_width = rectangle.width - 2*GUIConstants.EDGE_PADDING - progress_text_width - int(GUIConstants.EDGE_PADDING/2)
                             progress_bar_xy = (
                                     (GUIConstants.EDGE_PADDING, int((rectangle.height - progress_bar_thickness) / 2)),
-                                    (GUIConstants.EDGE_PADDING + progress_bar_width, int(rectangle.height + progress_bar_thickness) / 2)
+                                    (GUIConstants.EDGE_PADDING + progress_bar_width, int((rectangle.height + progress_bar_thickness) / 2))
                                 )
                             draw.rounded_rectangle(
                                 progress_bar_xy,
@@ -218,6 +228,9 @@ class ScanScreen(BaseScreen):
 
                         self.renderer.show_image(frame, show_direct=True)
 
+                self.screen.frame_updated = False
+                self.screen.frame_lock.release()
+
                 if self.camera._video_stream is None:
                     break
 
@@ -233,8 +246,13 @@ class ScanScreen(BaseScreen):
 
         num_frames = 0
         start_time = time.time()
+        frame = Image.new("RGB565", self.resolution)
         while True:
-            frame = self.camera.read_video_stream()
+            self.camera.read_video_stream(frame)
+            with self.frame_lock:
+                self.frame_preview.paste(frame)
+                self.frame_updated = True
+
             if frame is not None:
                 status = self.decoder.add_image(frame)
 

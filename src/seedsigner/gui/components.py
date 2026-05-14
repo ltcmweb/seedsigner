@@ -1141,7 +1141,7 @@ class BtcAmount(BaseComponent):
             screen_x=0,
             screen_y=0,
         )
-        btc_icon.render()
+        self.paste_image.paste(load_image("ltc_logo_34x34.png"))
         cur_x = btc_icon.width + int(GUIConstants.COMPONENT_PADDING/4)
 
         if denomination == SettingsConstants.BTC_DENOMINATION__BTC or \
@@ -1229,7 +1229,7 @@ class BtcAmount(BaseComponent):
                 screen_x=0,
                 screen_y=0,
             )
-            btc_icon.render()
+            self.paste_image.paste(load_image("ltc_logo_34x34.png"))
             cur_x = btc_icon.width + int(GUIConstants.COMPONENT_PADDING/4)
 
             (left, top, text_width, bottom) = smaller_digit_font.getbbox(btc_text, anchor="ls")

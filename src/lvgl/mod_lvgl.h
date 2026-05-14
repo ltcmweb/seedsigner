@@ -9,12 +9,13 @@ typedef struct {
 
 bool mod_lvgl_load(Canvas *canvas, const uint8_t *data, size_t len);
 void mod_lvgl_rect(Canvas *canvas, int x1, int y1, int x2, int y2,
-    int fill, int outline, int width, int radius);
-void mod_lvgl_line(Canvas *canvas, int x1, int y1, int x2, int y2, int fill);
+    uint32_t fill, uint32_t outline, int width, int radius);
+void mod_lvgl_line(Canvas *canvas, int x1, int y1, int x2, int y2, uint32_t fill);
 void mod_lvgl_arc(Canvas *canvas, int x1, int y1, int x2, int y2,
-    int start, int end, int fill, int width);
-void mod_lvgl_text(Canvas *canvas, int x, int y, int fill,
-    const char *text, const char *font, const char *anchor, lv_area_t *box);
+    int start, int end, uint32_t fill, int width);
+void mod_lvgl_text(Canvas *canvas, int x, int y, uint32_t fill,
+    const char *text, const char *font, const char *anchor,
+    int stroke_width, uint32_t stroke_fill, lv_area_t *box);
 void mod_lvgl_putalpha(Canvas *canvas, int alpha);
 bool mod_lvgl_canvas_init(Canvas *canvas, const char *mode, int w, int h, bool visible);
 void mod_lvgl_canvas_del(Canvas *canvas);

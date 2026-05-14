@@ -1,5 +1,5 @@
-def autocontrast():
-    pass
+def autocontrast(image, cutoff=0):
+    return image
 
 def flip(image):
     return image

@@ -857,7 +857,7 @@ class QRDisplayScreen(BaseScreen):
                 text=text,
                 font_size=GUIConstants.get_body_font_size(),
                 font_name=GUIConstants.get_button_font_name(),
-                background_color=(0, 0, 0, overlay_opacity),
+                background_color=0,
                 edge_padding=0,
                 is_text_centered=False,
                 auto_line_break=False,
@@ -874,7 +874,7 @@ class QRDisplayScreen(BaseScreen):
                 text=text,
                 font_size=GUIConstants.get_body_font_size(),
                 font_name=GUIConstants.get_button_font_name(),
-                background_color=(0, 0, 0, overlay_opacity),
+                background_color=0,
                 edge_padding=0,
                 is_text_centered=False,
                 auto_line_break=False,
@@ -942,6 +942,7 @@ class QRDisplayScreen(BaseScreen):
     def _run(self):
         from seedsigner.models.settings import Settings
 
+        Button(width=self.canvas_width, height=self.canvas_height)
         while True:
             user_input = self.hw_inputs.wait_for(HardwareButtonsConstants.ALL_KEYS)
             if user_input == HardwareButtonsConstants.KEY_DOWN:

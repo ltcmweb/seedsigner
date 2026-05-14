@@ -350,37 +350,37 @@ class DecodeQR:
             logger.debug(f"segment string length: {len(s)}")
 
             # PSBT
-            if re.search("^UR:CRYPTO-PSBT/", s, re.IGNORECASE):
+            if re.search("^UR:CRYPTO-PSBT/", s.upper()):
                 return QRType.PSBT__UR2
 
-            elif re.search("^UR:PSBT/", s, re.IGNORECASE):
+            elif re.search("^UR:PSBT/", s.upper()):
                 return QRType.PSBT__UR2
 
-            elif re.search("^UR:CRYPTO-OUTPUT/", s, re.IGNORECASE):
+            elif re.search("^UR:CRYPTO-OUTPUT/", s.upper()):
                 return QRType.OUTPUT__UR
 
-            elif re.search("^UR:CRYPTO-ACCOUNT/", s, re.IGNORECASE):
+            elif re.search("^UR:CRYPTO-ACCOUNT/", s.upper()):
                 return QRType.ACCOUNT__UR
 
-            elif re.search(r'^p(\d+)of(\d+) ([A-Za-z0-9+\/=]+$)', s, re.IGNORECASE): #must be base64 characters only in segment
+            elif re.search(r'^p(\d+)of(\d+) ([A-Za-z0-9+\/=]+$)', s.lower()): #must be base64 characters only in segment
                 return QRType.PSBT__SPECTER
 
-            elif re.search("^UR:BYTES/", s, re.IGNORECASE):
+            elif re.search("^UR:BYTES/", s.upper()):
                 return QRType.BYTES__UR
 
             elif DecodeQR.is_base64_psbt(s):
                 return QRType.PSBT__BASE64
 
-            elif re.search(r"^B\$[2HZ]P[0-9A-Z]{4}", s): # https://github.com/coinkite/BBQr/blob/master/BBQr.md#spliting-the-data
+            elif (m := re.search(r"^B\$[2HZ]P[0-9A-Z]+", s)) and len(m.group(0)) >= 8: # https://github.com/coinkite/BBQr/blob/master/BBQr.md#spliting-the-data
                 return QRType.PSBT__BBQR
 
             # Wallet Descriptor
-            desc_str = s.replace("\n","").replace(" ","")
-            if re.search(r'^p(\d+)of(\d+) ', s, re.IGNORECASE):
+            desc_str = s.replace("\n","").replace(" ","").lower()
+            if re.search(r'^p(\d+)of(\d+) ', s.lower()):
                 # when not a SPECTER Base64 PSBT from above, assume it's json
                 return QRType.WALLET__SPECTER
 
-            elif re.search(r'^\{\"label\".*\"descriptor\"\:.*', desc_str, re.IGNORECASE):
+            elif desc_str.startswith('{"label"') and '"descriptor":' in desc_str:
                 # if json starting with label and contains descriptor, assume specter wallet json
                 return QRType.WALLET__SPECTER
 
@@ -391,7 +391,7 @@ class DecodeQR:
                 return QRType.WALLET__GENERIC
 
             # Seed
-            if re.search(r'\d{48,96}', s):
+            if (m := re.search(r'\d+', s)) and 48 <= len(m.group(0)) <= 96:
                 return QRType.SEED__SEEDQR
 
             # Bitcoin Address
@@ -425,7 +425,7 @@ class DecodeQR:
             elif DecodeQR.is_base43_psbt(s):
                 return QRType.PSBT__BASE43
 
-        except UnicodeDecodeError:
+        except Exception:
             # Probably this isn't meant to be string data; check if it's valid byte data
             # below.
             pass
@@ -522,9 +522,9 @@ class DecodeQR:
 
     @staticmethod
     def is_bitcoin_address(s):
-        if re.search(r'^litecoin\:.*', s, re.IGNORECASE):
+        if re.search(r'^litecoin\:.*', s.lower()):
             return True
-        elif re.search(r'^((ltc1|tltc1|rltc1|ltcmweb1|tmweb1|[LMQ]|[mn])[a-zA-HJ-NP-Z0-9]{25,112})$', s, re.IGNORECASE):
+        elif (m := re.search(r'^((ltc1|tltc1|rltc1|ltcmweb1|tmweb1|[lmq]|[mn])([a-zA-HJ-NP-Z0-9]+))$', s.lower())) and 25 <= len(m.group(3)) <= 113:
             return True
         else:
             return False
@@ -715,13 +715,13 @@ class SpecterPsbtQrDecoder(BaseAnimatedQrDecoder):
 
 
     def current_segment_num(self, segment) -> int:
-        if re.search(r'^p(\d+)of(\d+) ', segment, re.IGNORECASE) != None:
-            return int(re.search(r'^p(\d+)of(\d+) ', segment, re.IGNORECASE).group(1))
+        if re.search(r'^p(\d+)of(\d+) ', segment.lower()) != None:
+            return int(re.search(r'^p(\d+)of(\d+) ', segment.lower()).group(1))
 
 
     def total_segment_nums(self, segment) -> int:
-        if re.search(r'^p(\d+)of(\d+) ', segment, re.IGNORECASE) != None:
-            return int(re.search(r'^p(\d+)of(\d+) ', segment, re.IGNORECASE).group(2))
+        if re.search(r'^p(\d+)of(\d+) ', segment.lower()) != None:
+            return int(re.search(r'^p(\d+)of(\d+) ', segment.lower()).group(2))
 
 
     def parse_segment(self, segment) -> str:
@@ -1021,15 +1021,15 @@ class BitcoinAddressQrDecoder(BaseSingleFrameQrDecoder):
                 * group 1: complete address
                 * group 2: address prefix
         """
-        address_match = re.search(r'^((ltc1q|tltc1q|rltc1q|ltc1p|tltc1p|rltc1p|ltcmweb1q|tmweb1q|[LMQ]|[mn])[a-zA-HJ-NP-Z0-9]{25,112})', segment.split(":")[-1], re.IGNORECASE)
-        if address_match != None:
+        address_match = re.search(r'^((ltc1q|tltc1q|rltc1q|ltc1p|tltc1p|ltcmweb1q|tmweb1q|[lmq]|[mn])([a-zA-HJ-NP-Z0-9]+))', segment.split(":")[-1].lower())
+        if address_match != None and 25 <= len(address_match.group(3)) <= 113:
             self.address = address_match.group(1)
             self.complete = True
             self.collected_segments = 1
             
             # Have to handle wallets that uppercase bech32 addresses.
             # Note that it's safe to lowercase the prefix for ALL addr formats.
-            addr_prefix = address_match.group(2).lower()
+            addr_prefix = address_match.group(2)
             
             if addr_prefix == "L":
                 # Legacy P2PKH. mainnet
@@ -1047,31 +1047,31 @@ class BitcoinAddressQrDecoder(BaseSingleFrameQrDecoder):
                 # Nested segwit single sig (p2sh-p2wpkh), nested segwit multisig (p2sh-p2wsh), or legacy multisig (p2sh); testnet / regtest
                 self.address_type = (SettingsConstants.NESTED_SEGWIT, SettingsConstants.TESTNET)
 
-            elif addr_prefix == "ltc1q":
+            elif addr_prefix.lower() == "ltc1q":
                 # Native Segwit (single sig or multisig), mainnet 
                 self.address_type = (SettingsConstants.NATIVE_SEGWIT, SettingsConstants.MAINNET)
 
-            elif addr_prefix == "tltc1q":
+            elif addr_prefix.lower() == "tltc1q":
                 # Native Segwit (single sig or multisig), testnet
                 self.address_type = (SettingsConstants.NATIVE_SEGWIT, SettingsConstants.TESTNET)
 
-            elif addr_prefix == "rltc1q":
+            elif addr_prefix.lower() == "rltc1q":
                 # Native Segwit (single sig or multisig), regtest
                 self.address_type = (SettingsConstants.NATIVE_SEGWIT, SettingsConstants.REGTEST)
 
-            elif addr_prefix == "ltc1p":
+            elif addr_prefix.lower() == "ltc1p":
                 self.address_type = (SettingsConstants.TAPROOT, SettingsConstants.MAINNET)
 
-            elif addr_prefix == "tltc1p":
+            elif addr_prefix.lower() == "tltc1p":
                 self.address_type = (SettingsConstants.TAPROOT, SettingsConstants.TESTNET)
 
-            elif addr_prefix == "rltc1p":
+            elif addr_prefix.lower() == "rltc1p":
                 self.address_type = (SettingsConstants.TAPROOT, SettingsConstants.REGTEST)
 
-            elif addr_prefix == "ltcmweb1q":
+            elif addr_prefix.lower() == "ltcmweb1q":
                 self.address_type = (SettingsConstants.MWEB, SettingsConstants.MAINNET)
 
-            elif addr_prefix == "tmweb1q":
+            elif addr_prefix.lower() == "tmweb1q":
                 self.address_type = (SettingsConstants.MWEB, SettingsConstants.TESTNET)
             # Note: there is no final "else" here because the regex won't return any other matches.
 
@@ -1137,22 +1137,22 @@ class SpecterWalletQrDecoder(BaseAnimatedQrDecoder):
 
 
     def current_segment_num(self, segment) -> int:
-        if re.search(r'^p(\d+)of(\d+) ', segment, re.IGNORECASE) != None:
-            return int(re.search(r'^p(\d+)of(\d+) ', segment, re.IGNORECASE).group(1))
+        if re.search(r'^p(\d+)of(\d+) ', segment.lower()) != None:
+            return int(re.search(r'^p(\d+)of(\d+) ', segment.lower()).group(1))
         else:
             return 1
 
 
     def total_segment_nums(self, segment) -> int:
-        if re.search(r'^p(\d+)of(\d+) ', segment, re.IGNORECASE) != None:
-            return int(re.search(r'^p(\d+)of(\d+) ', segment, re.IGNORECASE).group(2))
+        if re.search(r'^p(\d+)of(\d+) ', segment.lower()) != None:
+            return int(re.search(r'^p(\d+)of(\d+) ', segment.lower()).group(2))
         else:
             return 1
 
 
     def parse_segment(self, segment) -> str:
         try:
-            return re.search(r'^p(\d+)of(\d+) (.+$)', segment, re.IGNORECASE).group(3)
+            return re.search(r'^p(\d+)of(\d+) (.+$)', segment.lower()).group(3)
         except:
             return segment
 

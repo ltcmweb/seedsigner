@@ -11,24 +11,30 @@ def do_req(f, req):
 
 def b64(b): return b64encode(b).decode()
 
-def addresses(key, i=0, j=500):
+def addresses(key, i=0, j=100):
     return _addresses(key.child(0x80000000).key.secret,
                       key.child(0x80000001).key.sec(), i, j)
 
 def _addresses(scan, spendPub, i, j):
-    return do_req("Addresses", {
-        "Scan": b64(scan),
-        "SpendPub": b64(spendPub),
-        "From": i,
-        "To": j,
-    })["Address"]
+    res = []
+    for k in range(i, j, 20):
+        res.extend(do_req("Addresses", {
+            "Scan": b64(scan),
+            "SpendPub": b64(spendPub),
+            "From": k,
+            "To": min(k + 20, j),
+        })["Address"])
+    return res
 
-def addresses_pub_key_hash(xpub, i=0, j=1000):
-    return do_req("AddressesPubKeyHash", {
-        "XPub": xpub,
-        "From": i,
-        "To": j,
-    })["Address"]
+def addresses_pub_key_hash(xpub, i=0, j=200):
+    res = []
+    for k in range(i, j, 40):
+        res.extend(do_req("AddressesPubKeyHash", {
+            "XPub": xpub,
+            "From": k,
+            "To": min(k + 40, j),
+        })["Address"])
+    return res
 
 def psbt_get_recipients(psbtB64):
     return do_req("PsbtGetRecipients", {

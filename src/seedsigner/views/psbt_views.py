@@ -546,12 +546,19 @@ class PSBTFinalizeView(View):
             return Destination(BackStackView)
 
         elif isinstance(psbt, MwebPsbt):
+            from seedsigner.gui.screens.screen import LoadingScreenThread
             from seedsigner.helpers import embit_utils
             derivation_path = embit_utils.get_standard_derivation_path(
                 network=self.settings.get_value(SettingsConstants.SETTING__NETWORK),
             )
+
+            loading_screen = LoadingScreenThread(text=_("Signing PSBT..."))
+            loading_screen.start()
+
             psbt.sign(psbt_parser.root.derive("m/1000'"))
             psbt.sign_pub_key_hash(psbt_parser.root.derive(derivation_path))
+
+            loading_screen.stop()
             return Destination(PSBTSignedQRDisplayView)
 
         else:
