@@ -107,6 +107,9 @@ class SeedQrEncoder(BaseStaticQrEncoder):
 
 @dataclass
 class CompactSeedQrEncoder(SeedQrEncoder):
+    def zfill(self, s, width):
+        return '0' * (width - len(s)) + s
+
     def next_part(self):
         # Output as binary data format
         binary_str = ""
@@ -114,7 +117,7 @@ class CompactSeedQrEncoder(SeedQrEncoder):
             index = self.wordlist.index(word)
 
             # Convert index to binary, strip out '0b' prefix; zero-pad to 11 bits
-            binary_str += bin(index).split('b')[1].zfill(11)
+            binary_str += self.zfill(bin(index).split('b')[1], 11)
 
         # We can exclude the checksum bits at the end
         if len(self.mnemonic) == 24:

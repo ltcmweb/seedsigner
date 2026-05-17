@@ -97,7 +97,7 @@ class QR:
         scale_x, scale_y = width // qr_w, height // qr_h
         x_off = (width - qr_w * scale_x) // 2 + border * scale_x
         y_off = (height - qr_h * scale_y) // 2 + border * scale_y
-        buf = bytearray(b'\xff\xff' * (width * height))
+        buf = bytearray(width * height * 2)
         qrcode_c.encode_to_rgb565(buf, data + '\n\0', width, scale_x, scale_y, y_off * width + x_off)
         return Image.frombytes('RGB565', (width, height), buf)
 
