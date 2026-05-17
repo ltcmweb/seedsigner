@@ -322,7 +322,7 @@ class ButtonListScreen(BaseTopNavScreen):
     # ensure the screen is at least scrolled to reveal the `selected_button`.
     scroll_y_initial_offset: int = field(9, default=None)
 
-    header_height: int = field(10, default=None)
+    header_height: int = None
 
 
     def __post_init__(self):

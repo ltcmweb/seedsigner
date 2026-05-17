@@ -1497,12 +1497,15 @@ class SeedSelectSeedScreen(ButtonListScreen):
 
     def __post_init__(self):
         self.is_bottom_list = True
-        super().__post_init__()
+        BaseTopNavScreen.__post_init__(self)
 
         self.components.append(TextArea(
             text=self.text,
             screen_y=self.top_nav.height,
         ))
+
+        self.header_height = self.components[-1].screen_y + self.components[-1].height + GUIConstants.COMPONENT_PADDING
+        super().__post_init__()
 
 
 
