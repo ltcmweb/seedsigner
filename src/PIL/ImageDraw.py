@@ -1,5 +1,7 @@
 import lvgl
 
+from .ImageColor import color_to_int
+
 class ImageDraw:
     def __init__(self, image):
         self.canvas = image.canvas
@@ -38,31 +40,3 @@ class ImageDraw:
 
 def Draw(image):
     return ImageDraw(image)
-
-def color_to_int(color):
-    if color is None:
-        return 0
-    if isinstance(color, int):
-        color = color, color, color
-    if isinstance(color, str):
-        if color == 'black':
-            color = '#000000'
-        elif color == 'red':
-            color = '#ff0000'
-        elif color == 'orange':
-            color = '#ffa500'
-        elif color == 'blue':
-            color = '#0000ff'
-        elif color == 'white':
-            color = '#ffffff'
-        if color[0] == '#':
-            if len(color) == 7:
-                color = tuple(bytes.fromhex(color[1:]))
-            elif len(color) == 4:
-                color = tuple(int(c * 2, 16) for c in color[1:])
-    if isinstance(color, tuple):
-        if len(color) == 3:
-            color += 0xff,
-        r, g, b, a = color
-        color = a << 24 | r << 16 | g << 8 | b
-    return color

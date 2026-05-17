@@ -1,6 +1,7 @@
 from builtins import open as pyopen
 import lvgl
 
+from .ImageColor import color_to_int
 from .ImageDraw import Draw
 
 class Image:
@@ -43,7 +44,7 @@ class Image:
         return self
 
     def crop(self, box=None):
-        if box is None:
+        if box is None or box == (0, 0) + self.size:
             return self
         x1, y1, x2, y2 = box
         canvas = lvgl.Canvas('RGB565', (x2 - x1, y2 - y1))
@@ -51,7 +52,8 @@ class Image:
         return Image(canvas)
 
 def new(mode, size, color=0, visible=False):
-    if mode == 'RGB':
+    clr = color_to_int(color, mode)
+    if mode == 'RGB' or mode == 'RGBA' and clr >> 24 == 0xff:
         mode = 'RGB565'
     image = Image(lvgl.Canvas(mode, size, visible))
     if color != 0:

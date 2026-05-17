@@ -446,6 +446,8 @@ class ButtonListScreen(BaseTopNavScreen):
             if button_position_y + button.height >= self.header_height and button_position_y < self.canvas_height:
                 # Render the button after the arrows to cover up overlap
                 button.render()
+            elif (label := button.active_button_label) and label.needs_scroll:
+                label.scroll_thread.stop_scrolling()
 
         self.canvas.paste(self.header_image)
 

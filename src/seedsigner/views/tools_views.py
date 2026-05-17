@@ -729,7 +729,7 @@ class ToolsAddressExplorerAddressListView(View):
         
         if selected_menu_num == len(addresses):
             # User clicked NEXT
-            return Destination(ToolsAddressExplorerAddressListView, view_args=dict(is_change=self.is_change, start_index=self.start_index + addrs_per_screen))
+            return Destination(ToolsAddressExplorerAddressListView, view_args=dict(is_change=self.is_change, start_index=self.start_index + addrs_per_screen), skip_current_view=True)
         
         # Preserve the list's current scroll so we can return to the same spot
         initial_scroll = self.screen.buttons[0].scroll_y

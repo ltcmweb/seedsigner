@@ -496,7 +496,7 @@ class TextArea(BaseComponent):
 
         if self.is_horizontal_scrolling_enabled:
             # Temp img will be the full width of the text
-            image_width = self.text_width
+            image_width = self.visible_width
         else:
             # Temp img will be the component's width, but must respect right edge padding
             image_width = self.width - self.edge_padding
@@ -507,6 +507,7 @@ class TextArea(BaseComponent):
             print(f"Supersampled font load time: {time.time() - start:.04}")
         else:
             supersampled_font = font
+        self.supersampled_font = supersampled_font
 
         img = Image.new(
             "RGBA",
@@ -517,9 +518,35 @@ class TextArea(BaseComponent):
             self.background_color
             # "red"
         )
-        draw = ImageDraw.Draw(img)
+        self.draw = ImageDraw.Draw(img)
 
-        cur_y = (resample_padding + self.text_height_above_baseline) * self.supersampling_factor
+        self._render_text()
+
+        # Crop off the top_padding and resize the result down to onscreen size
+        if self.supersampling_factor > 1:
+            resized = img.resize((image_width, total_text_height + 2*resample_padding), Image.Resampling.LANCZOS)
+            sharpened = resized.filter(ImageFilter.SHARPEN)
+
+            img = sharpened.crop((0, resample_padding, image_width, resample_padding + total_text_height))
+
+        self.rendered_text_img = img
+
+        self.horizontal_text_scroll_thread: TextArea.HorizontalTextScrollThread = None
+        if self.is_horizontal_scrolling_enabled:
+            self.horizontal_text_scroll_thread = TextArea.HorizontalTextScrollThread(
+                textarea=self,
+                rendered_text_img=self.rendered_text_img,
+                screen_x=self.screen_x + self.min_text_x,
+                screen_y=self.screen_y + self.text_y - self.text_height_above_baseline,
+                visible_width=self.visible_width,
+                horizontal_scroll_speed=self.horizontal_scroll_speed,
+                begin_hold_secs=self.horizontal_scroll_begin_hold_secs,
+                end_hold_secs=self.horizontal_scroll_end_hold_secs
+            )
+
+
+    def _render_text(self, xpos=0):
+        cur_y = self.text_height_above_baseline * self.supersampling_factor
 
         if self.is_text_centered:
             # middle baseline
@@ -529,7 +556,7 @@ class TextArea(BaseComponent):
             anchor = "ls"
 
         # Default, not-centered text will be relative to its left-justified starting point
-        text_x = max([self.edge_padding, self.min_text_x])
+        text_x = max(self.edge_padding, self.min_text_x)
 
         for line in self.text_lines:
             if self.is_text_centered:
@@ -541,36 +568,15 @@ class TextArea(BaseComponent):
             
             elif self.is_horizontal_scrolling_enabled:
                 # Scrolling temp img isn't relative to any positioning other than its own text
-                text_x = 0
+                text_x = xpos
 
-            draw.text((text_x * self.supersampling_factor, cur_y), line["text"], fill=self.font_color, font=supersampled_font, anchor=anchor)
+            self.draw.text((text_x * self.supersampling_factor, cur_y), line["text"], fill=self.font_color, font=self.supersampled_font, anchor=anchor)
 
             # Debugging: show the exact vertical extents of each line of text
             # draw.line((0, cur_y - self.text_height_above_baseline * self.supersampling_factor, image_width * self.supersampling_factor, cur_y - self.text_height_above_baseline * self.supersampling_factor), fill="blue", width=int(self.supersampling_factor))
             # draw.line((0, cur_y, image_width * self.supersampling_factor, cur_y), fill="red", width=int(self.supersampling_factor))
 
             cur_y += (self.text_height_above_baseline + self.line_spacing) * self.supersampling_factor
-
-        # Crop off the top_padding and resize the result down to onscreen size
-        if self.supersampling_factor > 1:
-            resized = img.resize((image_width, total_text_height + 2*resample_padding), Image.Resampling.LANCZOS)
-            sharpened = resized.filter(ImageFilter.SHARPEN)
-
-            img = sharpened.crop((0, resample_padding, image_width, resample_padding + total_text_height))
-        
-        self.rendered_text_img = img
-
-        self.horizontal_text_scroll_thread: TextArea.HorizontalTextScrollThread = None
-        if self.is_horizontal_scrolling_enabled:
-            self.horizontal_text_scroll_thread = TextArea.HorizontalTextScrollThread(
-                rendered_text_img=self.rendered_text_img,
-                screen_x=self.screen_x + self.min_text_x,
-                screen_y=self.screen_y + self.text_y - self.text_height_above_baseline,
-                visible_width=self.visible_width,
-                horizontal_scroll_speed=self.horizontal_scroll_speed,
-                begin_hold_secs=self.horizontal_scroll_begin_hold_secs,
-                end_hold_secs=self.horizontal_scroll_end_hold_secs
-            )
 
 
     class HorizontalTextScrollThread(BaseThread):
@@ -580,8 +586,9 @@ class TextArea(BaseComponent):
         own thread, we lose all normal timing guarantees and therefore this thread must
         manage the lock itself.
         """
-        def __init__(self, rendered_text_img: Image, screen_x: int, screen_y: int, visible_width: int, horizontal_scroll_speed:int, begin_hold_secs: float, end_hold_secs: float):
+        def __init__(self, textarea, rendered_text_img: Image, screen_x: int, screen_y: int, visible_width: int, horizontal_scroll_speed:int, begin_hold_secs: float, end_hold_secs: float):
             super().__init__()
+            self.textarea = textarea
             self.rendered_text_img = rendered_text_img
             self.screen_x = screen_x
             self.screen_y = screen_y
@@ -617,15 +624,13 @@ class TextArea(BaseComponent):
             50px/sec creates a slight ghosting / doubling effect that impedes
             readability. 45px/sec is better but still perceptually a bit stuttery.
             """
-            max_scroll = self.rendered_text_img.width - self.visible_width
+            max_scroll = self.textarea.text_width - self.visible_width
             last_render_time = None
 
             # The scrolling pauses at the start and end of the text line. These vars track
             # when we started holding and how long we should hold for.
             hold_started_at = None
             cur_hold_duration = None
-
-            img = Image.new("RGB", (self.visible_width, self.rendered_text_img.height))
 
             while self.keep_running:
                 if not self.scrolling_active:
@@ -696,7 +701,9 @@ class TextArea(BaseComponent):
                             continue
 
                         # The pre-rendered text img slides within a cropping window
-                        img.paste(self.rendered_text_img, (-self.horizontal_scroll_position, 0))
+                        img = self.rendered_text_img
+                        self.textarea.draw.rectangle((0, 0) + img.size, fill=self.textarea.background_color)
+                        self.textarea._render_text(-self.horizontal_scroll_position)
                         self.renderer.canvas.paste(img, (self.screen_x, self.screen_y - self.scroll_y))
                         self.renderer.show_image()
 
