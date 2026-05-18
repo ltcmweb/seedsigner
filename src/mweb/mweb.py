@@ -41,9 +41,21 @@ def do_req(f, req):
 
 def b64(b): return b64encode(b).decode()
 
-def addresses(key, i=0, j=100):
-    return _addresses(key.child(0x80000000).key.secret,
-                      key.child(0x80000001).key.sec(), i, j)
+_mweb_addr_cache = {}
+_pkh_addr_cache = {}
+
+def addresses(key, i=None, j=None):
+    global _mweb_addr_cache
+    scan = key.child(0x80000000).key.secret
+    spendPub = key.child(0x80000001).key.sec()
+    if i is None and j is None:
+        if not (res := _mweb_addr_cache.get((scan, spendPub))):
+            if len(_mweb_addr_cache) > 10:
+                _mweb_addr_cache.clear()
+            res = _addresses(scan, spendPub, 0, 100)
+            _mweb_addr_cache[scan, spendPub] = res
+        return res
+    return _addresses(scan, spendPub, i, j)
 
 def _addresses(scan, spendPub, i, j):
     res = []
@@ -56,7 +68,18 @@ def _addresses(scan, spendPub, i, j):
         })["Address"])
     return res
 
-def addresses_pub_key_hash(xpub, i=0, j=200):
+def addresses_pub_key_hash(xpub, i=None, j=None):
+    global _pkh_addr_cache
+    if i is None and j is None:
+        if not (res := _pkh_addr_cache.get(xpub)):
+            if len(_pkh_addr_cache) > 10:
+                _pkh_addr_cache.clear()
+            res = _addresses_pub_key_hash(xpub, 0, 200)
+            _pkh_addr_cache[xpub] = res
+        return res
+    return _addresses_pub_key_hash(xpub, i, j)
+
+def _addresses_pub_key_hash(xpub, i, j):
     res = []
     for k in range(i, j, 40):
         res.extend(do_req("AddressesPubKeyHash", {
