@@ -1,7 +1,5 @@
 import _thread
 
-_thread.stack_size(12 * 1024)
-
 
 class Thread:
     def __init__(self, group=None, target=None, name=None,
@@ -11,8 +9,12 @@ class Thread:
         self._kwargs = {} if kwargs is None else kwargs
         self._is_alive = False
 
+    def stack_size(self):
+        return 12 * 1024
+
     def start(self):
         self._is_alive = True
+        _thread.stack_size(self.stack_size())
         _thread.start_new_thread(self._bootstrap, ())
 
     def run(self):

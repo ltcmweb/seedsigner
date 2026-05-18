@@ -1,9 +1,39 @@
 from base64 import b64encode
 import json
-from mweb_go import mweb
+import mweb_go
+import queue
+from threading import Thread
+import time
+
+class MwebThread(Thread):
+    _requests = queue.Queue()
+
+    def request(self, f, req):
+        q = queue.Queue()
+        self._requests.put_nowait((f, req, q))
+        while True:
+            try:
+                return q.get_nowait()
+            except queue.Empty:
+                time.sleep(0.1)
+
+    def stack_size(self):
+        return 24 * 1024
+
+    def run(self):
+        mweb_go.init(self.stack_size(), 500000)
+        while True:
+            try:
+                f, req, q = self._requests.get_nowait()
+                q.put_nowait(mweb_go.mweb(f, req))
+            except queue.Empty:
+                time.sleep(0.1)
+
+_thread = MwebThread()
+_thread.start()
 
 def do_req(f, req):
-    res = mweb(f, json.dumps(req))
+    res = _thread.request(f, json.dumps(req))
     try:
         return json.loads(res)
     except ValueError:
