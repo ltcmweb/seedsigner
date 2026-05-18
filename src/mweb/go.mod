@@ -3,7 +3,7 @@ module github.com/ltcmweb/seedsigner/src/mweb
 go 1.24.0
 
 require (
-	github.com/ltcmweb/ltcd v0.25.12
+	github.com/ltcmweb/ltcd v0.25.13
 	github.com/ltcmweb/mwebd/sign v0.1.0
 )
 
