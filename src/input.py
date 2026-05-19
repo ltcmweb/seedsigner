@@ -1,5 +1,6 @@
 import sys
 import select
+import time
 
 from seedsigner.hardware.touchbuttons import TouchButtons
 from seedsigner.models.threads import BaseThread
@@ -28,4 +29,4 @@ class InputThread(BaseThread):
         while True:
             key = self.read_key()
             if key in ['up', 'down', 'left', 'right', '1', '2', '3', 'enter', 'escape']:
-                TouchButtons.get_instance().queue.put_nowait((key, 0, 0))
+                TouchButtons.get_instance().queue.put_nowait((key, 0, 0, time.time()))

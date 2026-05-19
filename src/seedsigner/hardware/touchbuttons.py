@@ -17,7 +17,7 @@ def lvgl_input_cb(op, x, y):
     if op == LV_EVENT_RELEASED:
         op = 'touch_up'
         hw_input.touch_down = False
-    hw_input.queue.put_nowait((op, x, y))
+    hw_input.queue.put_nowait((op, x, y, time.time()))
 
 
 class TouchButtons(Singleton):
@@ -78,9 +78,11 @@ class TouchButtons(Singleton):
                 continue
 
             try:
-                op, x, y = self.queue.get_nowait()
+                op, x, y, t = self.queue.get_nowait()
             except queue.Empty:
                 time.sleep(0.1)
+                continue
+            if time.time() - t > 0.2:
                 continue
             self.update_last_input_time()
 
@@ -127,7 +129,9 @@ class TouchButtons(Singleton):
         try:
             result = self.touch_down
             while True:
-                op, x, y = self.queue.get_nowait()
+                op, x, y, t = self.queue.get_nowait()
+                if time.time() - t > 0.2:
+                    continue
                 if not op.startswith('touch_'):
                     result = True
                 self.update_last_input_time()

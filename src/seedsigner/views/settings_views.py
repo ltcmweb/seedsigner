@@ -6,7 +6,7 @@ from seedsigner.gui.screens import (RET_CODE__BACK_BUTTON, ButtonListScreen, set
 from seedsigner.gui.screens.screen import ButtonOption
 from seedsigner.models.settings import Settings, SettingsConstants, SettingsDefinition
 
-from .view import View, Destination, MainMenuView
+from .view import View, Destination, MainMenuView, BackStackView
 
 logger = logging.getLogger(__name__)
 
@@ -74,15 +74,10 @@ class SettingsMenuView(View):
         )
 
         # Preserve our scroll position in this Screen so we can return
-        initial_scroll = self.screen.buttons[0].scroll_y
+        self.initial_scroll = self.screen.buttons[0].scroll_y
 
         if selected_menu_num == RET_CODE__BACK_BUTTON:
-            if self.visibility == SettingsConstants.VISIBILITY__GENERAL:
-                return Destination(MainMenuView)
-            elif self.visibility == SettingsConstants.VISIBILITY__ADVANCED:
-                return Destination(SettingsMenuView)
-            else:
-                return Destination(SettingsMenuView, view_args={"visibility": SettingsConstants.VISIBILITY__ADVANCED})
+            return Destination(BackStackView)
         
         if button_data[selected_menu_num] == self.ADVANCED:
             return next_destination
@@ -96,11 +91,12 @@ class SettingsMenuView(View):
         elif button_data[selected_menu_num] == self.DONATE:
             return Destination(DonateView)
 
-        elif settings_entries[selected_menu_num].attr_name == SettingsConstants.SETTING__LOCALE:
+        self.selected_attr = settings_entries[selected_menu_num].attr_name
+        if self.selected_attr == SettingsConstants.SETTING__LOCALE:
             return Destination(LocaleSelectionView)
 
         else:
-            return Destination(SettingsEntryUpdateSelectionView, view_args=dict(attr_name=settings_entries[selected_menu_num].attr_name, parent_initial_scroll=initial_scroll))
+            return Destination(SettingsEntryUpdateSelectionView, view_args=dict(attr_name=self.selected_attr, parent_initial_scroll=self.initial_scroll))
 
 
 
@@ -135,7 +131,7 @@ class LocaleSelectionView(View):
         )
 
         if selected_menu_num == RET_CODE__BACK_BUTTON:
-            return Destination(SettingsMenuView)
+            return Destination(BackStackView)
 
         # Set the new language
         self.settings.set_value(SettingsConstants.SETTING__LOCALE, button_data[selected_menu_num].return_data)
@@ -193,14 +189,7 @@ class SettingsEntryUpdateSelectionView(View):
         )
 
         destination = None
-        settings_menu_view_destination = Destination(
-            SettingsMenuView,
-            view_args={
-                "visibility": self.settings_entry.visibility,
-                "selected_attr": self.settings_entry.attr_name,
-                "initial_scroll": self.parent_initial_scroll,
-            }
-        )
+        settings_menu_view_destination = Destination(BackStackView)
 
         if ret_value == RET_CODE__BACK_BUTTON:
             if self.settings_entry.type == SettingsConstants.TYPE__MULTISELECT:
@@ -294,7 +283,7 @@ class SettingsSelectionRequiredWarningView(View):
             show_back_button=False,
         )
 
-        return Destination(SettingsEntryUpdateSelectionView, view_args=dict(attr_name=self.settings_entry.attr_name))
+        return Destination(BackStackView)
 
 
 

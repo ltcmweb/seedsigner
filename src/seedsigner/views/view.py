@@ -135,6 +135,10 @@ class Destination:
     clear_history: bool = field(4, default=False)         # Optionally clears the back_stack to prevent "back"
 
 
+    def __post_init__(self):
+        self.view = None
+
+
     def __repr__(self):
         if self.View_cls is None:
             out = "None"
@@ -150,6 +154,8 @@ class Destination:
 
 
     def _instantiate_view(self):
+        if self.view: return
+
         if not self.view_args:
             # Can't unpack (**) None so we replace with an empty dict
             self.view_args = {}
