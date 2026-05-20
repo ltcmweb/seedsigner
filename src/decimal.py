@@ -18,3 +18,11 @@ class Decimal:
 
     def __str__(self):
         return self._str
+
+    def comma(self):
+        s, frac = self._str, ""
+        if "." in s:
+            s, frac = s.split(".")
+        s = f"{int(s):,}"
+        if frac: s += "."
+        return s + frac

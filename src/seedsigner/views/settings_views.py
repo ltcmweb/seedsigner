@@ -340,4 +340,4 @@ class DonateView(View):
     def run(self):
         self.run_screen(settings_screens.DonateScreen)
 
-        return Destination(SettingsMenuView)
+        return Destination(BackStackView)

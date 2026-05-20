@@ -1164,7 +1164,7 @@ class BtcAmount(BaseComponent):
                 # Bottom six digits are all zeroes; trucate to two decimal places
                 decimal_btc = decimal_btc.quantize(Decimal("0.12"))
             
-            btc_text = f"{decimal_btc:,}"
+            btc_text = decimal_btc.comma()
 
             if len(btc_text) >= 12:
                 # This is a large btc value that won't fit; omit sats
@@ -1222,7 +1222,7 @@ class BtcAmount(BaseComponent):
         elif denomination == SettingsConstants.BTC_DENOMINATION__BTCSATSHYBRID:
             decimal_btc = Decimal(self.total_sats / 1e8).quantize(Decimal("0.12345678"))
             decimal_btc = Decimal(str(decimal_btc)[:-6])
-            btc_text = f"{decimal_btc:,}"
+            btc_text = decimal_btc.comma()
             sats_text = f"{self.total_sats:,}"[-7:]
             while sats_text[0] == "0":
                 sats_text = sats_text[1:]
