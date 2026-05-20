@@ -1,6 +1,3 @@
-import qrcode
-from qrcode.image.styledpil import StyledPilImage
-from qrcode.image.styles.moduledrawers import CircleModuleDrawer, GappedSquareModuleDrawer
 from PIL import Image, ImageDraw
 
 class QR:
@@ -17,7 +14,7 @@ class QR:
         qr.add_data(data)
         qr.make(fit=True)
         if not style or style == QR.STYLE__DEFAULT:
-            return qr.make_image(fill_color="black", back_color=background_color).resize((width,height))
+            return qr.make_image(fill_color="black", back_color=background_color).resize((width,height)).convert('RGBA')
         else:
             if style == QR.STYLE__ROUNDED:
                 qr_image = qr.make_image(
@@ -89,7 +86,7 @@ class QR:
                 ).resize((width,height)).convert('RGBA')
 
 
-    def qrimage_c(self, data, width=240, height=240, border=3, style=None, background_color="#444"):
+    def qrimage_c(self, data, width=240, height=240, border=3):
         import qrcode_c
         data = qrcode_c.encode_to_string(data)
         rows = data.splitlines()
@@ -113,7 +110,7 @@ class QR:
 
         # if qrencode fails, fall back to only encoder
         if rv != 0:
-            return self.qrimage_c(data,width,height,border,None,"white")
+            return self.qrimage_c(data,width,height,border)
         img = Image.open("/tmp/qrcode.png").resize((width,height), Image.Resampling.NEAREST).convert("RGBA")
 
         return img

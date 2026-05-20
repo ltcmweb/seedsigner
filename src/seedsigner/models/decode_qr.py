@@ -6,8 +6,6 @@ import zlib
 
 from binascii import a2b_base64, b2a_base64
 from embit import psbt, bip39
-from pyzbar import pyzbar
-from pyzbar.pyzbar import ZBarSymbol
 from urtypes.crypto import PSBT as UR_PSBT
 from urtypes.crypto import Account, Output
 from urtypes.bytes import Bytes
@@ -324,7 +322,8 @@ class DecodeQR:
         if image is None:
             return None
 
-        barcodes = pyzbar.decode(image, symbols=[ZBarSymbol.QRCODE], binary=is_binary)
+        import k_quirc
+        barcodes = k_quirc.decode_rgb565(image.tobytes(), image.width, image.height, True)
 
         # if barcodes:
             # print("--------------- extract_qr_data ---------------")
@@ -332,7 +331,7 @@ class DecodeQR:
 
         for barcode in barcodes:
             # Only pull and return the first barcode
-            return barcode.data
+            return barcode.decode()
 
 
     @staticmethod
