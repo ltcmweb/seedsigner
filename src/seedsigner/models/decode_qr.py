@@ -1172,7 +1172,7 @@ class GenericWalletQrDecoder(BaseSingleFrameQrDecoder):
             self.complete = True
             return DecodeQRStatus.COMPLETE
         except Exception as e:
-            logger.info(repr(e), exc_info=True)
+            logger.exception(repr(e), exc_info=e)
         return DecodeQRStatus.INVALID
     
 

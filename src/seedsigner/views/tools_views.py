@@ -158,7 +158,7 @@ class ToolsImageEntropyMnemonicLengthView(View):
                 serial_hash = hashlib.sha256(serial_num)
                 hash_bytes = serial_hash.digest()
             except Exception as e:
-                logger.exception(repr(e), exc_info=True)
+                logger.exception(repr(e), exc_info=e)
                 hash_bytes = b'0'
 
             # Build in modest entropy via millis since power on

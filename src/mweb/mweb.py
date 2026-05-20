@@ -12,10 +12,9 @@ class MwebThread(Thread):
         q = queue.Queue()
         self._requests.put_nowait((f, req, q))
         while True:
-            try:
+            if not q.empty():
                 return q.get_nowait()
-            except queue.Empty:
-                time.sleep(0.1)
+            time.sleep(0.1)
 
     def stack_size(self):
         return 24 * 1024
@@ -23,11 +22,11 @@ class MwebThread(Thread):
     def run(self):
         mweb_go.init(self.stack_size(), 500000)
         while True:
-            try:
-                f, req, q = self._requests.get_nowait()
-                q.put_nowait(mweb_go.mweb(f, req))
-            except queue.Empty:
+            if self._requests.empty():
                 time.sleep(0.1)
+                continue
+            f, req, q = self._requests.get_nowait()
+            q.put_nowait(mweb_go.mweb(f, req))
 
 _thread = MwebThread()
 _thread.start()

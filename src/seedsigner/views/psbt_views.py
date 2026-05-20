@@ -555,10 +555,12 @@ class PSBTFinalizeView(View):
             loading_screen = LoadingScreenThread(text=_("Signing PSBT..."))
             loading_screen.start()
 
-            psbt.sign(psbt_parser.root.derive("m/1000'"))
-            psbt.sign_pub_key_hash(psbt_parser.root.derive(derivation_path))
+            try:
+                psbt.sign(psbt_parser.root.derive("m/1000'"))
+                psbt.sign_pub_key_hash(psbt_parser.root.derive(derivation_path))
+            finally:
+                loading_screen.stop()
 
-            loading_screen.stop()
             return Destination(PSBTSignedQRDisplayView)
 
         else:

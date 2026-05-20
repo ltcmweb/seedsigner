@@ -430,7 +430,7 @@ class PSBTParser():
                     derived_key = root.derive(derivation_path_obj.derivation)
                     return derived_key.key.sec() == public_key.sec() # Public keys match
                 except Exception as e:
-                    logger.debug("Fingerprint fallback derive failed: %s", e, exc_info=True)
+                    logger.exception("Fingerprint fallback derive failed: %s", e, exc_info=e)
             return False
         
         # Check all derivations in all inputs

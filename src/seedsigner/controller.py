@@ -333,7 +333,7 @@ class Controller(Singleton):
                 except Exception as e:
                     # Display user-friendly error screen w/debugging info
                     import traceback
-                    traceback.print_exc()
+                    traceback.print_exception(e)
                     next_destination = self.handle_exception(e)
 
                 if not next_destination:
@@ -447,11 +447,12 @@ class Controller(Singleton):
         """
         from seedsigner.views.view import UnhandledExceptionView
         logger.exception(e)
+        tb = traceback.format_exception(e)
 
         # The final exception output line is:
         # "foo.bar.ExceptionType: The exception message"
         # So we extract the Exception type and trim off any "foo.bar." namespacing:
-        last_line = [x for x in traceback.format_exc().splitlines() if x][-1]
+        last_line = tb[-1]
         exception_type = last_line.split(":")[0].split(".")[-1]
 
         # Extract the error message, if there is one
@@ -461,9 +462,9 @@ class Controller(Singleton):
             exception_msg = ""
 
         # Scan for the last debugging line that includes a line number reference
-        line_info = ""
-        for i in range(len(traceback.format_exc().splitlines()) - 1, 0, -1):
-            traceback_line = traceback.format_exc().splitlines()[i]
+        line_info = None
+        for i in range(len(tb) - 1, 0, -1):
+            traceback_line = tb[i]
             if ", line " in traceback_line:
                 line_info = traceback_line.split("/")[-1].replace("\"", "").replace("line ", "")
                 break

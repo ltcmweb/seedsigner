@@ -77,11 +77,10 @@ class TouchButtons(Singleton):
                 self.update_last_input_time()
                 continue
 
-            try:
-                op, x, y, t = self.queue.get_nowait()
-            except queue.Empty:
+            if self.queue.empty():
                 time.sleep(0.1)
                 continue
+            op, x, y, t = self.queue.get_nowait()
             if time.time() - t > 0.2:
                 continue
             self.update_last_input_time()
@@ -126,15 +125,14 @@ class TouchButtons(Singleton):
         self.override_ind = True
 
     def has_any_input(self) -> bool:
-        try:
-            result = self.touch_down
-            while True:
-                op, x, y, t = self.queue.get_nowait()
-                if time.time() - t > 0.2:
-                    continue
-                if not op.startswith('touch_'):
-                    result = True
-                self.update_last_input_time()
-                self._last_pos = x, y
-        except queue.Empty:
-            return result
+        result = self.touch_down
+        while True:
+            if self.queue.empty():
+                return result
+            op, x, y, t = self.queue.get_nowait()
+            if time.time() - t > 0.2:
+                continue
+            if not op.startswith('touch_'):
+                result = True
+            self.update_last_input_time()
+            self._last_pos = x, y

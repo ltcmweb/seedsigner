@@ -118,7 +118,7 @@ class ScanView(View):
                         p = re.compile(r'(\[[0-9,a-f,A-F]+?\/[0-9,\/,h,\']+?\][a-z,A-Z,0-9]*?)([\,,\)])')
                         descriptor_str = p.sub(r'\1/{0,1}/*\2', descriptor_str)
                 except Exception as e:
-                    logger.exception(repr(e), exc_info=True)
+                    logger.exception(repr(e), exc_info=e)
                     descriptor_str = orig_descriptor_str
 
                 descriptor = Descriptor.from_string(descriptor_str)
