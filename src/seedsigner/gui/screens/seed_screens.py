@@ -1223,8 +1223,7 @@ class SeedTranscribeSeedQRWholeQRScreen(WarningEdgesMixin, ButtonListScreen):
             width=qr_width,
             height=qr_height,
             border=1,
-            style=QR.STYLE__ROUNDED
-        ).convert("RGBA")
+        )
 
         self.paste_images.append((qr_image, (int((self.canvas_width - qr_width)/2), self.top_nav.height)))
 

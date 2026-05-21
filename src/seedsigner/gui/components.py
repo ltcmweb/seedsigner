@@ -1781,7 +1781,6 @@ class TopNav(BaseComponent):
 
 
     def render(self):
-        self.image_draw.rectangle((0, 0, self.width, self.height - 1), fill=0)
         self.title.render()
         self.render_buttons()
     

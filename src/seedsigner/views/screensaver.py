@@ -204,7 +204,6 @@ class ScreensaverScreen(LogoScreen):
         with self.renderer.lock:
             try:
                 while self._is_running:
-                    time.sleep(0.05)
                     if self.buttons.has_any_input() or self.buttons.override_ind:
                         break
 
