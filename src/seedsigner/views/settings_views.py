@@ -136,7 +136,7 @@ class LocaleSelectionView(View):
         # Set the new language
         self.settings.set_value(SettingsConstants.SETTING__LOCALE, button_data[selected_menu_num].return_data)
 
-        return Destination(SettingsMenuView)
+        return Destination(BackStackView)
 
 
 

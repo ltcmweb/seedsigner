@@ -12,7 +12,7 @@ class LvglDisplay(BaseDisplayDriver):
     def __post_init__(self):
         self.canvas = Image.new('RGB', (self.width, self.height), visible=True)
 
-    def invert(self, enabled):
+    def invert(self, enabled=True):
         lvgl.invert(enabled)
 
     def show_image(self, image, x_start, y_start):
