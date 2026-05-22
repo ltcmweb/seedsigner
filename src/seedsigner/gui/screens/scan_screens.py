@@ -65,6 +65,7 @@ class ScanScreen(BaseScreen):
         self.camera.start_video_stream_mode(resolution=self.resolution, framerate=self.framerate, format="rgb")
 
         self.frames_decode_status = ThreadsafeCounter()
+        self.frames_decode_percent = ThreadsafeCounter()
 
         self.frame_preview = Image.new("RGB565", self.resolution)
         self.frame_updated = False
@@ -77,11 +78,12 @@ class ScanScreen(BaseScreen):
             instructions_text=self.instructions_text,
             render_rect=self.render_rect,
             frame_decode_status=self.frames_decode_status,
+            frame_decode_percent=self.frames_decode_percent,
         ))
 
 
     class LivePreviewThread(BaseThread):
-        def __init__(self, screen, decoder: DecodeQR, renderer: renderer.Renderer, instructions_text: str, render_rect: tuple[int,int,int,int], frame_decode_status: ThreadsafeCounter):
+        def __init__(self, screen, decoder: DecodeQR, renderer: renderer.Renderer, instructions_text: str, render_rect: tuple[int,int,int,int], frame_decode_status: ThreadsafeCounter, frame_decode_percent: ThreadsafeCounter):
             from seedsigner.hardware.camera import Camera
 
             self.camera = Camera.get_instance()
@@ -94,6 +96,7 @@ class ScanScreen(BaseScreen):
             else:
                 self.render_rect = (0, 0, self.renderer.canvas_width, self.renderer.canvas_height)
             self.frame_decode_status = frame_decode_status
+            self.frame_decode_percent = frame_decode_percent
             self.render_width = self.render_rect[2] - self.render_rect[0]
             self.render_height = self.render_rect[3] - self.render_rect[1]
             self.decoder_fps = "0.0"
@@ -116,7 +119,7 @@ class ScanScreen(BaseScreen):
                     num_frames += 1
                     
                     scan_text = None
-                    progress_percentage = self.decoder.get_percent_complete()
+                    progress_percentage = self.frame_decode_percent.cur_count
                     if progress_percentage == 0:
                         # We've just started scanning, no results yet
                         scan_text = self.instructions_text
@@ -181,7 +184,7 @@ class ScanScreen(BaseScreen):
                                 radius=8
                             )
 
-                            progress_percentage = self.decoder.get_percent_complete(weight_mixed_frames=True)
+                            progress_percentage = self.frame_decode_percent.cur_count
                             draw.rounded_rectangle(
                                 (
                                     progress_bar_xy[0],
@@ -273,6 +276,7 @@ class ScanScreen(BaseScreen):
                     if status == DecodeQRStatus.PART_COMPLETE:
                         # We received a valid frame that added new data
                         self.frames_decode_status.set_value(self.FRAME__ADDED_PART)
+                        self.frames_decode_percent.set_value(self.decoder.get_percent_complete())
 
                     elif status == DecodeQRStatus.PART_EXISTING:
                         # We received a valid frame, but we've already seen in

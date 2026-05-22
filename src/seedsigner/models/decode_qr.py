@@ -11,7 +11,7 @@ from urtypes.crypto import Account, Output
 from urtypes.bytes import Bytes
 from base64 import b32encode, b32decode
 
-from seedsigner.helpers.ur2.ur_decoder import URDecoder
+from ur import URDecoder
 from seedsigner.models.qr_type import QRType
 from seedsigner.models.seed import Seed
 from seedsigner.models.settings import SettingsConstants
@@ -162,7 +162,7 @@ class DecodeQR:
     def get_data_psbt(self):
         if self.complete:
             if self.qr_type == QRType.PSBT__UR2:
-                cbor = self.decoder.result_message().cbor
+                cbor = self.decoder.result_message()[1]
                 return UR_PSBT.from_cbor(cbor).data
 
             else:
@@ -216,7 +216,7 @@ class DecodeQR:
     def get_wallet_descriptor(self):
         if self.is_wallet_descriptor:
             if self.qr_type in [QRType.OUTPUT__UR, QRType.ACCOUNT__UR, QRType.BYTES__UR]:
-                cbor = self.decoder.result_message().cbor
+                cbor = self.decoder.result_message()[1]
                 if self.qr_type == QRType.OUTPUT__UR:
                     return Output.from_cbor(cbor).descriptor()
                 elif self.qr_type == QRType.ACCOUNT__UR:
@@ -235,7 +235,7 @@ class DecodeQR:
             return 0
 
         if self.qr_type in [QRType.PSBT__UR2, QRType.OUTPUT__UR, QRType.ACCOUNT__UR, QRType.BYTES__UR]:
-            return int(self.decoder.estimated_percent_complete(weight_mixed_frames=weight_mixed_frames) * 100)
+            return int(self.decoder.estimated_percent_complete() * 100)
 
         elif self.qr_type in [QRType.PSBT__SPECTER, QRType.PSBT__BBQR]:
             if self.decoder.total_segments == None:
@@ -305,7 +305,7 @@ class DecodeQR:
         check = self.qr_type in [QRType.WALLET__SPECTER, QRType.WALLET__UR, QRType.WALLET__CONFIGFILE, QRType.WALLET__GENERIC, QRType.OUTPUT__UR]
         
         if self.qr_type in [QRType.BYTES__UR]:
-            cbor = self.decoder.result_message().cbor
+            cbor = self.decoder.result_message()[1]
             raw = Bytes.from_cbor(cbor).data
             data = raw.decode("utf-8").lower()
             check = 'policy:' in data and "format:" in data and "derivation:" in data
