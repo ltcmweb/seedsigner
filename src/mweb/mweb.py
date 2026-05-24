@@ -1,16 +1,17 @@
-from base64 import b64encode
-import json
 import mweb_go
 import queue
+import struct
 from threading import Thread
 import time
+
+from . import msg
 
 class MwebThread(Thread):
     _requests = queue.Queue()
 
-    def request(self, f, req):
+    def request(self, f, m):
         q = queue.Queue()
-        self._requests.put_nowait((f, req, q))
+        self._requests.put_nowait((f, m, q))
         while True:
             if not q.empty():
                 return q.get_nowait()
@@ -20,25 +21,22 @@ class MwebThread(Thread):
         return 24 * 1024
 
     def run(self):
-        mweb_go.init(self.stack_size(), 200000)
+        mweb_go.init(self.stack_size(), 400000)
         while True:
             if self._requests.empty():
                 time.sleep(0.1)
                 continue
-            f, req, q = self._requests.get_nowait()
-            q.put_nowait(mweb_go.mweb(f, req))
+            f, m, q = self._requests.get_nowait()
+            q.put_nowait(mweb_go.mweb(f, m))
 
 _thread = MwebThread()
 _thread.start()
 
-def do_req(f, req):
-    res = _thread.request(f, json.dumps(req))
-    try:
-        return json.loads(res)
-    except ValueError:
-        raise ValueError(res)
-
-def b64(b): return b64encode(b).decode()
+def do_req(f, m):
+    resp = _thread.request(f, m)
+    if isinstance(resp, str):
+        raise ValueError(resp)
+    return resp
 
 _mweb_addr_cache = {}
 _pkh_addr_cache = {}
@@ -59,12 +57,12 @@ def addresses(key, i=None, j=None):
 def _addresses(scan, spendPub, i, j):
     res = []
     for k in range(i, j, 20):
-        res.extend(do_req("Addresses", {
-            "Scan": b64(scan),
-            "SpendPub": b64(spendPub),
-            "From": k,
-            "To": min(k + 20, j),
-        })["Address"])
+        m = bytearray()
+        msg.put_bytes(m, scan)
+        msg.put_bytes(m, spendPub)
+        msg.put_int(m, k)
+        msg.put_int(m, min(k + 20, j))
+        res.extend(msg.get_strs(do_req("Addresses", m))[0])
     return res
 
 def addresses_pub_key_hash(xpub, i=None, j=None):
@@ -81,33 +79,41 @@ def addresses_pub_key_hash(xpub, i=None, j=None):
 def _addresses_pub_key_hash(xpub, i, j):
     res = []
     for k in range(i, j, 40):
-        res.extend(do_req("AddressesPubKeyHash", {
-            "XPub": xpub,
-            "From": k,
-            "To": min(k + 40, j),
-        })["Address"])
+        m = bytearray()
+        msg.put_bytes(m, xpub)
+        msg.put_int(m, k)
+        msg.put_int(m, min(k + 40, j))
+        res.extend(msg.get_strs(do_req("AddressesPubKeyHash", m))[0])
     return res
 
-def psbt_get_recipients(psbtB64):
-    return do_req("PsbtGetRecipients", {
-        "PsbtB64": psbtB64,
-    })
+def psbt_get_recipients(psbt):
+    m = bytearray()
+    msg.put_bytes(m, psbt)
+    m = do_req("PsbtGetRecipients", m)
+    recipients, off = msg.get_recipients(m)
+    inputs, off = msg.get_strs(m, off)
+    fee, = struct.unpack_from("<q", m, off)
+    return {
+        "Recipient": recipients,
+        "InputAddress": inputs,
+        "Fee": fee,
+    }
 
-def psbt_sign(psbtB64, key):
-    return do_req("PsbtSign", {
-        "PsbtB64": psbtB64,
-        "Scan": b64(key.child(0x80000000).key.secret),
-        "Spend": b64(key.child(0x80000001).key.secret),
-    })["PsbtB64"]
+def psbt_sign(psbt, key):
+    m = bytearray()
+    msg.put_bytes(m, psbt)
+    msg.put_bytes(m, key.child(0x80000000).key.secret)
+    msg.put_bytes(m, key.child(0x80000001).key.secret)
+    return msg.get_bytes(do_req("PsbtSign", m))[0]
 
-def psbt_sign_pub_key_hash(psbtB64, key, index):
-    return do_req("PsbtSignPubKeyHash", {
-        "PsbtB64": psbtB64,
-        "PrivKey": b64(key),
-        "Index": index,
-    })["PsbtB64"]
+def psbt_sign_pub_key_hash(psbt, key, index):
+    m = bytearray()
+    msg.put_bytes(m, psbt)
+    msg.put_bytes(m, key)
+    msg.put_int(m, index)
+    return msg.get_bytes(do_req("PsbtSignPubKeyHash", m))[0]
 
-def psbt_finalize(psbtB64):
-    return do_req("PsbtFinalize", {
-        "PsbtB64": psbtB64,
-    })["PsbtB64"]
+def psbt_finalize(psbt):
+    m = bytearray()
+    msg.put_bytes(m, psbt)
+    return msg.get_bytes(do_req("PsbtFinalize", m))[0]

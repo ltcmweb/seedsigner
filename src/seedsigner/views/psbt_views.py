@@ -568,7 +568,7 @@ class PSBTFinalizeView(View):
             sig_cnt = PSBTParser.sig_count(psbt)
             psbt.sign_with(psbt_parser.root)
             try:
-                psbt = PSBT.parse(b64decode(psbt_finalize(psbt.to_string())))
+                psbt = PSBT.parse(psbt_finalize(psbt.serialize()))
             except Exception:
                 pass
             trimmed_psbt = PSBTParser.trim(psbt)

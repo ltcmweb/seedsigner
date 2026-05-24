@@ -1,60 +1,106 @@
 package main
 
+//#include <stdlib.h>
+import "C"
+
 import (
-	"encoding/json"
-	"fmt"
-	"os"
-	"strings"
+	"bytes"
+	"encoding/binary"
+	"errors"
+	"unsafe"
 
 	"github.com/ltcmweb/ltcd/chaincfg"
-	"github.com/ltcmweb/ltcd/ltcutil/psbt"
 	"github.com/ltcmweb/mwebd/sign"
 )
 
-func doReq[Req, Resp any](f func(*Req) (Resp, error)) {
-	var req Req
-	if err := json.Unmarshal([]byte(os.Args[2]), &req); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		return
-	}
-	resp, err := f(&req)
+//export mweb
+func mweb(fn *C.char, m *byte, mlen C.size_t, cerr **C.char) *byte {
+	resp, err := doReq(C.GoString(fn), unsafe.Slice(m, mlen))
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		return
+		*cerr = C.CString(err.Error())
+		return nil
 	}
-	b, _ := json.Marshal(resp)
-	fmt.Println(string(b))
+	return resp
 }
 
-func main() {
-	switch os.Args[1] {
+func doReq(fn string, m []byte) (*byte, error) {
+	r := bytes.NewReader(m)
+	switch fn {
 	case "Addresses":
-		doReq(func(req *sign.AddressesRequest) (sign.AddressesResponse, error) {
-			return sign.Addresses(req, &chaincfg.MainNetParams), nil
-		})
+		var req sign.AddressesRequest
+		if err := req.Deserialize(r); err != nil {
+			return nil, err
+		}
+		resp := sign.Addresses(&req, &chaincfg.MainNetParams)
+		return doResp(&resp)
 	case "AddressesPubKeyHash":
-		doReq(func(req *sign.AddressesPubKeyHashRequest) (sign.AddressesResponse, error) {
-			return sign.AddressesPubKeyHash(req, &chaincfg.MainNetParams)
-		})
+		var req sign.AddressesPubKeyHashRequest
+		if err := req.Deserialize(r); err != nil {
+			return nil, err
+		}
+		resp, err := sign.AddressesPubKeyHash(&req, &chaincfg.MainNetParams)
+		if err != nil {
+			return nil, err
+		}
+		return doResp(&resp)
 	case "PsbtGetRecipients":
-		doReq(func(req *sign.Psbt) (sign.PsbtGetRecipientsResponse, error) {
-			return sign.PsbtGetRecipients(req, &chaincfg.MainNetParams)
-		})
+		var req sign.Psbt
+		if err := req.Deserialize(r); err != nil {
+			return nil, err
+		}
+		resp, err := sign.PsbtGetRecipients(&req, &chaincfg.MainNetParams)
+		if err != nil {
+			return nil, err
+		}
+		return doResp(&resp)
 	case "PsbtSign":
-		doReq(sign.PsbtSign)
+		var req sign.PsbtSignRequest
+		if err := req.Deserialize(r); err != nil {
+			return nil, err
+		}
+		resp, err := sign.PsbtSign(&req)
+		if err != nil {
+			return nil, err
+		}
+		return doResp(&resp)
 	case "PsbtSignPubKeyHash":
-		doReq(sign.PsbtSignPubKeyHash)
+		var req sign.PsbtSignPubKeyHashRequest
+		if err := req.Deserialize(r); err != nil {
+			return nil, err
+		}
+		resp, err := sign.PsbtSignPubKeyHash(&req)
+		if err != nil {
+			return nil, err
+		}
+		return doResp(&resp)
 	case "PsbtFinalize":
-		doReq(func(req *sign.Psbt) (resp sign.Psbt, err error) {
-			p, err := psbt.NewFromRawBytes(strings.NewReader(req.PsbtB64), true)
-			if err != nil {
-				return
-			}
-			if err = psbt.MaybeFinalizeAll(p); err != nil {
-				return
-			}
-			resp.PsbtB64, err = p.B64Encode()
-			return
-		})
+		var req sign.Psbt
+		if err := req.Deserialize(r); err != nil {
+			return nil, err
+		}
+		resp, err := sign.PsbtFinalize(&req)
+		if err != nil {
+			return nil, err
+		}
+		return doResp(&resp)
 	}
+	return nil, errors.New("function unrecognized")
+}
+
+func doResp(resp sign.Message) (*byte, error) {
+	var cw sign.CountWriter
+	if err := resp.Serialize(&cw); err != nil {
+		return nil, err
+	}
+	m := (*byte)(C.malloc(C.size_t(cw.Len + 4)))
+	if m == nil {
+		return nil, errors.New("malloc failed")
+	}
+	buf := bytes.NewBuffer(unsafe.Slice(m, cw.Len+4)[:0])
+	binary.Write(buf, binary.LittleEndian, uint32(cw.Len))
+	if err := resp.Serialize(buf); err != nil {
+		C.free(unsafe.Pointer(m))
+		return nil, err
+	}
+	return m, nil
 }
