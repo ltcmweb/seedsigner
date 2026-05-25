@@ -150,28 +150,25 @@ class ToolsImageEntropyMnemonicLengthView(View):
         try:
             preview_images = self.controller.image_entropy_preview_frames
             seed_entropy_image = self.controller.image_entropy_final_image
+            hasher = hashlib.sha256()
 
             # Build in some hardware-level uniqueness via CPU unique Serial num
             try:
                 import machine
-                serial_num = machine.unique_id()
-                serial_hash = hashlib.sha256(serial_num)
-                hash_bytes = serial_hash.digest()
+                hasher.update(machine.unique_id())
             except Exception as e:
                 logger.exception(repr(e), exc_info=e)
-                hash_bytes = b'0'
 
             # Build in modest entropy via millis since power on
-            millis_hash = hashlib.sha256(hash_bytes + str(time.time()).encode('utf-8'))
-            hash_bytes = millis_hash.digest()
+            hasher.update(str(time.time()).encode('utf-8'))
 
             # Build in better entropy by chaining the preview frames
             for frame in preview_images:
-                img_hash = hashlib.sha256(hash_bytes + frame.tobytes())
-                hash_bytes = img_hash.digest()
+                hasher.update(frame.tobytes())
 
             # Finally build in our headline entropy via the new full-res image
-            final_hash = hashlib.sha256(hash_bytes + seed_entropy_image.tobytes()).digest()
+            hasher.update(seed_entropy_image.tobytes())
+            final_hash = hasher.digest()
 
             if mnemonic_length == 12:
                 # 12-word mnemonic only uses the first 128 bits / 16 bytes of entropy
@@ -184,7 +181,6 @@ class ToolsImageEntropyMnemonicLengthView(View):
             seed_entropy_image = None
             preview_images = None
             final_hash = None
-            hash_bytes = None
             self.controller.image_entropy_preview_frames = None
             self.controller.image_entropy_final_image = None
 

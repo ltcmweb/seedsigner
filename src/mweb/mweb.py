@@ -21,7 +21,7 @@ class MwebThread(Thread):
         return 24 * 1024
 
     def run(self):
-        mweb_go.init(self.stack_size(), 400000)
+        mweb_go.init(self.stack_size(), 512 * 1024)
         while True:
             if self._requests.empty():
                 time.sleep(0.1)

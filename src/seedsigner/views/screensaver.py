@@ -8,6 +8,7 @@ from gettext import gettext as _
 
 from seedsigner.gui.components import Fonts, GUIConstants, load_image
 from seedsigner.gui.screens.screen import BaseScreen
+from seedsigner.models.gc import Gc
 from seedsigner.models.settings import Settings
 from seedsigner.models.settings_definition import SettingsConstants
 from seedsigner.views.view import View
@@ -204,7 +205,9 @@ class ScreensaverScreen(LogoScreen):
         with self.renderer.lock:
             try:
                 while self._is_running:
+                    Gc.get_instance().pause()
                     if self.buttons.has_any_input() or self.buttons.override_ind:
+                        Gc.get_instance().resume()
                         break
 
                     # Must crop the image to the exact display size

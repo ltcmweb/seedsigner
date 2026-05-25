@@ -7,6 +7,7 @@ from embit.psbt import PSBT
 from PIL.Image import Image
 
 from seedsigner.gui.toast import BaseToastOverlayManagerThread
+from seedsigner.models.gc import Gc
 from seedsigner.models.psbt_parser import PSBTParser
 from seedsigner.models.seed import Seed
 from seedsigner.models.seed_storage import SeedStorage
@@ -178,6 +179,7 @@ class Controller(Singleton):
             logger.warning("libraqm support: NOT AVAILABLE - Complex text rendering may be limited")
 
         # models
+        controller.gc = Gc.get_instance()
         controller.settings = Settings.get_instance()
         
         controller.microsd = MicroSD.get_instance()

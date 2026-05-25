@@ -13,6 +13,7 @@ from typing import Any, List, Tuple
 
 from seedsigner.gui.renderer import Renderer
 from seedsigner.hardware.buttons import HardwareButtons
+from seedsigner.models.gc import Gc
 from seedsigner.models.settings import Settings
 from seedsigner.models.settings_definition import SettingsConstants
 from seedsigner.models.singleton import Singleton
@@ -633,7 +634,9 @@ class TextArea(BaseComponent):
             cur_hold_duration = None
 
             while self.keep_running:
+                Gc.get_instance().pause()
                 if not self.scrolling_active:
+                    Gc.get_instance().resume()
                     return
 
                 if cur_hold_duration is not None:
