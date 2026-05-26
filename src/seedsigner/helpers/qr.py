@@ -94,9 +94,10 @@ class QR:
         scale_x, scale_y = width // qr_w, height // qr_h
         x_off = (width - qr_w * scale_x) // 2 + border * scale_x
         y_off = (height - qr_h * scale_y) // 2 + border * scale_y
-        buf = bytearray(width * height * 2)
-        qrcode_c.encode_to_rgb565(buf, data + '\n\0', width, scale_x, scale_y, y_off * width + x_off)
-        return Image.frombytes('RGB565', (width, height), buf)
+        image = Image.new('RGB565', (width, height))
+        qrcode_c.encode_to_rgb565(image.tobytes(), data + '\n\0', width,
+                                  scale_x, scale_y, y_off * width + x_off)
+        return image
 
 
     def qrimage_io(self, data, width=240, height=240, border=3, background_color="808080"):

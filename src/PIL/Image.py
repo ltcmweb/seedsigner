@@ -63,11 +63,6 @@ def new(mode, size, color=0, visible=False):
 def open(name):
     return Image(lvgl.load(pyopen(name, 'rb').read()))
 
-def frombytes(mode, size, data):
-    canvas = lvgl.Canvas(mode, size)
-    canvas.setbytes(data)
-    return Image(canvas)
-
 def alpha_composite(back, front):
     image = back.convert('RGBA')
     front.canvas.copyto(image.canvas, (0, 0))

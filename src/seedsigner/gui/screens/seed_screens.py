@@ -1262,7 +1262,6 @@ class SeedTranscribeSeedQRZoomedInScreen(BaseScreen):
 
         self.modules = qrcode_c.encode_to_string(self.qr_data).splitlines()
         zone_pixels = self.modules_per_zone * self.pixels_per_module
-        self.qr_buf = bytearray(zone_pixels * zone_pixels * 2)
         self.qr_image = Image.new("RGB565", self.canvas.size)
         self.zone_image = Image.new("RGB565", (zone_pixels, zone_pixels))
 
@@ -1362,8 +1361,9 @@ class SeedTranscribeSeedQRZoomedInScreen(BaseScreen):
         data = ""
         for row in self.modules[y * self.modules_per_zone : (y + 1) * self.modules_per_zone]:
             data += row[x * self.modules_per_zone : (x + 1) * self.modules_per_zone] + '\n'
-        qrcode_c.encode_to_rgb565(self.qr_buf, data + '\0', self.modules_per_zone * self.pixels_per_module, self.pixels_per_module, self.pixels_per_module, 0)
-        self.zone_image.canvas.setbytes(self.qr_buf)
+        qrcode_c.encode_to_rgb565(self.zone_image.tobytes(), data + '\0',
+                                  self.modules_per_zone * self.pixels_per_module,
+                                  self.pixels_per_module, self.pixels_per_module, 0)
 
 
     def _render(self):

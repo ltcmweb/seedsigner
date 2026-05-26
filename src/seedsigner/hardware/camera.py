@@ -31,7 +31,6 @@ class Camera(Singleton):
         import camera
         dim = max(resolution)
         camera.start(dim, dim)
-        self._buffer = bytearray(dim * dim * 2)
         self._resolution = dim, dim
         return camera
 
@@ -52,9 +51,7 @@ class Camera(Singleton):
             raise Exception("Must call start_video_stream first.")
         if frame.width != self._resolution[0]:
             raise Exception("Frame width doesn't match camera.")
-        self._video_stream.read(self._buffer)
-        offset = (self._resolution[1] - frame.height) * frame.width
-        frame.canvas.setbytes(memoryview(self._buffer)[offset:])
+        self._video_stream.read(frame.tobytes(), (self._resolution[1] - frame.height) // 2)
 
 
     def stop_video_stream_mode(self):
@@ -80,8 +77,9 @@ class Camera(Singleton):
         if self._picamera is None:
             raise Exception("Must call start_single_frame_mode first.")
 
-        self._picamera.read(self._buffer)
-        return Image.frombytes('RGB565', self._resolution, self._buffer)
+        frame = Image.new('RGB565', self._resolution)
+        self._picamera.read(frame.tobytes(), 0)
+        return frame
 
 
     def stop_single_frame_mode(self):
