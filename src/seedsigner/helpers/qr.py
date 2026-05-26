@@ -6,6 +6,7 @@ class QR:
     STYLE__GRID = 3
 
     def __init__(self) -> None:
+        self.image = None
         return
 
     def qrimage(self, data, width=240, height=240, border=3, style=None, background_color="#444"):
@@ -94,10 +95,11 @@ class QR:
         scale_x, scale_y = width // qr_w, height // qr_h
         x_off = (width - qr_w * scale_x) // 2 + border * scale_x
         y_off = (height - qr_h * scale_y) // 2 + border * scale_y
-        image = Image.new('RGB565', (width, height))
-        qrcode_c.encode_to_rgb565(image.tobytes(), data + '\n\0', width,
+        if not self.image or self.image.size != (width, height):
+            self.image = Image.new('RGB565', (width, height))
+        qrcode_c.encode_to_rgb565(self.image.tobytes(), data + '\n\0', width,
                                   scale_x, scale_y, y_off * width + x_off)
-        return image
+        return self.image
 
 
     def qrimage_io(self, data, width=240, height=240, border=3, background_color="808080"):
