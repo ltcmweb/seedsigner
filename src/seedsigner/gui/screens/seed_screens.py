@@ -1361,6 +1361,7 @@ class SeedTranscribeSeedQRZoomedInScreen(BaseScreen):
         data = ""
         for row in self.modules[y * self.modules_per_zone : (y + 1) * self.modules_per_zone]:
             data += row[x * self.modules_per_zone : (x + 1) * self.modules_per_zone] + '\n'
+        ImageDraw.Draw(self.zone_image).rectangle((0, 0) + self.zone_image.size, fill="white")
         qrcode_c.encode_to_rgb565(self.zone_image.tobytes(), data + '\0',
                                   self.modules_per_zone * self.pixels_per_module,
                                   self.pixels_per_module, self.pixels_per_module, 0)
@@ -1407,6 +1408,7 @@ class SeedTranscribeSeedQRZoomedInScreen(BaseScreen):
 
     def _run(self):
         Button(width=self.canvas_width, height=self.canvas_height)
+        down_x = down_y = None
         while True:
             input = self.hw_inputs.wait_for(HardwareButtonsConstants.ALL_KEYS)
 
@@ -1415,14 +1417,15 @@ class SeedTranscribeSeedQRZoomedInScreen(BaseScreen):
 
             elif input == HardwareButtonsConstants.TOUCH_MOVE:
                 last_x, last_y = self.hw_inputs.get_last_pos()
-                if down_x - last_x > 40:
-                    input = HardwareButtonsConstants.KEY_RIGHT
-                elif last_x - down_x > 40:
-                    input = HardwareButtonsConstants.KEY_LEFT
-                elif down_y - last_y > 40:
-                    input = HardwareButtonsConstants.KEY_DOWN
-                elif last_y - down_y > 40:
-                    input = HardwareButtonsConstants.KEY_UP
+                if down_x is not None and down_y is not None:
+                    if down_x - last_x > 40:
+                        input = HardwareButtonsConstants.KEY_RIGHT
+                    elif last_x - down_x > 40:
+                        input = HardwareButtonsConstants.KEY_LEFT
+                    elif down_y - last_y > 40:
+                        input = HardwareButtonsConstants.KEY_DOWN
+                    elif last_y - down_y > 40:
+                        input = HardwareButtonsConstants.KEY_UP
                 if input != HardwareButtonsConstants.TOUCH_MOVE:
                     down_x, down_y = last_x, last_y
 

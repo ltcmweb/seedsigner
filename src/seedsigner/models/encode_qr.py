@@ -53,11 +53,11 @@ class BaseQrEncoder:
         raise Exception("Not implemented in child class")
 
 
-    def part_to_image(self, part, width, height, border: int = 3, background_color: str = "ffffff"):
+    def part_to_image(self, part, width, height, border: int = 3, background_color: str = "#ffffff"):
         return self.qr.qrimage_io(part, width, height, border, background_color=background_color)
 
 
-    def next_part_image(self, width=240, height=240, border=3, background_color="bdbdbd"):
+    def next_part_image(self, width=240, height=240, border=3, background_color="#bdbdbd"):
         part = self.next_part()
         return self.part_to_image(part, width, height, border, background_color=background_color)
 

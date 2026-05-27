@@ -900,7 +900,7 @@ class QRDisplayScreen(BaseScreen):
             # brightness setting.
             while self.keep_running:
                 # convert the self.qr_brightness integer (31-255) into hex triplets
-                hex_color = (hex(self.qr_brightness.cur_count).split('x')[1]) * 3
+                hex_color = '#' + (hex(self.qr_brightness.cur_count).split('x')[1]) * 3
 
                 # Display the brightness tips toast
                 duration = 10 ** 9 * 1.2  # 1.2 seconds
@@ -945,8 +945,23 @@ class QRDisplayScreen(BaseScreen):
         from seedsigner.models.settings import Settings
 
         Button(width=self.canvas_width, height=self.canvas_height)
+        down_y = None
         while True:
             user_input = self.hw_inputs.wait_for(HardwareButtonsConstants.ALL_KEYS)
+
+            if user_input == HardwareButtonsConstants.TOUCH_DOWN:
+                _, down_y = self.hw_inputs.get_last_pos()
+
+            elif user_input == HardwareButtonsConstants.TOUCH_MOVE:
+                _, last_y = self.hw_inputs.get_last_pos()
+                if down_y is not None:
+                    if last_y - down_y > 10:
+                        user_input = HardwareButtonsConstants.KEY_DOWN
+                    elif down_y - last_y > 10:
+                        user_input = HardwareButtonsConstants.KEY_UP
+                if user_input != HardwareButtonsConstants.TOUCH_MOVE:
+                    down_y = last_y
+
             if user_input == HardwareButtonsConstants.KEY_DOWN:
                 # Reduce QR code background brightness
                 self.qr_brightness.set_value(max(31, self.qr_brightness.cur_count - 31))
@@ -957,7 +972,7 @@ class QRDisplayScreen(BaseScreen):
                 self.qr_brightness.set_value(min(self.qr_brightness.cur_count + 31, 255))
                 self.tips_start_time.set_value(time.time_ns())
 
-            else:
+            elif user_input == HardwareButtonsConstants.KEY_PRESS:
                 # Any other input exits the screen
                 self.threads[-1].stop()
                 while self.threads[-1].is_alive():
