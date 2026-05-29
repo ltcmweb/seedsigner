@@ -62,7 +62,7 @@ func doReq(fn string, m []byte) (*byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		return doResp(&resp)
+		return doResp(resp)
 	case "PsbtSignPubKeyHash":
 		var req sign.PsbtSignPubKeyHashRequest
 		if err := req.Deserialize(r); err != nil {
@@ -72,7 +72,7 @@ func doReq(fn string, m []byte) (*byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		return doResp(&resp)
+		return doResp(resp)
 	case "PsbtFinalize":
 		var req sign.Psbt
 		if err := req.Deserialize(r); err != nil {
@@ -82,12 +82,12 @@ func doReq(fn string, m []byte) (*byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		return doResp(&resp)
+		return doResp(resp)
 	}
 	return nil, errors.New("function unrecognized")
 }
 
-func doResp(resp sign.Message) (*byte, error) {
+func doResp(resp sign.Serializer) (*byte, error) {
 	var cw sign.CountWriter
 	if err := resp.Serialize(&cw); err != nil {
 		return nil, err

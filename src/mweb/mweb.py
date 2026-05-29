@@ -104,16 +104,16 @@ def psbt_sign(psbt, key):
     msg.put_bytes(m, psbt)
     msg.put_bytes(m, key.child(0x80000000).key.secret)
     msg.put_bytes(m, key.child(0x80000001).key.secret)
-    return msg.get_bytes(do_req("PsbtSign", m))[0]
+    return do_req("PsbtSign", m)
 
 def psbt_sign_pub_key_hash(psbt, key, index):
     m = bytearray()
     msg.put_bytes(m, psbt)
     msg.put_bytes(m, key)
     msg.put_int(m, index)
-    return msg.get_bytes(do_req("PsbtSignPubKeyHash", m))[0]
+    return do_req("PsbtSignPubKeyHash", m)
 
 def psbt_finalize(psbt):
     m = bytearray()
     msg.put_bytes(m, psbt)
-    return msg.get_bytes(do_req("PsbtFinalize", m))[0]
+    return do_req("PsbtFinalize", m)
